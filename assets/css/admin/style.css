@@ -1,0 +1,94 @@
+/* ***** Plugin Settings ***** */
+.wpg-table-block-heading th {
+	background: #DDD;
+	font-weight: bold;
+	padding: 10px 7px;
+	border-radius: 5px;
+}
+
+.wpg-settings-wrapper {
+	margin:10px 0 0 0;
+}
+
+.wpg-settings-wrapper td {
+	position:relative;
+}
+
+/* jQuery Tooltip */
+.wpg-settings-wrapper .wpg-tooltip {
+	cursor:pointer;
+	width:12px;
+	height:12px;
+	background:url("../../images/info.png") no-repeat;
+	position:absolute;
+	left:-10px;
+	top:20px;
+}
+
+.tooltipster-content ul {
+	list-style:disc;
+	margin-left:20px;
+}
+
+/* jQuery Tabs */
+.wpg-settings-wrapper .wpg-tabs {
+	padding: 0px; 
+	background: none; 
+	border-width: 0px; 
+}
+
+.wpg-settings-wrapper .wpg-tabs a, .wpg-settings-wrapper .wpg-tabs a:focus, .wpg-settings-wrapper .wpg-tabs a:active {
+	outline: 0;
+	box-shadow:none;
+}
+
+.wpg-settings-wrapper .wpg-tabs .ui-tabs-nav {
+	padding-left: 0px; 
+	background: transparent; 
+	border-width: 0px 0px 1px 0px; 
+	-moz-border-radius: 0px; 
+	-webkit-border-radius: 0px; 
+	border-radius: 0px;
+}
+
+.wpg-settings-wrapper .wpg-tabs .ui-tabs-panel {
+	background: #fff; 
+	border-width: 0px 1px 1px 1px; 
+}
+
+.wpg-settings-wrapper .wpg-tabs .ui-tabs-nav li {
+	margin-right:5px;
+}
+
+.wpg-settings-wrapper .wpg-tabs .ui-tabs-nav li.ui-state-active {
+	margin-bottom: 0;
+	padding-bottom: 1px;
+}
+
+/* ***** Plugin User Guide ***** */
+.wpg-info-section {
+	clear:both;
+	margin:0 0 25px 0;
+}
+
+.wpg-info-section h3 {
+	background: #DDD;
+	font-weight: bold;
+	padding: 7px;
+	border-radius: 5px;	
+	margin:10px 0;
+	font-size:14px;
+}
+
+.wpg-info-section ul {
+	list-style:disc;
+	margin:10px 0 10px 25px;
+}
+
+.wpg-info-section ul ul {
+	list-style:square;
+}
+
+.wpg-info-section li {
+	margin:0 0 10px 0;
+}
