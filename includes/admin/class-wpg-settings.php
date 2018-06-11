@@ -446,6 +446,13 @@ class WPG_Settings {
 						'default'							=> 'Back to Glossary Index Page',
 						'desc'								=> __( 'This option allows you to change the text from "Back to Glossary Index Page" with one you want.', WPG_TEXT_DOMAIN )
 					),
+					'wpg_glossary_thumbnail'				=> array(
+						'name'								=> 'wpg_glossary_thumbnail',
+						'label'								=> __( 'Use thumbnails', WPG_TEXT_DOMAIN ),
+						'type'								=> 'checkbox',
+						'default'							=> 'no',
+						'desc'								=> __( 'Select this option if you want to use thumbnails for each term item on glossary term details page to Glossary Index Page..', WPG_TEXT_DOMAIN )
+					),
 				)
 			),
 			
