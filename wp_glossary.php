@@ -83,6 +83,8 @@ final class WP_Glossary {
 		include_once( 'includes/class-wpg-post-types.php' );
 		include_once( 'includes/class-wpg-shortcode-list.php' );
 		include_once( 'includes/class-wpg-widget-related-posts.php' );
+		include_once( 'includes/class-wpg-custom-thumbnail.php' );
+		
 		
 		if( is_admin() ) {
 			include_once( 'includes/admin/class-wpg-admin-scripts.php' );
