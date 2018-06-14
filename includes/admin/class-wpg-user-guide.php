@@ -143,7 +143,7 @@ class WPG_User_Guide {
 								<li><strong>taxonomy_terms_to_exclude:</strong> By default, Previous option ( <strong>taxonomy</strong> ) loads posts for all the categories. This option allows you to exclude specific categories to load the posts from rest of the categories. For this you have to enter comma separated category ID's with this option.</li>
 
 								<li><strong>uncategorized_term_name:</strong> Its not necessary that all the posts will be categorized properly and few of those can still be without having any category assigned. Using <strong>template="category"</strong> and it shows only those posts which have at-least one category assigned. This option allows you to show uncategorized posts as well under same name category you pass with this option.</li>
-								<li><strong>thumbnail:</strong> This option is used to add show or not the thumbnails from the terms.This option allows you to choose one from following two options:
+								<li><strong>thumbnail:</strong> This option is used to show or not thumbnails for items of the list. This option allows you to choose one from following two options:
 									<ul>
 										<li>yes</li>
 										<li>no</li>

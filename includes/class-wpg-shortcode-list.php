@@ -88,14 +88,20 @@ class WPG_Shortcode_List {
 		if( ! isset( $args['uncategorized_term_name'] ) ) {
 			$args['uncategorized_term_name'] = '';
 		}
-
-		//Setting checkbox property
-		$wpg_glossary_is_thumbnail = get_option( 'wpg_glossary_thumbnail' ) == 'yes';
-		//Overwrite by parameter
-		if( isset($args['thumbnail'])){
-			$args['thumbnail'] = $wpg_glossary_is_thumbnail = $args['thumbnail']=='no'?FALSE:TRUE;
-		}
 		
+		//Setting checkbox property
+		$wpg_glossary_is_thumbnail_permited = get_option( 'wpg_glossary_thumbnail_permited' ) == 'yes';
+		if($wpg_glossary_is_thumbnail_permited){
+			//Setting checkbox property
+			$wpg_glossary_is_thumbnail = get_option( 'wpg_glossary_thumbnail' ) == 'yes';
+			//Overwrite by parameter
+			if( isset($args['thumbnail'])){
+				$args['thumbnail'] = $wpg_glossary_is_thumbnail = $args['thumbnail']=='no'?FALSE:TRUE;
+			}
+		}
+		else{
+			$wpg_glossary_is_thumbnail = FALSE;
+		}
 		
 		
 		
@@ -488,7 +494,8 @@ class WPG_Shortcode_List {
 																$element_item_content = $title;
 																$element_item_end = '</a>';
 																if( $wpg_glossary_is_thumbnail ) {
-																	$element_img = get_post_meta( get_the_ID(), 'mfi_image', true )[0];
+																	$wp_glossary_img_id = get_post_meta( $post->ID, 'wp_glossary_custom_thumbnail', true );
+																	$element_img = $wp_glossary_img_id?wp_get_attachment_image_src($wp_glossary_img_id , 'full' )[0]:NULL;
 																	if(empty($element_img)){
 																		$element_img = get_the_post_thumbnail_url(get_the_ID(),'post-thumbnail');
 																		if(empty($element_img)){
