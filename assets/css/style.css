@@ -73,6 +73,15 @@
 	width:18%;
 }
 
+.wpg-list-block .wpg-list-item .avatar{
+	width:85px;
+	content:"";display:table-cell;clear:both
+}
+.wpg-list-block .wpg-list-item .avatar_content{
+	content:"";display:table-cell;clear:both;
+	vertical-align:middle;
+}
+
 .wpg-list-filter-container {
 	display:block;
 	width:100%;

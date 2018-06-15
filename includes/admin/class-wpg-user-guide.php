@@ -22,7 +22,7 @@ class WPG_User_Guide {
 	public function __construct() {
 	
 		// Add User Guide Menu
-		add_action( 'admin_menu', array( $this, 'add_user_guide_menu' ) );
+		add_action( 'admin_menu', array( $this, 'add_user_guide_menu' ) );		
 	}
 
 	/**
@@ -89,7 +89,7 @@ class WPG_User_Guide {
 							<p>Use this shortcode anywhere in your page or post and it will start showing glossary terms in the same style you are expecting plugin to do. There are some attributes available with the same shortcode and you can find those in next step. Not all of those attributes are required to add with the shortcode and add only as per your need. If you don't use those attributes, shortcode uses <a href="edit.php?post_type=glossary&page=wpg-settings" target="_blank"><strong>Plugin Settings</strong></a> for the purpose.</p>
 						</li>
 						
-						<li><strong>Full Shortcode:</strong> [wpg_list title="" layout="one_column/two_column/three_column/four_column/five_column" alphabet_set="A,B,C,D,E,..." hide_empty="yes/no" hide_all="yes/no" hide_numeric="yes/no" post_type="glossary" template="alphabet/category" taxonomy="glossary_cat" taxonomy_terms_to_include="optional/1,2,3.." taxonomy_terms_to_exclude="optional/1,2,3.." uncategorized_term_name=""]
+						<li><strong>Full Shortcode:</strong> [wpg_list title="" layout="one_column/two_column/three_column/four_column/five_column" alphabet_set="A,B,C,D,E,..." hide_empty="yes/no" hide_all="yes/no" hide_numeric="yes/no" post_type="glossary" template="alphabet/category" taxonomy="glossary_cat" taxonomy_terms_to_include="optional/1,2,3.." taxonomy_terms_to_exclude="optional/1,2,3.." uncategorized_term_name="" thumbnail=yes]
 							<ul>
 								<li><strong>title:</strong> This option is for nothing at the time with the plugin and is here just for future references/updates.</li>
 								
@@ -143,6 +143,12 @@ class WPG_User_Guide {
 								<li><strong>taxonomy_terms_to_exclude:</strong> By default, Previous option ( <strong>taxonomy</strong> ) loads posts for all the categories. This option allows you to exclude specific categories to load the posts from rest of the categories. For this you have to enter comma separated category ID's with this option.</li>
 
 								<li><strong>uncategorized_term_name:</strong> Its not necessary that all the posts will be categorized properly and few of those can still be without having any category assigned. Using <strong>template="category"</strong> and it shows only those posts which have at-least one category assigned. This option allows you to show uncategorized posts as well under same name category you pass with this option.</li>
+								<li><strong>thumbnail:</strong> This option is used to show or not thumbnails for items of the list. This option allows you to choose one from following two options:
+									<ul>
+										<li>yes</li>
+										<li>no</li>
+									</ul>
+								</li>
 							</ul>
 						</li>
 					</ol>
