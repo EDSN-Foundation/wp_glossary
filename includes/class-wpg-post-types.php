@@ -103,6 +103,7 @@ class WPG_Post_Types {
 			'hierarchical'          => true,
 			'labels'                => $labels,
 			'show_ui'               => true,
+			'show_in_menu'			=> true,
 			'show_in_nav_menus'		=> false,
 			'show_admin_column'     => true,
 			'update_count_callback' => '_update_post_term_count',
@@ -175,7 +176,20 @@ class WPG_Post_Types {
 	 */
 	public static function meta_box_glossary_attributes( $post ) {
 		wp_nonce_field( 'wpg_meta_box', 'wpg_meta_box_nonce' );
-		
+		$args = array(
+			'public'   => true,
+			'_builtin' => false,
+			'hierarchical' => true,
+			'object_type' => ['glossary']
+		  ); 
+		  $output = 'names'; // or objects
+		  $operator = 'and'; // 'and' or 'or'
+		  $taxonomies = get_taxonomies( $args, $output, $operator ); 
+		  if ( $taxonomies ) {
+			foreach ( $taxonomies  as $taxonomy ) {
+			  //echo '<p>' . $taxonomy . '</p>';
+			}
+		  }
 		?><table class="form-table">
 			<tbody>
 				<tr>

@@ -32,7 +32,7 @@ class WPG_Shortcode_List {
 	 * Widget Call Back Function
 	 */
 	public static function wpg_list( $args ) {
-	
+		
 		ob_start();
 		
 		if( empty( $args ) ) {

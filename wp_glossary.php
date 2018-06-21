@@ -36,7 +36,7 @@ final class WP_Glossary {
 	 * Ensures only one instance of WP_Glossary is loaded or can be loaded
 	 *
 	 * @see WP_Glossary()
-	 * @return Main instance
+	 * @return WP_Glossary instance
 	 */
 	public static function instance() {
 		if ( is_null( self::$_instance ) ) {
@@ -84,6 +84,12 @@ final class WP_Glossary {
 		include_once( 'includes/class-wpg-shortcode-list.php' );
 		include_once( 'includes/class-wpg-widget-related-posts.php' );
 		include_once( 'includes/class-wpg-custom-thumbnail.php' );
+		include_once( 'includes/class-wpg-taxonomy-metabox.php');
+		include_once( 'includes/class-wpg-taxonomy-edit.php');
+		include_once('includes/class-wpg-taxonomy-ui.php');
+		include_once('includes/class-wpg-taxonomy-post-type-ui.php');
+		include_once('includes/class-wpg-taxonomy-utility.php');
+		include_once('includes/class-wpg-taxonomy-listings.php');
 		
 		
 		if( is_admin() ) {
