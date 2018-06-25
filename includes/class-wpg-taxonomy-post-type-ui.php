@@ -156,7 +156,7 @@ function cptui_register_single_taxonomy( $taxonomy = array() ) {
 	 */
 	$args = apply_filters( 'cptui_pre_register_taxonomy', $args, $taxonomy['name'], $taxonomy );
 
-	return register_taxonomy( $taxonomy['name'], 'glossary', $args );
+	return register_taxonomy( $taxonomy['name'], wpg_glossary_get_slug(), $args );
 }
 
 /**

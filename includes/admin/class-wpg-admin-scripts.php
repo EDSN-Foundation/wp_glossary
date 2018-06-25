@@ -37,7 +37,7 @@ class WPG_Admin_Scripts {
 		wp_register_script( 'wpg-main-script', WPG_PLUGIN_URL . '/assets/js/admin/scripts.js' );
 		
 		global $pagenow;
-		if( $pagenow == 'edit.php' && ( isset( $_REQUEST['post_type'] ) && $_REQUEST['post_type'] == 'glossary' ) && ( isset( $_REQUEST['page'] ) ) ) {
+		if( $pagenow == 'edit.php' && ( isset( $_REQUEST['post_type'] ) && $_REQUEST['post_type'] == wpg_glossary_get_post_type() ) && ( isset( $_REQUEST['page'] ) ) ) {
 			if( $_REQUEST['page'] == 'wpg-settings' ) {
 				wp_enqueue_style( 'wp-color-picker' );
 				wp_enqueue_script( 'wp-color-picker' );

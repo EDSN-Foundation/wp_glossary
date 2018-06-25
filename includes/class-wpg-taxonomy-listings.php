@@ -109,15 +109,12 @@ function cptui_listings() {
 							<td>
 								<?php
 								printf(
-									'<a href="%s">%s</a><br/>
-									<a href="%s">%s</a><br/>',
+									'<a href="%s">%s</a><br/>',
 									esc_attr( $post_type_link_url ),
 									sprintf(
 										esc_html__( 'Edit %s', 'custom-post-type-ui' ),
 										esc_html( $post_type )
-									),
-									esc_attr( admin_url( 'admin.php?page=cptui_tools&action=get_code#' . $post_type ) ),
-									esc_html__( 'Get code', 'custom-post-type-ui' )
+									)
 								);
 
 								if ( $archive ) {
@@ -301,20 +298,16 @@ function cptui_listings() {
 						?>
 							<tr class="<?php echo esc_attr( $rowclass ); ?>">
 								<?php
-								$edit_path          = 'admin.php?page=cptui_manage_taxonomies&action=edit&cptui_taxonomy=' . $taxonomy;
+								$edit_path          = 'edit.php?post_type=glossary&page=wpg_taxonomies&action=edit&wpg_taxonomy='. $taxonomy;
 								$taxonomy_link_url  = ( is_network_admin() ) ? network_admin_url( $edit_path ) : admin_url( $edit_path ); ?>
 								<td>
 									<?php printf(
-										'<a href="%s">%s</a><br/>
-										<a href="%s">%s</a>',
+										'<a href="%s">%s</a>',
 										esc_attr( $taxonomy_link_url ),
 										sprintf(
 											esc_html__( 'Edit %s', 'custom-post-type-ui' ),
 											esc_html( $taxonomy )
-										),
-										esc_attr( admin_url( 'admin.php?page=cptui_tools&action=get_code#' . $taxonomy ) ),
-										esc_html__( 'Get code', 'custom-post-type-ui' )
-									); ?>
+										)); ?>
 								</td>
 								<td>
 									<?php

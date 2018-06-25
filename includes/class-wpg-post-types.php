@@ -47,7 +47,7 @@ class WPG_Post_Types {
 			'singular_name'			=> _x( $wpg_glossary_title, 'post type singular name', WPG_TEXT_DOMAIN ),
 			'menu_name'				=> _x( $wpg_glossary_title, 'admin menu', WPG_TEXT_DOMAIN ),
 			'name_admin_bar'		=> _x( $wpg_glossary_title, 'add new on admin bar', WPG_TEXT_DOMAIN ),
-			'add_new'				=> _x( 'Add New Term', 'glossary', WPG_TEXT_DOMAIN ),
+		    'add_new'				=> _x( 'Add New Term', wpg_glossary_get_post_type(), WPG_TEXT_DOMAIN ),
 			'add_new_item'			=> __( 'Add New Term', WPG_TEXT_DOMAIN ),
 			'new_item'				=> __( 'New Term', WPG_TEXT_DOMAIN ),
 			'edit_item'				=> __( 'Edit Term', WPG_TEXT_DOMAIN ),
@@ -77,7 +77,7 @@ class WPG_Post_Types {
 			'supports'				=> array( 'title', 'excerpt', 'editor', 'thumbnail', 'author', 'comments' )
 		) );
 
-		register_post_type( 'glossary', $args );
+		register_post_type( wpg_glossary_get_post_type(), $args );
 		
 		// Taxonomy: glossary_cat
 		$labels = apply_filters( 'wpg_taxonomy_glossary_cat_labels', array(
@@ -111,7 +111,7 @@ class WPG_Post_Types {
 			'rewrite'               => array( 'slug' => 'glossary_cat' ),
 		) );
 
-		register_taxonomy( 'glossary_cat', 'glossary', $args );
+		register_taxonomy( 'glossary_cat', wpg_glossary_get_post_type(), $args );
 		
 		// Taxonomy: glossary_tag
 		$labels = apply_filters( 'wpg_taxonomy_glossary_tag_labels', array(
@@ -145,7 +145,7 @@ class WPG_Post_Types {
 			'rewrite'               => array( 'slug' => 'glossary_tag' ),
 		) );
 
-		register_taxonomy( 'glossary_tag', 'glossary', $args );
+		register_taxonomy( 'glossary_tag', wpg_glossary_get_post_type(), $args );
 		
 		// Update permalinks when changing $wpg_glossary_slug
 		flush_rewrite_rules();
@@ -168,7 +168,7 @@ class WPG_Post_Types {
 	 * Add Custom Meta Boxes
 	 */
 	public static function add_meta_boxes() {
-		add_meta_box( 'meta-box-glossary-attributes', __( 'Custom Attributes', WPG_TEXT_DOMAIN ), array( __CLASS__, 'meta_box_glossary_attributes' ), 'glossary', 'normal', 'high' );
+	    add_meta_box( 'meta-box-glossary-attributes', __( 'Custom Attributes', WPG_TEXT_DOMAIN ), array( __CLASS__, 'meta_box_glossary_attributes' ), wpg_glossary_get_post_type(), 'normal', 'high' );
 	}
 	
 	/**
@@ -180,7 +180,7 @@ class WPG_Post_Types {
 			'public'   => true,
 			'_builtin' => false,
 			'hierarchical' => true,
-			'object_type' => ['glossary']
+		    'object_type' => [wpg_glossary_get_slug()]
 		  ); 
 		  $output = 'names'; // or objects
 		  $operator = 'and'; // 'and' or 'or'

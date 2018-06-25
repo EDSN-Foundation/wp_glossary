@@ -72,6 +72,7 @@ final class WP_Glossary {
 		define( 'WPG_PLUGIN_URL', $this->plugin_url() );
 		define( 'WPG_PLUGIN_PATH', $this->plugin_path() );
 		define( 'WPG_TEXT_DOMAIN', 'wp_glossary' );
+		define( 'WPG_FORCE_TAXONOMY_POST_TYPES', 1);
 	}
 	
 	/**

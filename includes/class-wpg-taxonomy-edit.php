@@ -1,25 +1,9 @@
 <?php
-/**
- * Custom Post Type UI Taxonomy Settings.
- *
- * @package CPTUI
- * @subpackage Taxonomies
- * @author WebDevStudios
- * @since 1.0.0
- */
-
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-/**
- * Enqueue CPTUI admin styles.
- *
- * @since 1.0.0
- *
- * @internal
- */
 function cptui_add_styles() {
     if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
         return;
@@ -130,8 +114,7 @@ function wpg_taxonomies() {
 			 *
 			 * @param string $value Text to use for the button.
 			 */
-			?>
-			<input type="submit" class="button-secondary" id="cptui_select_taxonomy_submit" name="cptui_select_taxonomy_submit" value="<?php echo esc_attr( apply_filters( 'cptui_taxonomy_submit_select', esc_attr__( 'Select', 'custom-post-type-ui' ) ) ); ?>" />
+			?>			
 			<a href="<?php echo get_edit_taxonomy_link(cptui_get_current_taxonomy()); ?>">
 				<input value="Manage categories" type="button" class="button-secondary" id="cptui_select_taxonomy_submit" name="cptui_select_taxonomy_submit"  />
 			</a>
@@ -227,55 +210,57 @@ function wpg_taxonomies() {
 							) );
 
 							echo $ui->get_td_end() . $ui->get_tr_end();
-
-							echo $ui->get_tr_start() . $ui->get_th_start() . esc_html__( 'Attach to Post Type', 'custom-post-type-ui' ) . $ui->get_required_span();
-							echo $ui->get_p( esc_html__( 'Add support for available registered post types. At least one is required.', 'custom-post-type-ui' ) );
-							echo $ui->get_th_end() . $ui->get_td_start() . $ui->get_fieldset_start();
-
-							/**
-							 * Filters the arguments for post types to list for taxonomy association.
-							 *
-							 * @since 1.0.0
-							 *
-							 * @param array $value Array of default arguments.
-							 */
-							$args = apply_filters( 'cptui_attach_post_types_to_taxonomy', array( 'public' => true ) );
-
-							// If they don't return an array, fall back to the original default. Don't need to check for empty, because empty array is default for $args param in get_post_types anyway.
-							if ( ! is_array( $args ) ) {
-								$args = array( 'public' => true );
+							
+							if(!WPG_FORCE_TAXONOMY_POST_TYPES){
+    							echo $ui->get_tr_start() . $ui->get_th_start() . esc_html__( 'Attach to Post Type', 'custom-post-type-ui' ) . $ui->get_required_span();
+    							echo $ui->get_p( esc_html__( 'Add support for available registered post types. At least one is required.', 'custom-post-type-ui' ) );
+    							echo $ui->get_th_end() . $ui->get_td_start() . $ui->get_fieldset_start();
+    							
+    							/**
+    							 * Filters the arguments for post types to list for taxonomy association.
+    							 *
+    							 * @since 1.0.0
+    							 *
+    							 * @param array $value Array of default arguments.
+    							 */
+    							$args = apply_filters( 'cptui_attach_post_types_to_taxonomy', array( 'public' => true ) );
+    
+    							// If they don't return an array, fall back to the original default. Don't need to check for empty, because empty array is default for $args param in get_post_types anyway.
+    							if ( ! is_array( $args ) ) {
+    								$args = array( 'public' => true );
+    							}
+    							$output = 'objects'; // Or objects.
+    
+    							/**
+    							 * Filters the results returned to display for available post types for taxonomy.
+    							 *
+    							 * @since 1.3.0
+    							 *
+    							 * @param array  $value  Array of post type objects.
+    							 * @param array  $args   Array of arguments for the post type query.
+    							 * @param string $output The output type we want for the results.
+    							 */
+    							$post_types = apply_filters( 'cptui_get_post_types_for_taxonomies', get_post_types( $args, $output ), $args, $output );
+    
+    							foreach ( $post_types as $post_type ) {
+    								$core_label = ( in_array( $post_type->name, array(
+    									'post',
+    									'page',
+    									'attachment',
+    								) ) ) ? esc_html__( '(WP Core)', 'custom-post-type-ui' ) : '';
+    								echo $ui->get_check_input( array(
+    									'checkvalue' => $post_type->name,
+    									'checked'    => ( ! empty( $current['object_types'] ) && is_array( $current['object_types'] ) && in_array( $post_type->name, $current['object_types'] ) ) ? 'true' : 'false',
+    									'name'       => $post_type->name,
+    									'namearray'  => 'cpt_post_types',
+    									'textvalue'  => $post_type->name,
+    									'labeltext'  => $post_type->label . ' ' . $core_label,
+    									'wrap'       => false,
+    								) );
+    							}
+    
+    							echo $ui->get_fieldset_end() . $ui->get_td_end() . $ui->get_tr_end();
 							}
-							$output = 'objects'; // Or objects.
-
-							/**
-							 * Filters the results returned to display for available post types for taxonomy.
-							 *
-							 * @since 1.3.0
-							 *
-							 * @param array  $value  Array of post type objects.
-							 * @param array  $args   Array of arguments for the post type query.
-							 * @param string $output The output type we want for the results.
-							 */
-							$post_types = apply_filters( 'cptui_get_post_types_for_taxonomies', get_post_types( $args, $output ), $args, $output );
-
-							foreach ( $post_types as $post_type ) {
-								$core_label = ( in_array( $post_type->name, array(
-									'post',
-									'page',
-									'attachment',
-								) ) ) ? esc_html__( '(WP Core)', 'custom-post-type-ui' ) : '';
-								echo $ui->get_check_input( array(
-									'checkvalue' => $post_type->name,
-									'checked'    => ( ! empty( $current['object_types'] ) && is_array( $current['object_types'] ) && in_array( $post_type->name, $current['object_types'] ) ) ? 'true' : 'false',
-									'name'       => $post_type->name,
-									'namearray'  => 'cpt_post_types',
-									'textvalue'  => $post_type->name,
-									'labeltext'  => $post_type->label . ' ' . $core_label,
-									'wrap'       => false,
-								) );
-							}
-
-							echo $ui->get_fieldset_end() . $ui->get_td_end() . $ui->get_tr_end();
 							?>
 						</table>
 						<p class="submit">
@@ -894,6 +879,7 @@ function cptui_taxonomies_dropdown( $taxonomies = array() ) {
 			'name'          => 'taxonomy',
 			'selections'    => $select,
 			'wrap'          => false,
+		    'attr'=>array('onchange'=>'this.form.submit()')
 		) );
 	}
 }
@@ -927,8 +913,8 @@ function cptui_get_current_taxonomy( $taxonomy_deleted = false ) {
 				$tax = sanitize_text_field( $_POST['tax_original'] );
 			}
 		}
-	} else if ( ! empty( $_GET ) && isset( $_GET['cptui_taxonomy'] ) ) {
-		$tax = sanitize_text_field( $_GET['cptui_taxonomy'] );
+	} else if ( ! empty( $_GET ) && isset( $_GET['wpg_taxonomy'] ) ) {
+		$tax = sanitize_text_field( $_GET['wpg_taxonomy'] );
 	} else {
 		$taxonomies = cptui_get_taxonomy_data();
 		if ( ! empty( $taxonomies ) ) {
@@ -1044,10 +1030,10 @@ function cptui_update_taxonomy( $data = array() ) {
 	if ( empty( $data['cpt_custom_tax']['name'] ) ) {
 		return cptui_admin_notices( 'error', '', false, esc_html__( 'Please provide a taxonomy name', 'custom-post-type-ui' ) );
 	}
-
-	if ( empty( $data['cpt_post_types'] ) ) {
-		return cptui_admin_notices( 'error', '', false, esc_html__( 'Please provide a post type to attach to.', 'custom-post-type-ui' ) );
-	}
+	
+ 	if ( empty( $data['cpt_post_types'] ) ) {	    
+ 		return cptui_admin_notices( 'error', '', false, esc_html__( 'Please provide a post type to attach to.', 'custom-post-type-ui' ) );
+ 	}
 
 	if ( ! empty( $data['tax_original'] ) && $data['tax_original'] != $data['cpt_custom_tax']['name'] ) {
 		if ( ! empty( $data['update_taxonomy'] ) ) {
@@ -1374,7 +1360,7 @@ add_filter( 'cptui_taxonomy_slug_exists', 'cptui_check_existing_taxonomy_slugs',
  * @since 1.4.0
  */
 function cptui_process_taxonomy() {
-
+    
 	if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
 		return;
 	}
@@ -1390,6 +1376,21 @@ function cptui_process_taxonomy() {
 	if ( ! empty( $_POST ) ) {
 		$result = '';
 		if ( isset( $_POST['cpt_submit'] ) ) {
+		    
+		    if(WPG_FORCE_TAXONOMY_POST_TYPES){
+		        $taxonomies = cptui_get_taxonomy_data();
+                
+                $selected_taxonomy = cptui_get_current_taxonomy();
+                
+                if ( $selected_taxonomy ) {
+                    if ( array_key_exists( $selected_taxonomy, $taxonomies ) ) {
+                        $current = $taxonomies[ $selected_taxonomy ];
+                        
+                    }
+                }
+		        
+                $_POST['cpt_post_types'] = isset($current)?$current['object_types']: array(wpg_glossary_get_slug());
+		    }
 			check_admin_referer( 'cptui_addedit_taxonomy_nonce_action', 'cptui_addedit_taxonomy_nonce_field' );
 			$result = cptui_update_taxonomy( $_POST );
 		} elseif ( isset( $_POST['cpt_delete'] ) ) {

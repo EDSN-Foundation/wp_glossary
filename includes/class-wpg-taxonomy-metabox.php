@@ -124,10 +124,10 @@ class WPG_Taxonomy_Metabox {
 	 */
 	public function render_metabox( $post, $metabox ) {
 	    $args = array(
-			'object_type' => ['glossary']
+	        'object_type' => [wpg_glossary_get_slug()]
 		  ); 
 		//$taxonomies = cptui_get_taxonomy_data();
-	    $taxonomies = get_taxonomies( array('object_type' => ['glossary'],'hierarchical' => ['true']), 'objects' );
+	    $taxonomies = get_taxonomies( array('object_type' => [wpg_glossary_get_slug()],'hierarchical' => ['true']), 'objects' );
 		//echo '<pre>';var_dump($taxonomies);echo '</pre>';
 		$has_tabs = false;
 		if( count( $taxonomies ) > 1 ){

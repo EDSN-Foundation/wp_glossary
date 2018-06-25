@@ -306,8 +306,14 @@ class cptui_admin_ui {
 			$value .= $this->get_th_end();
 			$value .= $this->get_td_start();
 		}
+		if(!empty($args['attr'])){
+		    $attrs = "";
+		    foreach ( $args['attr'] as $attr_name=>$attr_value) {
+		        $attrs .= ' ' . $attr_name .'="'.$attr_value.'"';
+		    }
+		}
 
-		$value .= '<select id="' . $args['name'] . '" name="' . $args['namearray'] . '[' . $args['name'] . ']">';
+		$value .= '<select id="' . $args['name'] . '" name="' . $args['namearray'] . '[' . $args['name'] . ']"'.$attrs.'>';
 		if ( ! empty( $args['selections']['options'] ) && is_array( $args['selections']['options'] ) ) {
 			foreach ( $args['selections']['options'] as $val ) {
 				$result = '';

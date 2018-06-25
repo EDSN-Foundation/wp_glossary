@@ -1,5 +1,5 @@
 .posttypesui, .taxonomiesui {
-  width: calc(100% - 300px);
+  width: 100%;/*calc(100% - 300px);*/
 }
 
 .posttypesui .cptui-section:first-child, .taxonomiesui .cptui-section:first-child {

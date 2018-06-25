@@ -330,7 +330,7 @@ class WPG_Settings {
 						'name'								=> 'wpg_glossary_title',
 						'label'								=> __( 'Glossary Title', WPG_TEXT_DOMAIN ),
 						'type'								=> 'text',
-						'default'							=> 'Glossary',
+					    'default'							=> wpg_glossary_get_title(),
 						'desc'								=> __( 'This option allows you to change the glossary title wholeover the website.', WPG_TEXT_DOMAIN )
 					),
 			
@@ -338,7 +338,7 @@ class WPG_Settings {
 						'name'								=> 'wpg_glossary_slug',
 						'label'								=> __( 'Glossary Slug', WPG_TEXT_DOMAIN ),
 						'type'								=> 'text',
-						'default'							=> 'glossary',
+					    'default'							=> wpg_glossary_get_slug(),
 						'desc'								=> __( 'This options allows you to choose the seo slug for the glossary terms permalink. By default, its value is <strong>glossary</strong> and you can change it with whatever you want. <br /><br /><strong>WARNING!</strong> If you already have same seo slug running for another post or page, this can interrupt/effect the behaviour of current plugin so make sure that you use a unique seo slug for this.', WPG_TEXT_DOMAIN )
 					),
 					

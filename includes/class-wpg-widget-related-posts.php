@@ -38,7 +38,7 @@ class WPG_Widget_Related_Posts extends WP_Widget {
 	 */
 	public function widget( $args, $instance ) {
 	
-		if( ! is_singular( 'glossary' ) ) {
+	    if( ! is_singular( wpg_glossary_get_post_type() ) ) {
 			return;
 		}
 	
