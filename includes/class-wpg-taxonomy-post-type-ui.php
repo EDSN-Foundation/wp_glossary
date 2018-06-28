@@ -4,61 +4,36 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CPT_VERSION', '1.5.8' ); // Left for legacy purposes.
-define( 'CPTUI_VERSION', '1.5.8' );
-define( 'CPTUI_WP_VERSION', get_bloginfo( 'version' ) );
-
 /**
- * Register our users' custom taxonomies.
- *
- * @since 0.5.0
+ * Register users' custom taxonomies.
+ 
  *
  * @internal
  */
-function cptui_create_custom_taxonomies() {
+function wpg_create_custom_taxonomies() {
     $taxes = get_option( 'cptui_taxonomies' );
     
     if ( empty( $taxes ) ) {
         return;
-    }
-    
-    /**
-     * Fires before the start of the taxonomy registrations.
-     *
-     * @since 1.3.0
-     *
-     * @param array $taxes Array of taxonomies to register.
-     */
-    do_action( 'cptui_pre_register_taxonomies', $taxes );
-    
+    }    
     if ( is_array( $taxes ) ) {
         foreach ( $taxes as $tax ) {
-            cptui_register_single_taxonomy( $tax );
+            wpg_register_taxonomy( $tax );
         }
     }
-    
-    /**
-     * Fires after the completion of the taxonomy registrations.
-     *
-     * @since 1.3.0
-     *
-     * @param array $taxes Array of taxonomies registered.
-     */
-    do_action( 'cptui_post_register_taxonomies', $taxes );
 }
-add_action( 'init', 'cptui_create_custom_taxonomies', 9 );  // Leave on standard init for legacy purposes.
+add_action( 'init', 'wpg_create_custom_taxonomies', 9 );  // Leave on standard init for legacy purposes.
 
 /**
  * Helper function to register the actual taxonomy.
- *
- * @since 1.0.0
+ 
  *
  * @internal
  *
  * @param array $taxonomy Taxonomy array to register. Optional.
  * @return null Result of register_taxonomy.
  */
-function cptui_register_single_taxonomy( $taxonomy = array() ) {
+function wpg_register_taxonomy( $taxonomy = array() ) {
 
 	$labels = array(
 		'name'               => $taxonomy['label'],
@@ -70,13 +45,13 @@ function cptui_register_single_taxonomy( $taxonomy = array() ) {
 		$description = $taxonomy['description'];
 	}
 
-	$preserved = cptui_get_preserved_keys( 'taxonomies' );
+	$preserved = wpg_get_preserved_keys( 'taxonomies' );
 	foreach ( $taxonomy['labels'] as $key => $label ) {
 
 		if ( ! empty( $label ) ) {
 			$labels[ $key ] = $label;
 		} elseif ( empty( $label ) && in_array( $key, $preserved ) ) {
-			$labels[ $key ] = cptui_get_preserved_label( 'taxonomies', $key, $taxonomy['label'], $taxonomy['singular_label'] );
+			$labels[ $key ] = wpg_get_preserved_label( 'taxonomies', $key, $taxonomy['label'], $taxonomy['singular_label'] );
 		}
 	}
 
@@ -146,8 +121,7 @@ function cptui_register_single_taxonomy( $taxonomy = array() ) {
 
 	/**
 	 * Filters the arguments used for a taxonomy right before registering.
-	 *
-	 * @since 1.0.0
+	 
 	 * @since 1.3.0 Added original passed in values array
 	 *
 	 * @param array  $args     Array of arguments to use for registering taxonomy.
@@ -161,8 +135,7 @@ function cptui_register_single_taxonomy( $taxonomy = array() ) {
 
 /**
  * Construct and output tab navigation.
- *
- * @since 1.0.0
+ 
  *
  * @param string $page Whether it's the CPT or Taxonomy page. Optional. Default "post_types".
  */
@@ -170,8 +143,7 @@ function taxonomy_tab_menu( $page = 'post_types' ) {
 
 	/**
 	 * Filters the tabs to render on a given page.
-	 *
-	 * @since 1.3.0
+	 
 	 *
 	 * @param array  $value Array of tabs to render.
 	 * @param string $page  Current page being displayed.
@@ -199,8 +171,7 @@ function taxonomy_tab_menu( $page = 'post_types' ) {
 }
 /**
  * Register our tabs for the Taxonomy screen.
- *
- * @since 1.3.0
+ 
  *
  * @internal
  *
@@ -250,8 +221,7 @@ add_filter( 'wpg_get_taxonomy_tabs', 'wpg_taxonomy_tabs', 10, 2 );
 
 /**
  * Return a notice based on conditions.
- *
- * @since 1.0.0
+ 
  *
  * @param string $action       The type of action that occurred. Optional. Default empty string.
  * @param string $object_type  Whether it's from a post type or taxonomy. Optional. Default empty string.
@@ -259,7 +229,7 @@ add_filter( 'wpg_get_taxonomy_tabs', 'wpg_taxonomy_tabs', 10, 2 );
  * @param string $custom       Custom message if necessary. Optional. Default empty string.
  * @return bool|string false on no message, else HTML div with our notice message.
  */
-function cptui_admin_notices( $action = '', $object_type = '', $success = true, $custom = '' ) {
+function wpg_admin_notices( $action = '', $object_type = '', $success = true, $custom = '' ) {
 
 	$class = array();
 	$class[] = ( $success ) ? 'updated' : 'error';
@@ -305,8 +275,7 @@ function cptui_admin_notices( $action = '', $object_type = '', $success = true, 
 
 		/**
 		 * Filters the custom admin notice for CPTUI.
-		 *
-		 * @since 1.0.0
+		 
 		 *
 		 * @param string $value            Complete HTML output for notice.
 		 * @param string $action           Action whose message is being generated.
@@ -322,13 +291,12 @@ function cptui_admin_notices( $action = '', $object_type = '', $success = true, 
 
 /**
  * Return array of keys needing preserved.
- *
- * @since 1.0.5
+ 
  *
  * @param string $type Type to return. Either 'post_types' or 'taxonomies'. Optional. Default empty string.
  * @return array Array of keys needing preservered for the requested type.
  */
-function cptui_get_preserved_keys( $type = '' ) {
+function wpg_get_preserved_keys( $type = '' ) {
 
 	$preserved_labels = array(
 		'post_types' => array(
@@ -360,9 +328,7 @@ function cptui_get_preserved_keys( $type = '' ) {
 }
 
 /**
- * Return label for the requested type and label key.
- *
- * @since 1.0.5
+ * Return label for the requested type and label key. 
  *
  * @param string $type Type to return. Either 'post_types' or 'taxonomies'. Optional. Default empty string.
  * @param string $key Requested label key. Optional. Default empty string.
@@ -370,7 +336,7 @@ function cptui_get_preserved_keys( $type = '' ) {
  * @param string $singular Singular verbiage for the requested label and type. Optional. Default empty string.
  * @return string Internationalized default label.
  */
-function cptui_get_preserved_label( $type = '', $key = '', $plural = '', $singular = '' ) {
+function wpg_get_preserved_label( $type = '', $key = '', $plural = '', $singular = '' ) {
 
 	$preserved_labels = array(
 		'post_types' => array(

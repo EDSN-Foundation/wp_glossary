@@ -1,24 +1,12 @@
 <?php
 /**
- * Custom Post Type UI Admin UI.
+ * Ui builder for taxonomy plugin
  *
- * @package CPTUI
- * @subpackage AdminUI
- * @author WebDevStudios
- * @since 1.0.0
  */
-
-/**
- * Custom Post Type UI Admin UI
- *
- * @since 1.0.0
- */
-class cptui_admin_ui {
+class WPG_Taxonomy_UI_Builder {
 
 	/**
 	 * Return an opening `<tr>` tag.
-	 *
-	 * @since 1.0.0
 	 *
 	 * @return string $value Opening `<tr>` tag with attributes.
 	 */
@@ -29,8 +17,6 @@ class cptui_admin_ui {
 	/**
 	 * Return a closing `</tr>` tag.
 	 *
-	 * @since 1.0.0
-	 *
 	 * @return string $value Closing `</tr>` tag.
 	 */
 	public function get_tr_end() {
@@ -39,8 +25,6 @@ class cptui_admin_ui {
 
 	/**
 	 * Return an opening `<th>` tag.
-	 *
-	 * @since 1.0.0
 	 *
 	 * @return string $value Opening `<th>` tag with attributes.
 	 */
@@ -51,8 +35,6 @@ class cptui_admin_ui {
 	/**
 	 * Return a closing `</th>` tag.
 	 *
-	 * @since 1.0.0
-	 *
 	 * @return string $value Closing `</th>` tag.
 	 */
 	public function get_th_end() {
@@ -61,8 +43,6 @@ class cptui_admin_ui {
 
 	/**
 	 * Return an opening `<td>` tag.
-	 *
-	 * @since 1.0.0
 	 *
 	 * @return string $value Opening `<td>` tag.
 	 */
@@ -73,8 +53,6 @@ class cptui_admin_ui {
 	/**
 	 * Return a closing `</td>` tag.
 	 *
-	 * @since 1.0.0
-	 *
 	 * @return string $value Closing `</td>` tag.
 	 */
 	public function get_td_end() {
@@ -83,9 +61,6 @@ class cptui_admin_ui {
 
 	/**
 	 * Return an opening `<fieldset>` tag.
-	 *
-	 * @since 1.2.0
-	 * @since 1.3.0 Added $args parameter.
 	 *
 	 * @param array $args Array of arguments.
 	 * @return string $value Opening `<fieldset>` tag.
@@ -114,8 +89,6 @@ class cptui_admin_ui {
 	/**
 	 * Return an closing `<fieldset>` tag.
 	 *
-	 * @since 1.2.0
-	 *
 	 * @return string $value Closing `<fieldset>` tag.
 	 */
 	public function get_fieldset_end() {
@@ -124,8 +97,6 @@ class cptui_admin_ui {
 
 	/**
 	 * Return an opening `<legend>` tag.
-	 *
-	 * @since 1.3.0
 	 *
 	 * @return string
 	 */
@@ -136,8 +107,6 @@ class cptui_admin_ui {
 	/**
 	 * Return a closing `</legend>` tag.
 	 *
-	 * @since 1.3.0
-	 *
 	 * @return string
 	 */
 	public function get_legend_end() {
@@ -146,8 +115,6 @@ class cptui_admin_ui {
 
 	/**
 	 * Return string wrapped in a `<p>` tag.
-	 *
-	 * @since 1.0.0
 	 *
 	 * @param string $text Content to wrap in a `<p>` tag.
 	 * @return string $value Content wrapped in a `<p>` tag.
@@ -159,8 +126,6 @@ class cptui_admin_ui {
 	/**
 	 * Return a form <label> with for attribute.
 	 *
-	 * @since 1.0.0
-	 *
 	 * @param string $label_for  Form input to associate `<label>` with.
 	 * @param string $label_text Text to display in the `<label>` tag.
 	 * @return string $value `<label>` tag with filled out parts.
@@ -171,8 +136,6 @@ class cptui_admin_ui {
 
 	/**
 	 * Return an html attribute denoting a required field.
-	 *
-	 * @since 1.3.0
 	 *
 	 * @param bool $required Whether or not the field is required.
 	 * @return string `Required` attribute.
@@ -188,8 +151,6 @@ class cptui_admin_ui {
 	/**
 	 * Return a `<span>` to indicate required status, with class attribute.
 	 *
-	 * @since 1.0.0
-	 *
 	 * @return string Span tag.
 	 */
 	public function get_required_span() {
@@ -198,8 +159,6 @@ class cptui_admin_ui {
 
 	/**
 	 * Return an aria-required attribute set to true.
-	 *
-	 * @since 1.3.0
 	 *
 	 * @param bool $required Whether or not the field is required.
 	 * @return string Aria required attribute
@@ -212,8 +171,6 @@ class cptui_admin_ui {
 	/**
 	 * Return an `<a>` tag with title attribute holding help text.
 	 *
-	 * @since 1.0.0
-	 *
 	 * @param string $help_text Text to use in the title attribute.
 	 * @return string <a> tag with filled out parts.
 	 */
@@ -223,8 +180,6 @@ class cptui_admin_ui {
 
 	/**
 	 * Return a `<span>` tag with the help text.
-	 *
-	 * @since 1.3.0
 	 *
 	 * @param string $help_text Text to display after the input.
 	 * @return string
@@ -236,8 +191,6 @@ class cptui_admin_ui {
 	/**
 	 * Return a maxlength HTML attribute with a specified length.
 	 *
-	 * @since 1.0.0
-	 *
 	 * @param string $length How many characters the max length should be set to.
 	 * @return string $value Maxlength HTML attribute.
 	 */
@@ -247,8 +200,6 @@ class cptui_admin_ui {
 
 	/**
 	 * Return a onblur HTML attribute for a specified value.
-	 *
-	 * @since 1.0.0
 	 *
 	 * @param string $text Text to place in the onblur attribute.
 	 * @return string $value Onblur HTML attribute.
@@ -260,8 +211,6 @@ class cptui_admin_ui {
 	/**
 	 * Return a placeholder HTML attribtue for a specified value.
 	 *
-	 * @since 1.3.0
-	 *
 	 * @param string $text Text to place in the placeholder attribute.
 	 * @return string $value Placeholder HTML attribute.
 	 */
@@ -272,8 +221,6 @@ class cptui_admin_ui {
 	/**
 	 * Return a span that will only be visible for screenreaders.
 	 *
-	 * @since 1.3.0
-	 *
 	 * @param string $text Text to visually hide.
 	 * @return string $value Visually hidden text meant for screen readers.
 	 */
@@ -283,8 +230,6 @@ class cptui_admin_ui {
 
 	/**
 	 * Return a populated `<select>` input.
-	 *
-	 * @since 1.0.0
 	 *
 	 * @param array $args Arguments to use with the `<select>` input.
 	 * @return string $value Complete <select> input with options and selected attribute.
@@ -359,7 +304,6 @@ class cptui_admin_ui {
 	/**
 	 * Return a text input.
 	 *
-	 * @since 1.0.0
 	 *
 	 * @param array $args Arguments to use with the text input.
 	 * @return string Complete text `<input>` with proper attributes.
@@ -424,8 +368,6 @@ class cptui_admin_ui {
 	/**
 	 * Return a `<textarea>` input.
 	 *
-	 * @since 1.0.0
-	 *
 	 * @param array $args Arguments to use with the textarea input.
 	 * @return string $value Complete <textarea> input with proper attributes.
 	 */
@@ -469,8 +411,6 @@ class cptui_admin_ui {
 
 	/**
 	 * Return a checkbox `<input>`.
-	 *
-	 * @since 1.0.0
 	 *
 	 * @param array $args Arguments to use with the checkbox input.
 	 * @return string $value Complete checkbox `<input>` with proper attributes.
@@ -516,8 +456,6 @@ class cptui_admin_ui {
 	/**
 	 * Return a button `<input>`.
 	 *
-	 * @since 1.3.0
-	 *
 	 * @param array $args Arguments to use with the button input.
 	 * @return string Complete button `<input>`.
 	 */
@@ -530,8 +468,6 @@ class cptui_admin_ui {
 
 	/**
 	 * Return some array_merged default arguments for all input types.
-	 *
-	 * @since 1.0.0
 	 *
 	 * @param array $additions Arguments array to merge with our defaults.
 	 * @return array $value Merged arrays for our default parameters.

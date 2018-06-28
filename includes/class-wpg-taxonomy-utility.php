@@ -104,7 +104,7 @@ function cptui_footer( $original = '' ) {
 	return sprintf(
 		__( '%s version %s by %s', 'custom-post-type-ui' ),
 		__( 'Custom Post Type UI', WPG_TEXT_DOMAIN ),
-		CPTUI_VERSION,
+		WPG_VERSION,
 		'<a href="https://webdevstudios.com" target="_blank">WebDevStudios</a>'
 	) . ' - ' .
 	sprintf(
@@ -265,7 +265,7 @@ function cptui_get_post_type_exists( $slug = '', $data = array() ) {
  * @param bool   $success Whether or not a success. Optional. Default true.
  * @return mixed|void
  */
-function cptui_admin_notices_helper( $message = '', $success = true ) {
+function wpg_admin_notices_helper( $message = '', $success = true ) {
 
 	$class       = array();
 	$class[]     = ( $success ) ? 'updated' : 'error';
@@ -305,8 +305,8 @@ function cptui_get_object_from_post_global() {
 		return sanitize_text_field( $_POST['cpt_custom_post_type']['name'] );
 	}
 
-	if ( isset( $_POST['cpt_custom_tax']['name'] ) ) {
-		return sanitize_text_field( $_POST['cpt_custom_tax']['name'] );
+	if ( isset( $_POST['custom_taxonomy_data']['name'] ) ) {
+		return sanitize_text_field( $_POST['custom_taxonomy_data']['name'] );
 	}
 
 	return esc_html__( 'Object', WPG_TEXT_DOMAIN );
@@ -318,7 +318,7 @@ function cptui_get_object_from_post_global() {
  * @since 1.4.0
  */
 function wpg_add_success_admin_notice() {
-	echo cptui_admin_notices_helper(
+	echo wpg_admin_notices_helper(
 		sprintf(
 			esc_html__( '%s has been successfully added', 'custom-post-type-ui' ),
 			cptui_get_object_from_post_global()
@@ -333,7 +333,7 @@ function wpg_add_success_admin_notice() {
  * @since 1.4.0
  */
 function wpg_add_fail_admin_notice() {
-	echo cptui_admin_notices_helper(
+	echo wpg_admin_notices_helper(
 		sprintf(
 			esc_html__( '%s has failed to be added', 'custom-post-type-ui' ),
 			cptui_get_object_from_post_global()
@@ -348,7 +348,7 @@ function wpg_add_fail_admin_notice() {
  * @since 1.4.0
  */
 function wpg_update_success_admin_notice() {
-	echo cptui_admin_notices_helper(
+	echo wpg_admin_notices_helper(
 		sprintf(
 			esc_html__( '%s has been successfully updated', 'custom-post-type-ui' ),
 			cptui_get_object_from_post_global()
@@ -363,7 +363,7 @@ function wpg_update_success_admin_notice() {
  * @since 1.4.0
  */
 function wpg_update_fail_admin_notice() {
-	echo cptui_admin_notices_helper(
+	echo wpg_admin_notices_helper(
 		sprintf(
 			esc_html__( '%s has failed to be updated', 'custom-post-type-ui' ),
 			cptui_get_object_from_post_global()
@@ -378,7 +378,7 @@ function wpg_update_fail_admin_notice() {
  * @since 1.4.0
  */
 function wpg_delete_success_admin_notice() {
-	echo cptui_admin_notices_helper(
+	echo wpg_admin_notices_helper(
 		sprintf(
 			esc_html__( '%s has been successfully deleted', 'custom-post-type-ui' ),
 			cptui_get_object_from_post_global()
@@ -393,7 +393,7 @@ function wpg_delete_success_admin_notice() {
  * @since 1.4.0
  */
 function wpg_delete_fail_admin_notice() {
-	echo cptui_admin_notices_helper(
+	echo wpg_admin_notices_helper(
 		sprintf(
 			esc_html__( '%s has failed to be deleted', 'custom-post-type-ui' ),
 			cptui_get_object_from_post_global()
@@ -408,7 +408,7 @@ function wpg_delete_fail_admin_notice() {
  * @since 1.5.0
  */
 function wpg_import_success_admin_notice() {
-	echo cptui_admin_notices_helper(
+	echo wpg_admin_notices_helper(
 		esc_html__( 'Successfully imported data.', 'custom-post-type-ui' )
 	);
 }
@@ -419,7 +419,7 @@ function wpg_import_success_admin_notice() {
  * @since 1.5.0
  */
 function wpg_import_fail_admin_notice() {
-	echo cptui_admin_notices_helper(
+	echo wpg_admin_notices_helper(
 		esc_html__( 'Invalid data provided', WPG_TEXT_DOMAIN ),
 		false
 	);
@@ -487,7 +487,7 @@ function cptui_slug_has_quotes() {
  * @since 1.4.0
  */
 function wpg_error_admin_notice() {
-	echo cptui_admin_notices_helper(
+	echo wpg_admin_notices_helper(
 		apply_filters( 'cptui_custom_error_message', '' ),
 		false
 	);
@@ -646,4 +646,117 @@ function get_edit_taxonomy_link( $taxonomy = '', $object_type = '' ) {
      * @param string $object_type The object type (eg. the post type).
      */
     return apply_filters( 'get_edit_taxonomy_link', $location, $taxonomy, $object_type );
+}
+
+/**
+ * Return an array of names that users should not or can not use for taxonomy names.
+ *
+ * See <a href="https://codex.wordpress.org/wp_and_plugins_reserved_terms">https://codex.wordpress.org/wp_and_plugins_reserved_terms</a>
+ *
+ * @return array $value Array of names that are recommended against.
+ */
+function wp_and_plugins_reserved_terms() {
+    
+    $reserved = array(
+        'attachment',
+        'attachment_id',
+        'author',
+        'author_name',
+        'calendar',
+        'cat',
+        'category',
+        'category__and',
+        'category__in',
+        'category__not_in',
+        'category_name',
+        'comments_per_page',
+        'comments_popup',
+        'customize_messenger_channel',
+        'customized',
+        'cpage',
+        'day',
+        'debug',
+        'error',
+        'exact',
+        'feed',
+        'fields',
+        'hour',
+        'include',
+        'link_category',
+        'm',
+        'minute',
+        'monthnum',
+        'more',
+        'name',
+        'nav_menu',
+        'nonce',
+        'nopaging',
+        'offset',
+        'order',
+        'orderby',
+        'p',
+        'page',
+        'page_id',
+        'paged',
+        'pagename',
+        'pb',
+        'perm',
+        'post',
+        'post__in',
+        'post__not_in',
+        'post_format',
+        'post_mime_type',
+        'post_status',
+        'post_tag',
+        'post_type',
+        'posts',
+        'posts_per_archive_page',
+        'posts_per_page',
+        'preview',
+        'robots',
+        's',
+        'search',
+        'second',
+        'sentence',
+        'showposts',
+        'static',
+        'subpost',
+        'subpost_id',
+        'tag',
+        'tag__and',
+        'tag__in',
+        'tag__not_in',
+        'tag_id',
+        'tag_slug__and',
+        'tag_slug__in',
+        'taxonomy',
+        'tb',
+        'term',
+        'theme',
+        'type',
+        'w',
+        'withcomments',
+        'withoutcomments',
+        'year',
+        'output',
+    );
+    
+    /**
+     * Filters the list of reserved terms.
+     * 3rd party plugin authors could use this to prevent duplicate terms.
+     *
+     *
+     * @param array $value Array of post type slugs to forbid.
+     */
+    $custom_reserved = apply_filters( 'plugins_reserved_terms', array() );
+    
+    if ( is_string( $custom_reserved ) && ! empty( $custom_reserved ) ) {
+        $reserved[] = $custom_reserved;
+    } else if ( is_array( $custom_reserved ) && ! empty( $custom_reserved ) ) {
+        foreach ( $custom_reserved as $slug ) {
+            $reserved[] = $slug;
+        }
+    }
+    
+    return $reserved;
 }
