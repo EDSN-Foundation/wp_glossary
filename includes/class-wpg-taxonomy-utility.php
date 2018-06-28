@@ -32,8 +32,8 @@ function cptui_edit_plugin_list_links( $links ) {
 
 	// Add our custom links to the returned array value.
 	return array_merge( array(
-		'<a href="' . admin_url( 'admin.php?page=cptui_main_menu' ) . '">' . __( 'About', 'custom-post-type-ui' ) . '</a>',
-		'<a href="' . admin_url( 'admin.php?page=cptui_support' ) . '">' . __( 'Help', 'custom-post-type-ui' ) . '</a>',
+		'<a href="' . admin_url( 'admin.php?page=cptui_main_menu' ) . '">' . __( 'About', WPG_TEXT_DOMAIN ) . '</a>',
+		'<a href="' . admin_url( 'admin.php?page=cptui_support' ) . '">' . __( 'Help', WPG_TEXT_DOMAIN ) . '</a>',
 	), $links );
 }
 add_filter( 'plugin_action_links_' . plugin_basename( dirname( dirname( __FILE__ ) ) ) . '/custom-post-type-ui.php', 'cptui_edit_plugin_list_links' );
@@ -103,15 +103,15 @@ function cptui_footer( $original = '' ) {
 
 	return sprintf(
 		__( '%s version %s by %s', 'custom-post-type-ui' ),
-		__( 'Custom Post Type UI', 'custom-post-type-ui' ),
+		__( 'Custom Post Type UI', WPG_TEXT_DOMAIN ),
 		CPTUI_VERSION,
 		'<a href="https://webdevstudios.com" target="_blank">WebDevStudios</a>'
 	) . ' - ' .
 	sprintf(
 		'<a href="http://wordpress.org/support/plugin/custom-post-type-ui" target="_blank">%s</a>',
-		__( 'Support forums', 'custom-post-type-ui' )
+		__( 'Support forums', WPG_TEXT_DOMAIN )
 	) . ' - ' .
-	__( 'Follow on Twitter:', 'custom-post-type-ui' ) .
+	__( 'Follow on Twitter:', WPG_TEXT_DOMAIN ) .
 	sprintf(
 		' %s',
 		'<a href="https://twitter.com/webdevstudios" target="_blank">WebDevStudios</a>'
@@ -160,21 +160,6 @@ function cptui_get_current_action() {
 	}
 
 	return $current_action;
-}
-
-/**
- * Return an array of all post type slugs from Custom Post Type UI.
- *
- * @since 1.3.0
- *
- * @return array CPTUI post type slugs.
- */
-function cptui_get_post_type_slugs() {
-	$post_types = get_option( 'cptui_post_types' );
-	if ( ! empty( $post_types ) ) {
-		return array_keys( $post_types );
-	}
-	return array();
 }
 
 /**
@@ -236,25 +221,13 @@ function cptui_post_form_action( $ui ) {
 	echo cptui_get_post_form_action( $ui );
 }
 
-/**
- * Fetch our CPTUI post types option.
- *
- * @since 1.3.0
- *
- * @return mixed
- */
-function cptui_get_post_type_data() {
-	return apply_filters( 'cptui_get_post_type_data', get_option( 'cptui_post_types', array() ), get_current_blog_id() );
-}
 
 /**
  * Fetch our CPTUI taxonomies option.
  *
- * @since 1.3.0
- *
- * @return mixed
+ * Object
  */
-function cptui_get_taxonomy_data() {
+function get_taxonomy_data() {
 	return apply_filters( 'cptui_get_taxonomy_data', get_option( 'cptui_taxonomies', array() ), get_current_blog_id() );
 }
 
@@ -336,7 +309,7 @@ function cptui_get_object_from_post_global() {
 		return sanitize_text_field( $_POST['cpt_custom_tax']['name'] );
 	}
 
-	return esc_html__( 'Object', 'custom-post-type-ui' );
+	return esc_html__( 'Object', WPG_TEXT_DOMAIN );
 }
 
 /**
@@ -344,7 +317,7 @@ function cptui_get_object_from_post_global() {
  *
  * @since 1.4.0
  */
-function cptui_add_success_admin_notice() {
+function wpg_add_success_admin_notice() {
 	echo cptui_admin_notices_helper(
 		sprintf(
 			esc_html__( '%s has been successfully added', 'custom-post-type-ui' ),
@@ -359,7 +332,7 @@ function cptui_add_success_admin_notice() {
  *
  * @since 1.4.0
  */
-function cptui_add_fail_admin_notice() {
+function wpg_add_fail_admin_notice() {
 	echo cptui_admin_notices_helper(
 		sprintf(
 			esc_html__( '%s has failed to be added', 'custom-post-type-ui' ),
@@ -374,7 +347,7 @@ function cptui_add_fail_admin_notice() {
  *
  * @since 1.4.0
  */
-function cptui_update_success_admin_notice() {
+function wpg_update_success_admin_notice() {
 	echo cptui_admin_notices_helper(
 		sprintf(
 			esc_html__( '%s has been successfully updated', 'custom-post-type-ui' ),
@@ -389,7 +362,7 @@ function cptui_update_success_admin_notice() {
  *
  * @since 1.4.0
  */
-function cptui_update_fail_admin_notice() {
+function wpg_update_fail_admin_notice() {
 	echo cptui_admin_notices_helper(
 		sprintf(
 			esc_html__( '%s has failed to be updated', 'custom-post-type-ui' ),
@@ -404,7 +377,7 @@ function cptui_update_fail_admin_notice() {
  *
  * @since 1.4.0
  */
-function cptui_delete_success_admin_notice() {
+function wpg_delete_success_admin_notice() {
 	echo cptui_admin_notices_helper(
 		sprintf(
 			esc_html__( '%s has been successfully deleted', 'custom-post-type-ui' ),
@@ -419,7 +392,7 @@ function cptui_delete_success_admin_notice() {
  *
  * @since 1.4.0
  */
-function cptui_delete_fail_admin_notice() {
+function wpg_delete_fail_admin_notice() {
 	echo cptui_admin_notices_helper(
 		sprintf(
 			esc_html__( '%s has failed to be deleted', 'custom-post-type-ui' ),
@@ -434,7 +407,7 @@ function cptui_delete_fail_admin_notice() {
  *
  * @since 1.5.0
  */
-function cptui_import_success_admin_notice() {
+function wpg_import_success_admin_notice() {
 	echo cptui_admin_notices_helper(
 		esc_html__( 'Successfully imported data.', 'custom-post-type-ui' )
 	);
@@ -445,9 +418,9 @@ function cptui_import_success_admin_notice() {
  *
  * @since 1.5.0
  */
-function cptui_import_fail_admin_notice() {
+function wpg_import_fail_admin_notice() {
 	echo cptui_admin_notices_helper(
-		esc_html__( 'Invalid data provided', 'custom-post-type-ui' ),
+		esc_html__( 'Invalid data provided', WPG_TEXT_DOMAIN ),
 		false
 	);
 }
@@ -513,7 +486,7 @@ function cptui_slug_has_quotes() {
  *
  * @since 1.4.0
  */
-function cptui_error_admin_notice() {
+function wpg_error_admin_notice() {
 	echo cptui_admin_notices_helper(
 		apply_filters( 'cptui_custom_error_message', '' ),
 		false
@@ -590,23 +563,6 @@ function cptui_set_not_new_install() {
 }
 
 /**
- * Returns saved values for single post type from CPTUI settings.
- *
- * @since 1.5.0
- *
- * @param string $post_type Post type to retrieve CPTUI object for.
- * @return string
- */
-function cptui_get_cptui_post_type_object( $post_type = '' ) {
-	$post_types = get_option( 'cptui_post_types' );
-
-	if ( array_key_exists( $post_type, $post_types ) ) {
-		return $post_types[ $post_type ];
-	}
-	return '';
-}
-
-/**
  * Returns saved values for single taxonomy from CPTUI settings.
  *
  * @since 1.5.0
@@ -623,29 +579,6 @@ function cptui_get_cptui_taxonomy_object( $taxonomy = '' ) {
 	return '';
 }
 
-/**
- * Checks if a requested post type has a custom CPTUI feature supported.
- *
- * @since 1.5.0
- *
- * @param string $post_type Post type slug.
- * @param string $feature   Feature to check for.
- * @return bool
- */
-function cptui_post_type_supports( $post_type, $feature ) {
-
-	$object = cptui_get_cptui_post_type_object( $post_type );
-
-	if ( ! empty( $object ) ) {
-		if ( array_key_exists( $feature, $object ) && ! empty( $object[ $feature ] ) ) {
-			return true;
-		}
-
-		return false;
-	}
-
-	return false;
-}
 
 /**
  * Add missing post_format taxonomy support for CPTUI post types.

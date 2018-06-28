@@ -2,7 +2,7 @@
   width: 100%;/*calc(100% - 300px);*/
 }
 
-.posttypesui .cptui-section:first-child, .taxonomiesui .cptui-section:first-child {
+.posttypesui .wpg-section:first-child, .taxonomiesui .wpg-section:first-child {
   margin-top: 30px;
 }
 
@@ -32,52 +32,52 @@
   color: red;
 }
 
-.cptui-table #excerpt {
+.wpg-table #excerpt {
   display: inline-block;
   height: 16px;
   margin: 12px 4px 12px 0;
   width: auto;
 }
 
-.cptui-table td.outter {
+.wpg-table td.outter {
   vertical-align: top;
   width: 50%;
 }
 
-.cptui-table input[type="text"],
-.cptui-new .cptui-table textarea,
-.cptui-edit .cptui-table textarea {
+.wpg-table input[type="text"],
+.wpg-new .wpg-table textarea,
+.wpg-edit .wpg-table textarea {
   width: 75%;
 }
 
-.cptui-table .question:hover {
+.wpg-table .question:hover {
   cursor: pointer;
 }
 
-.cptui-table th p {
+.wpg-table th p {
   font-weight: 400;
   font-size: 12px;
 }
 
-.cptui-table .cptui-slug-details {
+.wpg-table .wpg-slug-details {
   margin-top: 15px;
 }
 
-.cptui-table #slugchanged {
+.wpg-table #slugchanged {
   color: red;
   font-weight: bold;
 }
 
-.cptui-table #slugchanged.hidemessage {
+.wpg-table #slugchanged.hidemessage {
   display: none;
 }
 
-.cptui-support #support .question {
+.wpg-support #support .question {
   font-size: 18px;
   font-weight: bold;
 }
 
-.cptui-support #support .question:before {
+.wpg-support #support .question:before {
   content: "\f139";
   display: inline-block;
   font: normal 25px/1 'dashicons';
@@ -86,28 +86,27 @@
   -webkit-font-smoothing: antialiased;
 }
 
-.cptui-support #support .question.active:before {
+.wpg-support #support .question.active:before {
   content: "\f140";
 }
 
-.cptui-support #support .answer {
+.wpg-support #support .answer {
   margin: 10px 0 0 20px;
 }
 
-.cptui-support #support ol li {
+.wpg-support #support ol li {
   list-style: none;
 }
 
-.cptui-support #support li {
+.wpg-support #support li {
   position: relative;
 }
 
-.cptui-field-description {
+.wpg-field-description {
   font-style: italic;
 }
 
-#cptui_select_post_type,
-#cptui_select_taxonomy {
+.top_margin {
   margin-top: 15px;
 }
 
@@ -126,21 +125,21 @@
   width: 100%;
 }
 
-.about-wrap .cptui-feature {
+.about-wrap .wpg-feature {
   overflow: visible !important;
   *zoom: 1;
 }
 
-.about-wrap .cptui-feature:before, .about-wrap .cptui-feature:after {
+.about-wrap .wpg-feature:before, .about-wrap .wpg-feature:after {
   content: " ";
   display: table;
 }
 
-.about-wrap .cptui-feature:after {
+.about-wrap .wpg-feature:after {
   clear: both;
 }
 
-.about-wrap h3 + .cptui-feature {
+.about-wrap h3 + .wpg-feature {
   margin-top: 0;
 }
 
@@ -205,11 +204,11 @@
   line-height: 1.4;
 }
 
-.about-wrap .cptui-about-text {
+.about-wrap .wpg-about-text {
   margin-bottom: 1em !important;
 }
 
-.about-wrap .cptui-badge {
+.about-wrap .wpg-badge {
   position: absolute;
   top: 0;
   right: 0;
@@ -223,7 +222,7 @@
   display: inline-block;
 }
 
-.cptui-help {
+.wpg-help {
   color: #424242;
   margin-left: 4px;
   opacity: 0.5;
@@ -231,17 +230,17 @@
   width: 16px;
 }
 
-fieldset .cptui-help {
+fieldset .wpg-help {
   position: relative;
   top: 4px;
 }
 
-.cptui-help:hover {
+.wpg-help:hover {
   color: #0074a2;
   opacity: 1;
 }
 
-.cptui-help:focus {
+.wpg-help:focus {
   box-shadow: none;
 }
 
@@ -260,7 +259,7 @@ fieldset .cptui-help {
   overflow: hidden;
 }
 
-.cptui-section fieldset {
+.wpg-section fieldset {
   border: solid #cccccc 1px;
   display: block;
   margin-bottom: 30px;
@@ -268,11 +267,11 @@ fieldset .cptui-help {
   overflow: hidden;
 }
 
-.js .cptui-section fieldset.toggledclosed {
+.js .wpg-section fieldset.toggledclosed {
   height: 1px;
 }
 
-.cptui-section legend {
+.wpg-section legend {
   border: solid #cccccc 1px;
   border-bottom: 0;
   font-size: 14px;
@@ -280,7 +279,7 @@ fieldset .cptui-help {
   padding: 5px;
 }
 
-.cptui-spacer {
+.wpg-spacer {
   display: block;
   margin-top: 25px;
 }
@@ -361,15 +360,15 @@ fieldset .cptui-help {
   display: none;
 }
 
-.cptui-listings th {
+.wpg-listings th {
   font-weight: bold;
 }
 
-.cptui-listings .post-type-listing th {
+.wpg-listings .post-type-listing th {
   width: 16.66667%;
 }
 
-.cptui-listings .taxonomy-listing th {
+.wpg-listings .taxonomy-listing th {
   width: 20%;
 }
 
@@ -378,7 +377,7 @@ fieldset .cptui-help {
 }
 
 @media screen and (min-width: 768px) {
-  .cptui-badge {
+  .wpg-badge {
     padding-top: 142px;
     height: 50px;
     width: 173px;
@@ -387,12 +386,12 @@ fieldset .cptui-help {
     font-size: 14px;
     text-align: center;
     margin: 0 -5px;
-    background: url(../images/cptui-icon-173x173.png) no-repeat;
+    background: url(../images/wpg-icon-173x173.png) no-repeat;
   }
 }
 
 @media screen and (max-width: 768px) {
-  .cptui-table #description {
+  .wpg-table #description {
     width: 100%;
   }
   .wdspromos-about {

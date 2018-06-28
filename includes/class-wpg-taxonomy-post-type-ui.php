@@ -166,7 +166,7 @@ function cptui_register_single_taxonomy( $taxonomy = array() ) {
  *
  * @param string $page Whether it's the CPT or Taxonomy page. Optional. Default "post_types".
  */
-function cptui_settings_tab_menu( $page = 'post_types' ) {
+function taxonomy_tab_menu( $page = 'post_types' ) {
 
 	/**
 	 * Filters the tabs to render on a given page.
@@ -176,7 +176,7 @@ function cptui_settings_tab_menu( $page = 'post_types' ) {
 	 * @param array  $value Array of tabs to render.
 	 * @param string $page  Current page being displayed.
 	 */
-	$tabs = (array) apply_filters( 'cptui_get_tabs', array(), $page );
+	$tabs = (array) apply_filters( 'wpg_get_taxonomy_tabs', array(), $page );
 
 	if ( ! empty( $tabs['page_title'] ) ) {
 		printf(
@@ -208,46 +208,37 @@ function cptui_settings_tab_menu( $page = 'post_types' ) {
  * @param string $current_page Current page being shown. Optional. Default empty string.
  * @return array Amended array of tabs to show.
  */
-function cptui_taxonomy_tabs( $tabs = array(), $current_page = '' ) {
+function wpg_taxonomy_tabs( $tabs = array(), $current_page = '' ) {
     
     if ( 'taxonomies' === $current_page ) {
-        $taxonomies = cptui_get_taxonomy_data();
+        $taxonomies = get_taxonomy_data();
         $classes    = array( 'nav-tab' );
+        $active_tab_class = array('nav-tab-active');
         
+        $action = cptui_get_current_action();
         $tabs['page_title'] = get_admin_page_title();
         $tabs['tabs']       = array();
         // Start out with our basic "Add new" tab.
         $tabs['tabs']['add'] = array(
-            'text'          => esc_html__( 'Add New Taxonomy', 'custom-post-type-ui' ),
-            'classes'       => $classes,
+            'text'          => esc_html__( 'Add New Taxonomy', WPG_TEXT_DOMAIN ),
+            'classes'       => array_merge($classes,empty( $action )?$active_tab_class:[]),
             'url'           => cptui_admin_url( 'edit.php?post_type=glossary&page=wpg_taxonomies' ),
-            'aria-selected' => 'false',
-        );
-        
-        $action = cptui_get_current_action();
-        if ( empty( $action ) ) {
-            $tabs['tabs']['add']['classes'][] = 'nav-tab-active';
-            $tabs['tabs']['add']['aria-selected'] = 'true';
-        }
-        
+            'aria-selected' => empty( $action )?'true':'false',
+        );        
         if ( ! empty( $taxonomies ) ) {
-            
-            if ( ! empty( $action ) ) {
-                $classes[] = 'nav-tab-active';
-            }
             $tabs['tabs']['edit'] = array(
-                'text'          => esc_html__( 'Edit Taxonomies', 'custom-post-type-ui' ),
-                'classes'       => $classes,
+                'text'          => esc_html__( 'Edit Taxonomies', WPG_TEXT_DOMAIN ),
+                'classes'       => array_merge($classes,!empty( $action ) && $action == 'edit'?$active_tab_class:[]),
                 'url'           => esc_url( add_query_arg( array( 'action' => 'edit' ), cptui_admin_url( 'edit.php?post_type=glossary&page=wpg_taxonomies' ) ) ),
-                'aria-selected' => ( ! empty( $action ) ) ? 'true' : 'false',
+                'aria-selected' => ( ! empty( $action ) && $action == 'edit') ? 'true' : 'false'
             );
             
             $tabs['tabs']['view'] = array(
-                'text'          => esc_html__( 'View Taxonomies', 'custom-post-type-ui' ),
-                'classes'       => array( 'nav-tab' ), // Prevent notices.
+                'text'          => esc_html__( 'View Taxonomies', WPG_TEXT_DOMAIN ),
+                'classes'       => array_merge($classes,!empty( $action ) && $action == 'list'?$active_tab_class:[]),
                 'url'           => esc_url( add_query_arg( array( 'action' => 'list' ),cptui_admin_url( 'edit.php?post_type=glossary&page=wpg_taxonomies' )) ),
-                'aria-selected' => 'false',
-            );         
+                'aria-selected' => ( ! empty( $action ) && $action == 'list') ? 'true' : 'false'
+            );
 
         }
     }
@@ -255,7 +246,7 @@ function cptui_taxonomy_tabs( $tabs = array(), $current_page = '' ) {
     return $tabs;
 }
 
-add_filter( 'cptui_get_tabs', 'cptui_taxonomy_tabs', 10, 2 );
+add_filter( 'wpg_get_taxonomy_tabs', 'wpg_taxonomy_tabs', 10, 2 );
 
 /**
  * Return a notice based on conditions.

@@ -218,7 +218,7 @@ class cptui_admin_ui {
 	 * @return string <a> tag with filled out parts.
 	 */
 	public function get_help( $help_text = '' ) {
-		return '<a href="#" class="cptui-help dashicons-before dashicons-editor-help" title="' . esc_attr( $help_text ) . '"></a>';
+		return '<a href="#" class="wpg-help dashicons-before dashicons-editor-help" title="' . esc_attr( $help_text ) . '"></a>';
 	}
 
 	/**
@@ -230,7 +230,7 @@ class cptui_admin_ui {
 	 * @return string
 	 */
 	public function get_description( $help_text = '' ) {
-		return '<span class="cptui-field-description">' . $help_text . '</span>';
+		return '<span class="wpg-field-description">' . $help_text . '</span>';
 	}
 
 	/**
@@ -306,8 +306,8 @@ class cptui_admin_ui {
 			$value .= $this->get_th_end();
 			$value .= $this->get_td_start();
 		}
-		if(!empty($args['attr'])){
-		    $attrs = "";
+		$attrs = "";
+		if(!empty($args['attr'])){		    
 		    foreach ( $args['attr'] as $attr_name=>$attr_value) {
 		        $attrs .= ' ' . $attr_name .'="'.$attr_value.'"';
 		    }
