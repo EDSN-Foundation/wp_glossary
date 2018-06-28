@@ -30,7 +30,7 @@ class WPG_Admin_Scripts {
 	    wp_register_script( 'wpg-tooltipster-script', WPG_PLUGIN_URL . '/assets/js/jquery.tooltipster.min.js', array( 'jquery' ), WPG_VERSION,true);
 		
 		// jQuery UI Style
-	    wp_register_style( 'wpg-jquery-ui-tabs', WPG_PLUGIN_URL . '/assets/css/admin/jquery-ui-1.8.2.css', array(), WPG_VERSION,true);
+	    wp_register_style( 'wpg-jquery-ui-tabs', WPG_PLUGIN_URL . '/assets/css/admin/jquery-ui-1.8.2.css', array(), WPG_VERSION);
 		
 		// Main Style/Script
 	    wp_register_style( 'wpg-main-style', WPG_PLUGIN_URL . '/assets/css/admin/style.css', array(), WPG_VERSION);
