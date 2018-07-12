@@ -340,7 +340,7 @@ class WPG_Linkify {
 				$new_dom->appendChild( $new_dom->importNode( $body_node, TRUE ) );
 
 				$intermal_html	= $new_dom->saveHTML();
-				$content		= substr( trim( $intermal_html ), 6, (strlen( $intermal_html ) - 14 ), "UTF-8" );
+				$content		= substr( trim( $intermal_html ), 6, (strlen( $intermal_html ) - 14 ));
 				
 				// Fix auto lost self-closing ( bug in DOMDocument->saveHtml() ) - caused a conflict with NextGen
 				$content		= preg_replace( '#(<img[^>]*[^/])>#Ui', '$1/>', $content );

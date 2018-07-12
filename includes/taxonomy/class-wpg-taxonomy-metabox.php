@@ -95,8 +95,8 @@ class WPG_Taxonomy_Metabox {
 		wp_deregister_script( 'pods-handlebars' );
 		
 		// enqueue the styles and scripts for metaboxes
-		wp_enqueue_style( 'taxonomy_metabox-baldrick-modals',  WPG_PLUGIN_URL . '/assets/css/wpg.taxonomy.metabox.css' );
-		wp_enqueue_script( 'taxonomy_metabox-post-meta',  WPG_PLUGIN_URL . '/assets/js/wpg.taxonomy.metabox.js', array( 'media-editor' ) , false, true );
+		wp_enqueue_style('taxonomy_metabox-baldrick-modals', plugins_url('/assets/css/wpg.taxonomy.metabox.css', __FILE__));
+		wp_enqueue_script('taxonomy_metabox-post-meta',  plugins_url('/assets/js/wpg.taxonomy.metabox.js', __FILE__), array( 'media-editor' ) , false, true );
 
 		// get all taxonomies
 		$taxonomies = get_object_taxonomies( $post );

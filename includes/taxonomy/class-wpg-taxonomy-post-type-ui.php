@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @internal
  */
 function wpg_create_custom_taxonomies() {
-    $taxes = get_option( 'cptui_taxonomies' );
+    $taxes = get_option( WPG_Taxonomy_Data::FIELD_OPTION );
     
     if ( empty( $taxes ) ) {
         return;
@@ -199,16 +199,16 @@ function wpg_taxonomy_tabs( $tabs = array(), $current_page = '' ) {
         if ( ! empty( $taxonomies ) ) {
             $tabs['tabs']['edit'] = array(
                 'text'          => esc_html__( 'Edit Taxonomies', WPG_TEXT_DOMAIN ),
-                'classes'       => array_merge($classes,!empty( $action ) && $action == 'edit'?$active_tab_class:[]),
-                'url'           => esc_url( add_query_arg( array( 'action' => 'edit' ), cptui_admin_url( 'edit.php?post_type=glossary&page=wpg_taxonomies' ) ) ),
-                'aria-selected' => ( ! empty( $action ) && $action == 'edit') ? 'true' : 'false'
+                'classes'       => array_merge($classes,!empty( $action ) && $action == WPG_Page_Action::EDITING?$active_tab_class:[]),
+                'url'           => esc_url( add_query_arg( array( 'action' => WPG_Page_Action::EDITING ), cptui_admin_url( 'edit.php?post_type=glossary&page=wpg_taxonomies' ) ) ),
+                'aria-selected' => ( ! empty( $action ) && $action == WPG_Page_Action::EDITING) ? 'true' : 'false'
             );
             
             $tabs['tabs']['view'] = array(
                 'text'          => esc_html__( 'View Taxonomies', WPG_TEXT_DOMAIN ),
-                'classes'       => array_merge($classes,!empty( $action ) && $action == 'list'?$active_tab_class:[]),
-                'url'           => esc_url( add_query_arg( array( 'action' => 'list' ),cptui_admin_url( 'edit.php?post_type=glossary&page=wpg_taxonomies' )) ),
-                'aria-selected' => ( ! empty( $action ) && $action == 'list') ? 'true' : 'false'
+                'classes'       => array_merge($classes,!empty( $action ) && $action == WPG_Page_Action::LISTING?$active_tab_class:[]),
+                'url'           => esc_url( add_query_arg( array( 'action' => WPG_Page_Action::LISTING ),cptui_admin_url( 'edit.php?post_type=glossary&page=wpg_taxonomies' )) ),
+                'aria-selected' => ( ! empty( $action ) && $action == WPG_Page_Action::LISTING) ? 'true' : 'false'
             );
 
         }
@@ -243,27 +243,27 @@ function wpg_admin_notices( $action = '', $object_type = '', $success = true, $c
 
 	if ( 'add' == $action ) {
 		if ( $success ) {
-			$message .= sprintf( __( '%s has been successfully added', 'custom-post-type-ui' ), $object_type );
+			$message .= sprintf( __( '%s has been successfully added', WPG_TEXT_DOMAIN ), $object_type );
 		} else {
-			$message .= sprintf( __( '%s has failed to be added', 'custom-post-type-ui' ), $object_type );
+			$message .= sprintf( __( '%s has failed to be added', WPG_TEXT_DOMAIN ), $object_type );
 		}
 	} elseif ( 'update' == $action ) {
 		if ( $success ) {
-			$message .= sprintf( __( '%s has been successfully updated', 'custom-post-type-ui' ), $object_type );
+			$message .= sprintf( __( '%s has been successfully updated', WPG_TEXT_DOMAIN ), $object_type );
 		} else {
-			$message .= sprintf( __( '%s has failed to be updated', 'custom-post-type-ui' ), $object_type );
+			$message .= sprintf( __( '%s has failed to be updated', WPG_TEXT_DOMAIN ), $object_type );
 		}
 	} elseif ( 'delete' == $action ) {
 		if ( $success ) {
-			$message .= sprintf( __( '%s has been successfully deleted', 'custom-post-type-ui' ), $object_type );
+			$message .= sprintf( __( '%s has been successfully deleted', WPG_TEXT_DOMAIN ), $object_type );
 		} else {
-			$message .= sprintf( __( '%s has failed to be deleted', 'custom-post-type-ui' ), $object_type );
+			$message .= sprintf( __( '%s has failed to be deleted', WPG_TEXT_DOMAIN ), $object_type );
 		}
 	} elseif ( 'import' == $action ) {
 		if ( $success ) {
-			$message .= sprintf( __( '%s has been successfully imported', 'custom-post-type-ui' ), $object_type );
+			$message .= sprintf( __( '%s has been successfully imported', WPG_TEXT_DOMAIN ), $object_type );
 		} else {
-			$message .= sprintf( __( '%s has failed to be imported', 'custom-post-type-ui' ), $object_type );
+			$message .= sprintf( __( '%s has failed to be imported', WPG_TEXT_DOMAIN ), $object_type );
 		}
 	} elseif ( 'error' == $action ) {
 		if ( ! empty( $custom ) ) {
@@ -340,28 +340,28 @@ function wpg_get_preserved_label( $type = '', $key = '', $plural = '', $singular
 
 	$preserved_labels = array(
 		'post_types' => array(
-			'add_new_item'       => sprintf( __( 'Add new %s', 'custom-post-type-ui' ), $singular ),
-			'edit_item'          => sprintf( __( 'Edit %s', 'custom-post-type-ui' ), $singular ),
-			'new_item'           => sprintf( __( 'New %s', 'custom-post-type-ui' ), $singular ),
-			'view_item'          => sprintf( __( 'View %s', 'custom-post-type-ui' ), $singular ),
-			'all_items'          => sprintf( __( 'All %s', 'custom-post-type-ui' ), $plural ),
-			'search_items'       => sprintf( __( 'Search %s', 'custom-post-type-ui' ), $plural ),
-			'not_found'          => sprintf( __( 'No %s found.', 'custom-post-type-ui' ), $plural ),
-			'not_found_in_trash' => sprintf( __( 'No %s found in trash.', 'custom-post-type-ui' ), $plural ),
+			'add_new_item'       => sprintf( __( 'Add new %s', WPG_TEXT_DOMAIN ), $singular ),
+			'edit_item'          => sprintf( __( 'Edit %s', WPG_TEXT_DOMAIN ), $singular ),
+			'new_item'           => sprintf( __( 'New %s', WPG_TEXT_DOMAIN ), $singular ),
+			'view_item'          => sprintf( __( 'View %s', WPG_TEXT_DOMAIN ), $singular ),
+			'all_items'          => sprintf( __( 'All %s', WPG_TEXT_DOMAIN ), $plural ),
+			'search_items'       => sprintf( __( 'Search %s', WPG_TEXT_DOMAIN ), $plural ),
+			'not_found'          => sprintf( __( 'No %s found.', WPG_TEXT_DOMAIN ), $plural ),
+			'not_found_in_trash' => sprintf( __( 'No %s found in trash.', WPG_TEXT_DOMAIN ), $plural ),
 		),
 		'taxonomies' => array(
-			'search_items'               => sprintf( __( 'Search %s', 'custom-post-type-ui' ), $plural ),
-			'popular_items'              => sprintf( __( 'Popular %s', 'custom-post-type-ui' ), $plural ),
-			'all_items'                  => sprintf( __( 'All %s', 'custom-post-type-ui' ), $plural ),
-			'parent_item'                => sprintf( __( 'Parent %s', 'custom-post-type-ui' ), $singular ),
-			'parent_item_colon'          => sprintf( __( 'Parent %s:', 'custom-post-type-ui' ), $singular ),
-			'edit_item'                  => sprintf( __( 'Edit %s', 'custom-post-type-ui' ), $singular ),
-			'update_item'                => sprintf( __( 'Update %s', 'custom-post-type-ui' ), $singular ),
-			'add_new_item'               => sprintf( __( 'Add new %s', 'custom-post-type-ui' ), $singular ),
-			'new_item_name'              => sprintf( __( 'New %s name', 'custom-post-type-ui' ), $singular ),
-			'separate_items_with_commas' => sprintf( __( 'Separate %s with commas', 'custom-post-type-ui' ), $plural ),
-			'add_or_remove_items'        => sprintf( __( 'Add or remove %s', 'custom-post-type-ui' ), $plural ),
-			'choose_from_most_used'      => sprintf( __( 'Choose from the most used %s', 'custom-post-type-ui' ), $plural ),
+			'search_items'               => sprintf( __( 'Search %s', WPG_TEXT_DOMAIN ), $plural ),
+			'popular_items'              => sprintf( __( 'Popular %s', WPG_TEXT_DOMAIN ), $plural ),
+			'all_items'                  => sprintf( __( 'All %s', WPG_TEXT_DOMAIN ), $plural ),
+			'parent_item'                => sprintf( __( 'Parent %s', WPG_TEXT_DOMAIN ), $singular ),
+			'parent_item_colon'          => sprintf( __( 'Parent %s:', WPG_TEXT_DOMAIN ), $singular ),
+			'edit_item'                  => sprintf( __( 'Edit %s', WPG_TEXT_DOMAIN ), $singular ),
+			'update_item'                => sprintf( __( 'Update %s', WPG_TEXT_DOMAIN ), $singular ),
+			'add_new_item'               => sprintf( __( 'Add new %s', WPG_TEXT_DOMAIN ), $singular ),
+			'new_item_name'              => sprintf( __( 'New %s name', WPG_TEXT_DOMAIN ), $singular ),
+			'separate_items_with_commas' => sprintf( __( 'Separate %s with commas', WPG_TEXT_DOMAIN ), $plural ),
+			'add_or_remove_items'        => sprintf( __( 'Add or remove %s', WPG_TEXT_DOMAIN ), $plural ),
+			'choose_from_most_used'      => sprintf( __( 'Choose from the most used %s', WPG_TEXT_DOMAIN ), $plural ),
 		),
 	);
 

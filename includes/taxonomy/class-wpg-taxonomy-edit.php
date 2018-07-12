@@ -3,6 +3,7 @@ if (! defined('ABSPATH')) {
     // Exit if accessed directly.
     exit();
 }
+include_once 'pages/page-taxonomy-list.php';
 
 class WPG_Taxonomy_Edit
 {
@@ -35,11 +36,11 @@ class WPG_Taxonomy_Edit
         }
         $current_screen = get_current_screen();
         
-        wp_register_script('taxonomy-main-js', plugins_url("../assets/js/wpg.taxonomy.main.js", __FILE__), array(
+        wp_register_script('taxonomy-main-js', plugins_url("assets/js/wpg.taxonomy.main.js", __FILE__), array(
             'jquery',
             'postbox'
         ), WPG_VERSION, true);
-        wp_enqueue_style('taxonomy-main-css', plugins_url("../assets/css/wpg.taxonomy.main.css", __FILE__), array(), WPG_VERSION);
+        wp_enqueue_style('taxonomy-main-css', plugins_url("assets/css/wpg.taxonomy.main.css", __FILE__), array(), WPG_VERSION);
         
         if (! is_object($current_screen) || 'glossary_page_wpg_taxonomies' !== $current_screen->base) {
             return;
@@ -58,7 +59,7 @@ class WPG_Taxonomy_Edit
         $capability = 'manage_options';
         add_submenu_page($parent_slug, __('Taxonomies', WPG_TEXT_DOMAIN), __('Taxonomies', WPG_TEXT_DOMAIN), $capability, 'wpg_taxonomies', array(
             $this,
-            'wpg_taxonomies_page'
+            'build_taxonomies_page'
         ));
     }
 
@@ -104,33 +105,66 @@ class WPG_Taxonomy_Edit
                     );
                 }
                 check_admin_referer('managing_taxonomy', 'managing_taxonomy_nonce_field');
-                $result = cptui_update_taxonomy($_POST);
+                $result = add_update_taxonomy($_POST);
             } elseif (isset($_POST['taxonomy_delete'])) {
                 check_admin_referer('managing_taxonomy', 'managing_taxonomy_nonce_field');
-                $result = cptui_delete_taxonomy($_POST);
+                $result = delete_taxonomy($_POST);
                 add_filter('taxonomy_delete_filter', '__return_true');
             }
             if ($result) {
-                add_action('admin_notices', "wpg_{$result}_admin_notice");
+                switch ($result){
+                    case 'add_success':{
+                        add_action('admin_notices', "wpg_add_success_admin_notice");
+                        break;
+                    }
+                    case 'update_success':{
+                        add_action('admin_notices', "wpg_update_success_admin_notice");
+                        break;
+                    }
+                    case 'error':{
+                        add_action('admin_notices', "wpg_error_admin_notice");
+                        break;
+                    }
+                    case 'delete_success':{
+                        add_action('admin_notices', "wpg_delete_success_admin_notice");
+                        break;
+                    }
+                    case 'delete_fail':{
+                        add_action('admin_notices', "wpg_delete_fail_admin_notice");
+                        break;
+                    }
+                    default:{
+                        
+                    }
+                }
+                //add_action('admin_notices', "wpg_{$result}_admin_notice");
             }
         }
     }
 
-    public function wpg_taxonomies_page()
+    public function build_taxonomies_page()
     {
-        $action = "";
-        $tab = "new";
+        $action = WPG_Page_Action::ADDING;
         if (! empty($_GET) && ! empty($_GET['action'])) {
             $action = $_GET['action'];
-            $tab = $action;
         }
         
-        $tab_class = 'wpg-' . $tab;
+        $tab_class = 'wpg-' . $action;
         ?>
 
 <div class="wrap <?php echo esc_attr( $tab_class ); ?>">
 
-	<?php
+	<?php        
+        // Create our tabs.
+        taxonomy_tab_menu($page = 'taxonomies');
+        
+        if ($action == WPG_Page_Action::LISTING) {
+            return new WPG_Page_Taxonomy_List();
+        }
+        $this->render($action);
+        
+    }
+    private function render($action){
         /**
          * Filters whether or not a taxonomy was deleted.
          *
@@ -138,14 +172,7 @@ class WPG_Taxonomy_Edit
          *            Whether or not taxonomy deleted. Default false.
          */
         $taxonomy_deleted = apply_filters('taxonomy_delete_filter', false);
-        
-        // Create our tabs.
-        taxonomy_tab_menu($page = 'taxonomies');
-        
-        if ($action == 'list') {
-            return cptui_listings();
-        }
-        if ('edit' == $tab) {
+        if (WPG_Page_Action::EDITING == $action) {
             
             $taxonomies = get_taxonomy_data();
             
@@ -204,7 +231,7 @@ class WPG_Taxonomy_Edit
         echo $ui_builder->get_tr_start() . $ui_builder->get_th_start();
         echo $ui_builder->get_label('name', esc_html__('Taxonomy Slug', WPG_TEXT_DOMAIN)) . $ui_builder->get_required_span();
         
-        if ('edit' == $tab) {
+        if (WPG_Page_Action::EDITING == $action) {
             echo '<p id="slugchanged" class="hidemessage">' . __('Slug has changed', 'custom_post_type_ui') . '</p>';
         }
         echo $ui_builder->get_th_end() . $ui_builder->get_td_start();
@@ -214,19 +241,19 @@ class WPG_Taxonomy_Edit
             'name' => 'name',
             'textvalue' => (isset($current['name'])) ? esc_attr($current['name']) : '',
             'maxlength' => '32',
-            'helptext' => esc_attr__('The taxonomy name/slug. Used for various queries for taxonomy content.', 'custom-post-type-ui'),
+            'helptext' => esc_attr__('The taxonomy name/slug. Used for various queries for taxonomy content.', WPG_TEXT_DOMAIN),
             'required' => true,
             'placeholder' => false,
             'wrap' => false
         ));
         
         echo '<p class="wpg-slug-details">';
-        esc_html_e('Slugs should only contain alphanumeric, latin characters. Underscores should be used in place of spaces. Set "Custom Rewrite Slug" field to make slug use dashes for URLs.', 'custom-post-type-ui');
+        esc_html_e('Slugs should only contain alphanumeric, latin characters. Underscores should be used in place of spaces. Set "Custom Rewrite Slug" field to make slug use dashes for URLs.', WPG_TEXT_DOMAIN);
         echo '</p>';
         
-        if ('edit' == $tab) {
+        if (WPG_Page_Action::EDITING == $action) {
             echo '<p>';
-            esc_html_e('DO NOT EDIT the taxonomy slug unless also planning to migrate terms. Changing the slug registers a new taxonomy entry.', 'custom-post-type-ui');
+            esc_html_e('DO NOT EDIT the taxonomy slug unless also planning to migrate terms. Changing the slug registers a new taxonomy entry.', WPG_TEXT_DOMAIN);
             echo '</p>';
             
             echo '<div class="wpg-spacer">';
@@ -235,7 +262,7 @@ class WPG_Taxonomy_Edit
                 'checked' => 'false',
                 'name' => 'update_taxonomy',
                 'namearray' => 'update_taxonomy',
-                'labeltext' => esc_html__('Migrate terms to newly renamed taxonomy?', 'custom-post-type-ui'),
+                'labeltext' => esc_html__('Migrate terms to newly renamed taxonomy?', WPG_TEXT_DOMAIN),
                 'helptext' => '',
                 'default' => false,
                 'wrap' => false
@@ -247,9 +274,9 @@ class WPG_Taxonomy_Edit
             'namearray' => 'custom_taxonomy_data',
             'name' => 'label',
             'textvalue' => (isset($current['label'])) ? esc_attr($current['label']) : '',
-            'aftertext' => esc_html__('(e.g. Actors)', 'custom-post-type-ui'),
+            'aftertext' => esc_html__('(e.g. Actors)', WPG_TEXT_DOMAIN),
             'labeltext' => esc_html__('Plural Label', WPG_TEXT_DOMAIN),
-            'helptext' => esc_attr__('Used for the taxonomy admin menu item.', 'custom-post-type-ui'),
+            'helptext' => esc_attr__('Used for the taxonomy admin menu item.', WPG_TEXT_DOMAIN),
             'required' => true
         ));
         
@@ -257,9 +284,9 @@ class WPG_Taxonomy_Edit
             'namearray' => 'custom_taxonomy_data',
             'name' => 'singular_label',
             'textvalue' => (isset($current['singular_label'])) ? esc_attr($current['singular_label']) : '',
-            'aftertext' => esc_html__('(e.g. Actor)', 'custom-post-type-ui'),
+            'aftertext' => esc_html__('(e.g. Actor)', WPG_TEXT_DOMAIN),
             'labeltext' => esc_html__('Singular Label', WPG_TEXT_DOMAIN),
-            'helptext' => esc_attr__('Used when a singular label is needed.', 'custom-post-type-ui'),
+            'helptext' => esc_attr__('Used when a singular label is needed.', WPG_TEXT_DOMAIN),
             'required' => true
         ));
         
@@ -267,19 +294,12 @@ class WPG_Taxonomy_Edit
         
         if (! WPG_FORCE_TAXONOMY_POST_TYPES) {
             echo $ui_builder->get_tr_start() . $ui_builder->get_th_start() . esc_html__('Attach to Post Type', WPG_TEXT_DOMAIN) . $ui_builder->get_required_span();
-            echo $ui_builder->get_p(esc_html__('Add support for available registered post types. At least one is required.', 'custom-post-type-ui'));
+            echo $ui_builder->get_p(esc_html__('Add support for available registered post types. At least one is required.', WPG_TEXT_DOMAIN));
             echo $ui_builder->get_th_end() . $ui_builder->get_td_start() . $ui_builder->get_fieldset_start();
             
-            /**
-             * Filters the arguments for post types to list for taxonomy association.
-             
-             *       
-             * @param array $value
-             *            Array of default arguments.
-             */
-            $args = apply_filters('cptui_attach_post_types_to_taxonomy', array(
-                'public' => true
-            ));
+            $args = array(
+            'public' => true
+            );
             
             // If they don't return an array, fall back to the original default. Don't need to check for empty, because empty array is default for $args param in get_post_types anyway.
             if (! is_array($args)) {
@@ -289,25 +309,14 @@ class WPG_Taxonomy_Edit
             }
             $output = 'objects'; // Or objects.
             
-            /**
-             * Filters the results returned to display for available post types for taxonomy.
-             
-             *       
-             * @param array $value
-             *            Array of post type objects.
-             * @param array $args
-             *            Array of arguments for the post type query.
-             * @param string $output
-             *            The output type we want for the results.
-             */
-            $post_types = apply_filters('cptui_get_post_types_for_taxonomies', get_post_types($args, $output), $args, $output);
+            $post_types = get_post_types($args, $output);
             
             foreach ($post_types as $post_type) {
                 $core_label = (in_array($post_type->name, array(
                     'post',
                     'page',
                     'attachment'
-                ))) ? esc_html__('(WP Core)', 'custom-post-type-ui') : '';
+                ))) ? esc_html__('(WP Core)', WPG_TEXT_DOMAIN) : '';
                 echo $ui_builder->get_check_input(array(
                     'checkvalue' => $post_type->name,
                     'checked' => (! empty($current['object_types']) && is_array($current['object_types']) && in_array($post_type->name, $current['object_types'])) ? 'true' : 'false',
@@ -324,62 +333,30 @@ class WPG_Taxonomy_Edit
         ?>
 						</table>
 							<p class="submit">
-							<?php
-        
+							<?php      
         wp_nonce_field('managing_taxonomy', 'managing_taxonomy_nonce_field');
-        if (! empty($_GET) && ! empty($_GET['action']) && 'edit' == $_GET['action']) {
-            ?>
-								<?php
-            
-            /**
-             * Filters the text value to use on the button when editing.
-             
-             *       
-             * @param string $value
-             *            Text to use for the button.
-             */
-            ?>
+        if (! empty($_GET) && ! empty($_GET['action']) && WPG_Page_Action::EDITING == $_GET['action']) {
+            ?>			
 								<input type="submit" class="button-primary"
 									name="taxonomy_submit"
-									value="<?php echo esc_attr( apply_filters( 'cptui_taxonomy_submit_edit', esc_attr__( 'Save Taxonomy', WPG_TEXT_DOMAIN ) ) ); ?>" />
-								<?php
-            
-            /**
-             * Filters the text value to use on the button when deleting.
-             
-             *       
-             * @param string $value
-             *            Text to use for the button.
-             */
-            ?>
+									value="<?php echo esc_attr__( 'Save Taxonomy', WPG_TEXT_DOMAIN );?>" />
+								
 								<input type="submit" class="button-secondary"
 									name="taxonomy_delete" id="taxonomy_submit_delete"
-									value="<?php echo esc_attr( apply_filters( 'cptui_taxonomy_submit_delete', __( 'Delete Taxonomy', WPG_TEXT_DOMAIN ) ) ); ?>" />
+									value="<?php echo esc_attr__( 'Delete Taxonomy', WPG_TEXT_DOMAIN ); ?>" />
 							<?php } else { ?>
-								<?php
-            
-            /**
-             * Filters the text value to use on the button when adding.
-             
-             *       
-             * @param string $value
-             *            Text to use for the button.
-             */
-            ?>
 								<input type="submit" class="button-primary wpg-taxonomy-submit"
 									name="taxonomy_submit"
-									value="<?php echo esc_attr( apply_filters( 'cptui_taxonomy_submit_add', esc_attr__( 'Add Taxonomy', WPG_TEXT_DOMAIN ) ) ); ?>" />
+									value="<?php echo esc_attr__( 'Add Taxonomy', WPG_TEXT_DOMAIN ); ?>" />
 							<?php } ?>
 
 							<?php if ( ! empty( $current ) ) { ?>
-								<input type="hidden" name="tax_original" id="tax_original"
+								<input type="hidden" name="original_taxonomy_name" id="original_taxonomy_name"
 									value="<?php echo esc_attr( $current['name'] ); ?>" />
 							<?php
-        }
-        
-        // Used to check and see if we should prevent duplicate slugs. ?>
-							<input type="hidden" name="cpt_tax_status" id="cpt_tax_status"
-									value="<?php echo esc_attr( $tab ); ?>" />
+        }?>
+							<input type="hidden" name="taxonomy_check_operation" id="taxonomy_check_operation"
+									value="<?php echo esc_attr( $action ); ?>" />
 							</p>
 						</div>
 					</div>
@@ -408,169 +385,169 @@ class WPG_Taxonomy_Edit
             'cols' => '40',
             'textvalue' => (isset($current['description'])) ? esc_textarea($current['description']) : '',
             'labeltext' => esc_html__('Description', WPG_TEXT_DOMAIN),
-            'helptext' => esc_attr__('Describe what your taxonomy is used for.', 'custom-post-type-ui')
+            'helptext' => esc_attr__('Describe what your taxonomy is used for.', WPG_TEXT_DOMAIN)
         ));
         
         echo $ui_builder->get_text_input(array(
             'namearray' => 'cpt_tax_labels',
             'name' => 'menu_name',
             'textvalue' => (isset($current['labels']['menu_name'])) ? esc_attr($current['labels']['menu_name']) : '',
-            'aftertext' => esc_attr__('(e.g. Actors)', 'custom-post-type-ui'),
+            'aftertext' => esc_attr__('(e.g. Actors)', WPG_TEXT_DOMAIN),
             'labeltext' => esc_html__('Menu Name', WPG_TEXT_DOMAIN),
-            'helptext' => esc_html__('Custom admin menu name for your taxonomy.', 'custom-post-type-ui')
+            'helptext' => esc_html__('Custom admin menu name for your taxonomy.', WPG_TEXT_DOMAIN)
         ));
         
         echo $ui_builder->get_text_input(array(
             'namearray' => 'cpt_tax_labels',
             'name' => 'all_items',
             'textvalue' => (isset($current['labels']['all_items'])) ? esc_attr($current['labels']['all_items']) : '',
-            'aftertext' => esc_attr__('(e.g. All Actors)', 'custom-post-type-ui'),
+            'aftertext' => esc_attr__('(e.g. All Actors)', WPG_TEXT_DOMAIN),
             'labeltext' => esc_html__('All Items', WPG_TEXT_DOMAIN),
-            'helptext' => esc_html__('Used as tab text when showing all terms for hierarchical taxonomy while editing post.', 'custom-post-type-ui')
+            'helptext' => esc_html__('Used as tab text when showing all terms for hierarchical taxonomy while editing post.', WPG_TEXT_DOMAIN)
         ));
         
         echo $ui_builder->get_text_input(array(
             'namearray' => 'cpt_tax_labels',
             'name' => 'edit_item',
             'textvalue' => (isset($current['labels']['edit_item'])) ? esc_attr($current['labels']['edit_item']) : '',
-            'aftertext' => esc_attr__('(e.g. Edit Actor)', 'custom-post-type-ui'),
+            'aftertext' => esc_attr__('(e.g. Edit Actor)', WPG_TEXT_DOMAIN),
             'labeltext' => esc_html__('Edit Item', WPG_TEXT_DOMAIN),
-            'helptext' => esc_html__('Used at the top of the term editor screen for an existing taxonomy term.', 'custom-post-type-ui')
+            'helptext' => esc_html__('Used at the top of the term editor screen for an existing taxonomy term.', WPG_TEXT_DOMAIN)
         ));
         
         echo $ui_builder->get_text_input(array(
             'namearray' => 'cpt_tax_labels',
             'name' => 'view_item',
             'textvalue' => (isset($current['labels']['view_item'])) ? esc_attr($current['labels']['view_item']) : '',
-            'aftertext' => esc_attr__('(e.g. View Actor)', 'custom-post-type-ui'),
+            'aftertext' => esc_attr__('(e.g. View Actor)', WPG_TEXT_DOMAIN),
             'labeltext' => esc_html__('View Item', WPG_TEXT_DOMAIN),
-            'helptext' => esc_html__('Used in the admin bar when viewing editor screen for an existing taxonomy term.', 'custom-post-type-ui')
+            'helptext' => esc_html__('Used in the admin bar when viewing editor screen for an existing taxonomy term.', WPG_TEXT_DOMAIN)
         ));
         
         echo $ui_builder->get_text_input(array(
             'namearray' => 'cpt_tax_labels',
             'name' => 'update_item',
             'textvalue' => (isset($current['labels']['update_item'])) ? esc_attr($current['labels']['update_item']) : '',
-            'aftertext' => esc_attr__('(e.g. Update Actor Name)', 'custom-post-type-ui'),
+            'aftertext' => esc_attr__('(e.g. Update Actor Name)', WPG_TEXT_DOMAIN),
             'labeltext' => esc_html__('Update Item Name', WPG_TEXT_DOMAIN),
-            'helptext' => esc_html__('Custom taxonomy label. Used in the admin menu for displaying taxonomies.', 'custom-post-type-ui')
+            'helptext' => esc_html__('Custom taxonomy label. Used in the admin menu for displaying taxonomies.', WPG_TEXT_DOMAIN)
         ));
         
         echo $ui_builder->get_text_input(array(
             'namearray' => 'cpt_tax_labels',
             'name' => 'add_new_item',
             'textvalue' => (isset($current['labels']['add_new_item'])) ? esc_attr($current['labels']['add_new_item']) : '',
-            'aftertext' => esc_attr__('(e.g. Add New Actor)', 'custom-post-type-ui'),
+            'aftertext' => esc_attr__('(e.g. Add New Actor)', WPG_TEXT_DOMAIN),
             'labeltext' => esc_html__('Add New Item', WPG_TEXT_DOMAIN),
-            'helptext' => esc_html__('Used at the top of the term editor screen and button text for a new taxonomy term.', 'custom-post-type-ui')
+            'helptext' => esc_html__('Used at the top of the term editor screen and button text for a new taxonomy term.', WPG_TEXT_DOMAIN)
         ));
         
         echo $ui_builder->get_text_input(array(
             'namearray' => 'cpt_tax_labels',
             'name' => 'new_item_name',
             'textvalue' => (isset($current['labels']['new_item_name'])) ? esc_attr($current['labels']['new_item_name']) : '',
-            'aftertext' => esc_attr__('(e.g. New Actor Name)', 'custom-post-type-ui'),
+            'aftertext' => esc_attr__('(e.g. New Actor Name)', WPG_TEXT_DOMAIN),
             'labeltext' => esc_html__('New Item Name', WPG_TEXT_DOMAIN),
-            'helptext' => esc_html__('Custom taxonomy label. Used in the admin menu for displaying taxonomies.', 'custom-post-type-ui')
+            'helptext' => esc_html__('Custom taxonomy label. Used in the admin menu for displaying taxonomies.', WPG_TEXT_DOMAIN)
         ));
         
         echo $ui_builder->get_text_input(array(
             'namearray' => 'cpt_tax_labels',
             'name' => 'parent_item',
             'textvalue' => (isset($current['labels']['parent_item'])) ? esc_attr($current['labels']['parent_item']) : '',
-            'aftertext' => esc_attr__('(e.g. Parent Actor)', 'custom-post-type-ui'),
+            'aftertext' => esc_attr__('(e.g. Parent Actor)', WPG_TEXT_DOMAIN),
             'labeltext' => esc_html__('Parent Item', WPG_TEXT_DOMAIN),
-            'helptext' => esc_html__('Custom taxonomy label. Used in the admin menu for displaying taxonomies.', 'custom-post-type-ui')
+            'helptext' => esc_html__('Custom taxonomy label. Used in the admin menu for displaying taxonomies.', WPG_TEXT_DOMAIN)
         ));
         
         echo $ui_builder->get_text_input(array(
             'namearray' => 'cpt_tax_labels',
             'name' => 'parent_item_colon',
             'textvalue' => (isset($current['labels']['parent_item_colon'])) ? esc_attr($current['labels']['parent_item_colon']) : '',
-            'aftertext' => esc_attr__('(e.g. Parent Actor:)', 'custom-post-type-ui'),
+            'aftertext' => esc_attr__('(e.g. Parent Actor:)', WPG_TEXT_DOMAIN),
             'labeltext' => esc_html__('Parent Item Colon', WPG_TEXT_DOMAIN),
-            'helptext' => esc_html__('Custom taxonomy label. Used in the admin menu for displaying taxonomies.', 'custom-post-type-ui')
+            'helptext' => esc_html__('Custom taxonomy label. Used in the admin menu for displaying taxonomies.', WPG_TEXT_DOMAIN)
         ));
         
         echo $ui_builder->get_text_input(array(
             'namearray' => 'cpt_tax_labels',
             'name' => 'search_items',
             'textvalue' => (isset($current['labels']['search_items'])) ? esc_attr($current['labels']['search_items']) : '',
-            'aftertext' => esc_attr__('(e.g. Search Actors)', 'custom-post-type-ui'),
+            'aftertext' => esc_attr__('(e.g. Search Actors)', WPG_TEXT_DOMAIN),
             'labeltext' => esc_html__('Search Items', WPG_TEXT_DOMAIN),
-            'helptext' => esc_html__('Custom taxonomy label. Used in the admin menu for displaying taxonomies.', 'custom-post-type-ui')
+            'helptext' => esc_html__('Custom taxonomy label. Used in the admin menu for displaying taxonomies.', WPG_TEXT_DOMAIN)
         ));
         
         echo $ui_builder->get_text_input(array(
             'namearray' => 'cpt_tax_labels',
             'name' => 'popular_items',
             'textvalue' => (isset($current['labels']['popular_items'])) ? esc_attr($current['labels']['popular_items']) : null,
-            'aftertext' => esc_attr__('(e.g. Popular Actors)', 'custom-post-type-ui'),
+            'aftertext' => esc_attr__('(e.g. Popular Actors)', WPG_TEXT_DOMAIN),
             'labeltext' => esc_html__('Popular Items', WPG_TEXT_DOMAIN),
-            'helptext' => esc_html__('Custom taxonomy label. Used in the admin menu for displaying taxonomies.', 'custom-post-type-ui')
+            'helptext' => esc_html__('Custom taxonomy label. Used in the admin menu for displaying taxonomies.', WPG_TEXT_DOMAIN)
         ));
         
         echo $ui_builder->get_text_input(array(
             'namearray' => 'cpt_tax_labels',
             'name' => 'separate_items_with_commas',
             'textvalue' => (isset($current['labels']['separate_items_with_commas'])) ? esc_attr($current['labels']['separate_items_with_commas']) : null,
-            'aftertext' => esc_attr__('(e.g. Separate Actors with commas)', 'custom-post-type-ui'),
+            'aftertext' => esc_attr__('(e.g. Separate Actors with commas)', WPG_TEXT_DOMAIN),
             'labeltext' => esc_html__('Separate Items with Commas', WPG_TEXT_DOMAIN),
-            'helptext' => esc_html__('Custom taxonomy label. Used in the admin menu for displaying taxonomies.', 'custom-post-type-ui')
+            'helptext' => esc_html__('Custom taxonomy label. Used in the admin menu for displaying taxonomies.', WPG_TEXT_DOMAIN)
         ));
         
         echo $ui_builder->get_text_input(array(
             'namearray' => 'cpt_tax_labels',
             'name' => 'add_or_remove_items',
             'textvalue' => (isset($current['labels']['add_or_remove_items'])) ? esc_attr($current['labels']['add_or_remove_items']) : null,
-            'aftertext' => esc_attr__('(e.g. Add or remove Actors)', 'custom-post-type-ui'),
+            'aftertext' => esc_attr__('(e.g. Add or remove Actors)', WPG_TEXT_DOMAIN),
             'labeltext' => esc_html__('Add or Remove Items', WPG_TEXT_DOMAIN),
-            'helptext' => esc_html__('Custom taxonomy label. Used in the admin menu for displaying taxonomies.', 'custom-post-type-ui')
+            'helptext' => esc_html__('Custom taxonomy label. Used in the admin menu for displaying taxonomies.', WPG_TEXT_DOMAIN)
         ));
         
         echo $ui_builder->get_text_input(array(
             'namearray' => 'cpt_tax_labels',
             'name' => 'choose_from_most_used',
             'textvalue' => (isset($current['labels']['choose_from_most_used'])) ? esc_attr($current['labels']['choose_from_most_used']) : null,
-            'aftertext' => esc_attr__('(e.g. Choose from the most used Actors)', 'custom-post-type-ui'),
+            'aftertext' => esc_attr__('(e.g. Choose from the most used Actors)', WPG_TEXT_DOMAIN),
             'labeltext' => esc_html__('Choose From Most Used', WPG_TEXT_DOMAIN),
-            'helptext' => esc_html__('Custom taxonomy label. Used in the admin menu for displaying taxonomies.', 'custom-post-type-ui')
+            'helptext' => esc_html__('Custom taxonomy label. Used in the admin menu for displaying taxonomies.', WPG_TEXT_DOMAIN)
         ));
         
         echo $ui_builder->get_text_input(array(
             'namearray' => 'cpt_tax_labels',
             'name' => 'not_found',
             'textvalue' => (isset($current['labels']['not_found'])) ? esc_attr($current['labels']['not_found']) : null,
-            'aftertext' => esc_attr__('(e.g. No Actors found)', 'custom-post-type-ui'),
+            'aftertext' => esc_attr__('(e.g. No Actors found)', WPG_TEXT_DOMAIN),
             'labeltext' => esc_html__('Not found', WPG_TEXT_DOMAIN),
-            'helptext' => esc_html__('Custom taxonomy label. Used in the admin menu for displaying taxonomies.', 'custom-post-type-ui')
+            'helptext' => esc_html__('Custom taxonomy label. Used in the admin menu for displaying taxonomies.', WPG_TEXT_DOMAIN)
         ));
         
         echo $ui_builder->get_text_input(array(
             'namearray' => 'cpt_tax_labels',
             'name' => 'no_terms',
             'textvalue' => (isset($current['labels']['no_terms'])) ? esc_attr($current['labels']['no_terms']) : null,
-            'aftertext' => esc_html__('(e.g. No actors)', 'custom-post-type-ui'),
+            'aftertext' => esc_html__('(e.g. No actors)', WPG_TEXT_DOMAIN),
             'labeltext' => esc_html__('No terms', WPG_TEXT_DOMAIN),
-            'helptext' => esc_attr__('Used when indicating that there are no terms in the given taxonomy associated with an object.', 'custom-post-type-ui')
+            'helptext' => esc_attr__('Used when indicating that there are no terms in the given taxonomy associated with an object.', WPG_TEXT_DOMAIN)
         ));
         
         echo $ui_builder->get_text_input(array(
             'namearray' => 'cpt_tax_labels',
             'name' => 'items_list_navigation',
             'textvalue' => (isset($current['labels']['items_list_navigation'])) ? esc_attr($current['labels']['items_list_navigation']) : null,
-            'aftertext' => esc_html__('(e.g. Actors list navigation)', 'custom-post-type-ui'),
+            'aftertext' => esc_html__('(e.g. Actors list navigation)', WPG_TEXT_DOMAIN),
             'labeltext' => esc_html__('Items List Navigation', WPG_TEXT_DOMAIN),
-            'helptext' => esc_attr__('Screen reader text for the pagination heading on the term listing screen.', 'custom-post-type-ui')
+            'helptext' => esc_attr__('Screen reader text for the pagination heading on the term listing screen.', WPG_TEXT_DOMAIN)
         ));
         
         echo $ui_builder->get_text_input(array(
             'namearray' => 'cpt_tax_labels',
             'name' => 'items_list',
             'textvalue' => (isset($current['labels']['items_list'])) ? esc_attr($current['labels']['items_list']) : null,
-            'aftertext' => esc_html__('(e.g. Actors list)', 'custom-post-type-ui'),
+            'aftertext' => esc_html__('(e.g. Actors list)', WPG_TEXT_DOMAIN),
             'labeltext' => esc_html__('Items List', WPG_TEXT_DOMAIN),
-            'helptext' => esc_attr__('Screen reader text for the items list heading on the term listing screen.', 'custom-post-type-ui')
+            'helptext' => esc_attr__('Screen reader text for the items list heading on the term listing screen.', WPG_TEXT_DOMAIN)
         ));
         ?>
 						</table>
@@ -610,7 +587,7 @@ class WPG_Taxonomy_Edit
             'namearray' => 'custom_taxonomy_data',
             'name' => 'public',
             'labeltext' => esc_html__('Public', WPG_TEXT_DOMAIN),
-            'aftertext' => esc_html__('(default: true) Whether or not the taxonomy should be publicly queryable.', 'custom-post-type-ui'),
+            'aftertext' => esc_html__('(default: true) Whether or not the taxonomy should be publicly queryable.', WPG_TEXT_DOMAIN),
             'selections' => $select
         ));
         
@@ -633,7 +610,7 @@ class WPG_Taxonomy_Edit
             'namearray' => 'custom_taxonomy_data',
             'name' => 'hierarchical',
             'labeltext' => esc_html__('Hierarchical', WPG_TEXT_DOMAIN),
-            'aftertext' => esc_html__('(default: true) Whether the taxonomy can have parent-child relationships.', 'custom-post-type-ui'),
+            'aftertext' => esc_html__('(default: true) Whether the taxonomy can have parent-child relationships.', WPG_TEXT_DOMAIN),
             'selections' => $select
         ));
         
@@ -656,7 +633,7 @@ class WPG_Taxonomy_Edit
             'namearray' => 'custom_taxonomy_data',
             'name' => 'show_ui',
             'labeltext' => esc_html__('Show UI', WPG_TEXT_DOMAIN),
-            'aftertext' => esc_html__('(default: true) Whether to generate a default UI for managing this custom taxonomy.', 'custom-post-type-ui'),
+            'aftertext' => esc_html__('(default: true) Whether to generate a default UI for managing this custom taxonomy.', WPG_TEXT_DOMAIN),
             'selections' => $select
         ));
         
@@ -679,7 +656,7 @@ class WPG_Taxonomy_Edit
             'namearray' => 'custom_taxonomy_data',
             'name' => 'show_in_menu',
             'labeltext' => esc_html__('Show in menu', WPG_TEXT_DOMAIN),
-            'aftertext' => esc_html__('(default: false) Whether to show the taxonomy in the admin menu.', 'custom-post-type-ui'),
+            'aftertext' => esc_html__('(default: false) Whether to show the taxonomy in the admin menu.', WPG_TEXT_DOMAIN),
             'selections' => $select
         ));
         
@@ -702,7 +679,7 @@ class WPG_Taxonomy_Edit
             'namearray' => 'custom_taxonomy_data',
             'name' => 'show_in_nav_menus',
             'labeltext' => esc_html__('Show in nav menus', WPG_TEXT_DOMAIN),
-            'aftertext' => esc_html__('(default: value of public) Whether to make the taxonomy available for selection in navigation menus.', 'custom-post-type-ui'),
+            'aftertext' => esc_html__('(default: value of public) Whether to make the taxonomy available for selection in navigation menus.', WPG_TEXT_DOMAIN),
             'selections' => $select
         ));
         
@@ -725,7 +702,7 @@ class WPG_Taxonomy_Edit
             'namearray' => 'custom_taxonomy_data',
             'name' => 'query_var',
             'labeltext' => esc_html__('Query Var', WPG_TEXT_DOMAIN),
-            'aftertext' => esc_html__('(default: true) Sets the query_var key for this taxonomy.', 'custom-post-type-ui'),
+            'aftertext' => esc_html__('(default: true) Sets the query_var key for this taxonomy.', WPG_TEXT_DOMAIN),
             'selections' => $select
         ));
         
@@ -733,9 +710,9 @@ class WPG_Taxonomy_Edit
             'namearray' => 'custom_taxonomy_data',
             'name' => 'query_var_slug',
             'textvalue' => (isset($current['query_var_slug'])) ? esc_attr($current['query_var_slug']) : '',
-            'aftertext' => esc_attr__('(default: taxonomy slug). Query var needs to be true to use.', 'custom-post-type-ui'),
+            'aftertext' => esc_attr__('(default: taxonomy slug). Query var needs to be true to use.', WPG_TEXT_DOMAIN),
             'labeltext' => esc_html__('Custom Query Var String', WPG_TEXT_DOMAIN),
-            'helptext' => esc_html__('Sets a custom query_var slug for this taxonomy.', 'custom-post-type-ui')
+            'helptext' => esc_html__('Sets a custom query_var slug for this taxonomy.', WPG_TEXT_DOMAIN)
         ));
         
         $select = array(
@@ -757,7 +734,7 @@ class WPG_Taxonomy_Edit
             'namearray' => 'custom_taxonomy_data',
             'name' => 'rewrite',
             'labeltext' => esc_html__('Rewrite', WPG_TEXT_DOMAIN),
-            'aftertext' => esc_html__('(default: true) Whether or not WordPress should use rewrites for this taxonomy.', 'custom-post-type-ui'),
+            'aftertext' => esc_html__('(default: true) Whether or not WordPress should use rewrites for this taxonomy.', WPG_TEXT_DOMAIN),
             'selections' => $select
         ));
         
@@ -765,9 +742,9 @@ class WPG_Taxonomy_Edit
             'namearray' => 'custom_taxonomy_data',
             'name' => 'rewrite_slug',
             'textvalue' => (isset($current['rewrite_slug'])) ? esc_attr($current['rewrite_slug']) : '',
-            'aftertext' => esc_attr__('(default: taxonomy name)', 'custom-post-type-ui'),
+            'aftertext' => esc_attr__('(default: taxonomy name)', WPG_TEXT_DOMAIN),
             'labeltext' => esc_html__('Custom Rewrite Slug', WPG_TEXT_DOMAIN),
-            'helptext' => esc_html__('Custom taxonomy rewrite slug.', 'custom-post-type-ui')
+            'helptext' => esc_html__('Custom taxonomy rewrite slug.', WPG_TEXT_DOMAIN)
         ));
         
         $select = array(
@@ -789,7 +766,7 @@ class WPG_Taxonomy_Edit
             'namearray' => 'custom_taxonomy_data',
             'name' => 'rewrite_withfront',
             'labeltext' => esc_html__('Rewrite With Front', WPG_TEXT_DOMAIN),
-            'aftertext' => esc_html__('(default: true) Should the permastruct be prepended with the front base.', 'custom-post-type-ui'),
+            'aftertext' => esc_html__('(default: true) Should the permastruct be prepended with the front base.', WPG_TEXT_DOMAIN),
             'selections' => $select
         ));
         
@@ -812,7 +789,7 @@ class WPG_Taxonomy_Edit
             'namearray' => 'custom_taxonomy_data',
             'name' => 'rewrite_hierarchical',
             'labeltext' => esc_html__('Rewrite Hierarchical', WPG_TEXT_DOMAIN),
-            'aftertext' => esc_html__('(default: false) Should the permastruct allow hierarchical urls.', 'custom-post-type-ui'),
+            'aftertext' => esc_html__('(default: false) Should the permastruct allow hierarchical urls.', WPG_TEXT_DOMAIN),
             'selections' => $select
         ));
         
@@ -835,7 +812,7 @@ class WPG_Taxonomy_Edit
             'namearray' => 'custom_taxonomy_data',
             'name' => 'show_admin_column',
             'labeltext' => esc_html__('Show Admin Column', WPG_TEXT_DOMAIN),
-            'aftertext' => esc_html__('(default: true) Whether to allow automatic creation of taxonomy columns on associated post-types.', 'custom-post-type-ui'),
+            'aftertext' => esc_html__('(default: true) Whether to allow automatic creation of taxonomy columns on associated post-types.', WPG_TEXT_DOMAIN),
             'selections' => $select
         ));
         
@@ -858,7 +835,7 @@ class WPG_Taxonomy_Edit
             'namearray' => 'custom_taxonomy_data',
             'name' => 'show_in_rest',
             'labeltext' => esc_html__('Show in REST API', WPG_TEXT_DOMAIN),
-            'aftertext' => esc_html__('(default: false) Whether to show this taxonomy data in the WP REST API.', 'custom-post-type-ui'),
+            'aftertext' => esc_html__('(default: false) Whether to show this taxonomy data in the WP REST API.', WPG_TEXT_DOMAIN),
             'selections' => $select
         ));
         
@@ -866,7 +843,7 @@ class WPG_Taxonomy_Edit
             'namearray' => 'custom_taxonomy_data',
             'name' => 'rest_base',
             'labeltext' => esc_html__('REST API base slug', WPG_TEXT_DOMAIN),
-            'helptext' => esc_attr__('Slug to use in REST API URLs.', 'custom-post-type-ui'),
+            'helptext' => esc_attr__('Slug to use in REST API URLs.', WPG_TEXT_DOMAIN),
             'textvalue' => (isset($current['rest_base'])) ? esc_attr($current['rest_base']) : ''
         ));
         
@@ -888,8 +865,8 @@ class WPG_Taxonomy_Edit
         echo $ui_builder->get_select_input(array(
             'namearray' => 'custom_taxonomy_data',
             'name' => 'show_in_quick_edit',
-            'labeltext' => esc_html__('Show in quick/bulk edit panel.', 'custom-post-type-ui'),
-            'aftertext' => esc_html__('(default: false) Whether to show the taxonomy in the quick/bulk edit panel.', 'custom-post-type-ui'),
+            'labeltext' => esc_html__('Show in quick/bulk edit panel.', WPG_TEXT_DOMAIN),
+            'aftertext' => esc_html__('(default: false) Whether to show the taxonomy in the quick/bulk edit panel.', WPG_TEXT_DOMAIN),
             'selections' => $select
         ));
         ?>
@@ -897,23 +874,11 @@ class WPG_Taxonomy_Edit
 						</div>
 					</div>
 				</div>
-
-			<?php
-        /**
-         * Fires after the default fieldsets on the taxonomy screen.
-         
-         *       
-         * @param WPG_Taxonomy_UI_Builder $ui_builder
-         *            Admin UI instance.
-         */
-			do_action('cptui_taxonomy_after_fieldsets', $ui_builder);
-        ?>
-
 			<p class="submit">
 				<?php
         
         wp_nonce_field('managing_taxonomy', 'managing_taxonomy_nonce_field');
-        if (! empty($_GET) && ! empty($_GET['action']) && 'edit' == $_GET['action']) {
+        if (! empty($_GET) && ! empty($_GET['action']) && WPG_Page_Action::EDITING == $_GET['action']) {
             ?>
 					<?php
             
@@ -927,7 +892,7 @@ class WPG_Taxonomy_Edit
             ?>
 					<input type="submit" class="button-primary wpg-taxonomy-submit"
 						name="taxonomy_submit"
-						value="<?php echo esc_attr( apply_filters( 'cptui_taxonomy_submit_edit', esc_attr__( 'Save Taxonomy', WPG_TEXT_DOMAIN ) ) ); ?>" />
+						value="<?php echo esc_attr__( 'Save Taxonomy', WPG_TEXT_DOMAIN ); ?>" />
 					<?php
             
             /**
@@ -940,7 +905,7 @@ class WPG_Taxonomy_Edit
             ?>
 					<input type="submit" class="button-secondary"
 						name="taxonomy_delete" id="taxonomy_submit_delete"
-						value="<?php echo esc_attr( apply_filters( 'cptui_taxonomy_submit_delete', __( 'Delete Taxonomy', WPG_TEXT_DOMAIN ) ) ); ?>" />
+						value="<?php echo esc_attr__( 'Delete Taxonomy', WPG_TEXT_DOMAIN ); ?>" />
 				<?php } else { ?>
 					<?php
             
@@ -953,18 +918,18 @@ class WPG_Taxonomy_Edit
              */
             ?>
 					<input type="submit" class="button-primary" name="taxonomy_submit"
-						value="<?php echo esc_attr( apply_filters( 'cptui_taxonomy_submit_add', esc_attr__( 'Add Taxonomy', WPG_TEXT_DOMAIN ) ) ); ?>" />
+						value="<?php echo esc_attr__( 'Add Taxonomy', WPG_TEXT_DOMAIN ); ?>" />
 				<?php } ?>
 
 				<?php if ( ! empty( $current ) ) { ?>
-					<input type="hidden" name="tax_original" id="tax_original"
+					<input type="hidden" name="original_taxonomy_name" id="original_taxonomy_name"
 						value="<?php echo $current['name']; ?>" />
 				<?php
         }
         
         // Used to check and see if we should prevent duplicate slugs. ?>
-				<input type="hidden" name="cpt_tax_status" id="cpt_tax_status"
-						value="<?php echo $tab; ?>" />
+				<input type="hidden" name="taxonomy_check_operation" id="taxonomy_check_operation"
+						value="<?php echo $action; ?>" />
 				</p>
 			</div>
 		</div>
@@ -1036,9 +1001,9 @@ function get_current_taxonomy_slug($taxonomy_deleted = false)
                 $tax = sanitize_text_field($_POST['custom_taxonomy_data']['name']);
             } else {
                 // If the submit was failed
-                if (isset($_POST['tax_original'])) {
+                if (isset($_POST['original_taxonomy_name'])) {
                     // EDITING EXISTED- Return the original value since user tried to submit a reserved term.
-                    $tax = sanitize_text_field($_POST['tax_original']);
+                    $tax = sanitize_text_field($_POST['original_taxonomy_name']);
                 } else {
                     // NEW -Do nothing
                 }
@@ -1069,7 +1034,7 @@ function get_current_taxonomy_slug($taxonomy_deleted = false)
  *            The $_POST values. Optional.
  * @return bool|string False on failure, string on success.
  */
-function cptui_delete_taxonomy($data = array())
+function delete_taxonomy($data = array())
 {
     if (is_string($data) && taxonomy_exists($data)) {
         $data = array(
@@ -1084,48 +1049,18 @@ function cptui_delete_taxonomy($data = array())
         return wpg_admin_notices('error', '', false, esc_html__('Please provide a taxonomy to delete', WPG_TEXT_DOMAIN));
     }
     
-    /**
-     * Fires before a taxonomy is deleted from our saved options.
-     
-     *       
-     * @param array $data
-     *            Array of taxonomy data we are deleting.
-     */
-    do_action('cptui_before_delete_taxonomy', $data);
-    
     $taxonomies = get_taxonomy_data();
     
     if (array_key_exists(strtolower($data['custom_taxonomy_data']['name']), $taxonomies)) {
         
         unset($taxonomies[$data['custom_taxonomy_data']['name']]);
         
-        /**
-         * Filters whether or not 3rd party options were saved successfully within taxonomy deletion.
-         
-         *       
-         * @param bool $value
-         *            Whether or not someone else saved successfully. Default false.
-         * @param array $taxonomies
-         *            Array of our updated taxonomies data.
-         * @param array $data
-         *            Array of submitted taxonomy to update.
-         */
-        if (false === ($success = apply_filters('cptui_taxonomy_delete_tax', false, $taxonomies, $data))) {
-            $success = update_option('cptui_taxonomies', $taxonomies);
-        }
+        $success = update_option(WPG_Taxonomy_Data::FIELD_OPTION, $taxonomies);
+        
     }
     
-    /**
-     * Fires after a taxonomy is deleted from our saved options.
-     
-     *       
-     * @param array $data
-     *            Array of taxonomy data that was deleted.
-     */
-    do_action('cptui_after_delete_taxonomy', $data);
-    
     // Used to help flush rewrite rules on init.
-    set_transient('cptui_flush_rewrite_rules', 'true', 5 * 60);
+    set_transient('wpt_flush_rewrite_rules', 'true', 5 * 60);
     
     if (isset($success)) {
         return 'delete_success';
@@ -1134,7 +1069,7 @@ function cptui_delete_taxonomy($data = array())
 }
 
 /**
- * Add to or update our CPTUI option with new data.
+ * Add to or update data options regards taxonomy.
  
  *       
  * @internal
@@ -1143,7 +1078,7 @@ function cptui_delete_taxonomy($data = array())
  *            Array of taxonomy data to update. Optional.
  * @return bool|string False on failure, string on success.
  */
-function cptui_update_taxonomy($data = array())
+function add_update_taxonomy($data = array())
 {
     
     /**
@@ -1153,7 +1088,7 @@ function cptui_update_taxonomy($data = array())
      * @param array $data
      *            Array of taxonomy data we are updating.
      */
-    do_action('cptui_before_update_taxonomy', $data);
+    do_action('wpg_before_update_taxonomy', $data);
     
     // They need to provide a name.
     if (empty($data['custom_taxonomy_data']['name'])) {
@@ -1161,12 +1096,12 @@ function cptui_update_taxonomy($data = array())
     }
     
     if (empty($data['taxonomy_related_post_types'])) {
-        return wpg_admin_notices('error', '', false, esc_html__('Please provide a post type to attach to.', 'custom-post-type-ui'));
+        return wpg_admin_notices('error', '', false, esc_html__('Please provide a post type to attach to.', WPG_TEXT_DOMAIN));
     }
     
-    if (! empty($data['tax_original']) && $data['tax_original'] != $data['custom_taxonomy_data']['name']) {
+    if (! empty($data['original_taxonomy_name']) && $data['original_taxonomy_name'] != $data['custom_taxonomy_data']['name']) {
         if (! empty($data['update_taxonomy'])) {
-            add_filter('cptui_convert_taxonomy_terms', '__return_true');
+            add_filter('convert_taxonomy_terms', '__return_true');
         }
     }
     
@@ -1180,7 +1115,7 @@ function cptui_update_taxonomy($data = array())
     
     if (false !== strpos($data['custom_taxonomy_data']['name'], '\'') || false !== strpos($data['custom_taxonomy_data']['name'], '\"') || false !== strpos($data['custom_taxonomy_data']['rewrite_slug'], '\'') || false !== strpos($data['custom_taxonomy_data']['rewrite_slug'], '\"')) {
         
-        add_filter('cptui_custom_error_message', 'cptui_slug_has_quotes');
+        add_filter('wpg_custom_error_message', 'wpt_slug_has_quotes');
         return 'error';
     }
     
@@ -1195,11 +1130,11 @@ function cptui_update_taxonomy($data = array())
      * @param string $value
      *            Post type slug being saved.
      * @param array $post_types
-     *            Array of existing post types from CPTUI.
+     *            Array of existing post types from WPG.
      */
-    $slug_exists = apply_filters('cptui_taxonomy_slug_exists', false, $data['custom_taxonomy_data']['name'], $taxonomies);
+    $slug_exists = apply_filters('wpg_taxonomy_slug_exists', false, $data['custom_taxonomy_data']['name'], $taxonomies);
     if (true === $slug_exists) {
-        add_filter('cptui_custom_error_message', 'cptui_slug_matches_taxonomy');
+        add_filter('wpg_custom_error_message', 'wpt_slug_taxonomy_already_registered');
         return 'error';
     }
     
@@ -1257,35 +1192,15 @@ function cptui_update_taxonomy($data = array())
     
     $taxonomies[$data['custom_taxonomy_data']['name']]['object_types'] = $data['taxonomy_related_post_types'];
     
-    /**
-     * Filters whether or not 3rd party options were saved successfully within taxonomy add/update.
-     
-     *       
-     * @param bool $value
-     *            Whether or not someone else saved successfully. Default false.
-     * @param array $taxonomies
-     *            Array of our updated taxonomies data.
-     * @param array $data
-     *            Array of submitted taxonomy to update.
-     */
-    if (false === ($success = apply_filters('cptui_taxonomy_update_save', false, $taxonomies, $data))) {
-        $success = update_option('cptui_taxonomies', $taxonomies);
-    }
     
-    /**
-     * Fires after a taxonomy is updated to our saved options.
-     
-     *       
-     * @param array $data
-     *            Array of taxonomy data that was updated.
-     */
-    do_action('cptui_after_update_taxonomy', $data);
+    $success = update_option(WPG_Taxonomy_Data::FIELD_OPTION, $taxonomies);
+    
     
     // Used to help flush rewrite rules on init.
-    set_transient('cptui_flush_rewrite_rules', 'true', 5 * 60);
+    set_transient('wpt_flush_rewrite_rules', 'true', 5 * 60);
     
     if (isset($success)) {
-        if ('new' == $data['cpt_tax_status']) {
+        if (WPG_Page_Action::ADDING == $data['taxonomy_check_operation']) {
             return 'add_success';
         }
     }
@@ -1304,7 +1219,7 @@ function cptui_update_taxonomy($data = array())
  * @param string $new_slug
  *            New taxonomy slug. Optional. Default empty string.
  */
-function cptui_convert_taxonomy_terms($original_slug = '', $new_slug = '')
+function convert_taxonomy_terms($original_slug = '', $new_slug = '')
 {
     global $wpdb;
     
@@ -1327,7 +1242,7 @@ function cptui_convert_taxonomy_terms($original_slug = '', $new_slug = '')
         
         $wpdb->query($wpdb->prepare($query, $new_slug, $original_slug));
     }
-    cptui_delete_taxonomy($original_slug);
+    delete_taxonomy($original_slug);
 }
 
 /**
@@ -1343,7 +1258,7 @@ function cptui_convert_taxonomy_terms($original_slug = '', $new_slug = '')
  *            
  * @return bool
  */
-function cptui_check_existing_taxonomy_slugs($slug_exists = false, $taxonomy_slug = '', $taxonomies = array())
+function slugs_taxonomy_exists($slug_exists = false, $taxonomy_slug = '', $taxonomies = array())
 {
     
     // If true, then we'll already have a conflict, let's not re-process.
@@ -1373,7 +1288,7 @@ function cptui_check_existing_taxonomy_slugs($slug_exists = false, $taxonomy_slu
     // If we're this far, it's false.
     return $slug_exists;
 }
-add_filter('cptui_taxonomy_slug_exists', 'cptui_check_existing_taxonomy_slugs', 10, 3);
+add_filter('wpg_taxonomy_slug_exists', 'slugs_taxonomy_exists', 10, 3);
 
 /**
  * Handle the conversion of taxonomy terms.
@@ -1381,7 +1296,7 @@ add_filter('cptui_taxonomy_slug_exists', 'cptui_check_existing_taxonomy_slugs', 
  * This function came to be because we needed to convert AFTER registration.
  
  */
-function cptui_do_convert_taxonomy_terms()
+function init_convert_taxonomy_terms()
 {
     
     /**
@@ -1391,11 +1306,11 @@ function cptui_do_convert_taxonomy_terms()
      * @param bool $value
      *            Whether or not to convert.
      */
-    if (apply_filters('cptui_convert_taxonomy_terms', false)) {
-        cptui_convert_taxonomy_terms(sanitize_text_field($_POST['tax_original']), sanitize_text_field($_POST['custom_taxonomy_data']['name']));
+    if (apply_filters('convert_taxonomy_terms', false)) {
+        convert_taxonomy_terms(sanitize_text_field($_POST['original_taxonomy_name']), sanitize_text_field($_POST['custom_taxonomy_data']['name']));
     }
 }
-add_action('init', 'cptui_do_convert_taxonomy_terms');
+add_action('init', 'init_convert_taxonomy_terms');
 
 /**
  * Handles slug_exist checks for cases of editing an existing taxonomy.
@@ -1409,158 +1324,13 @@ add_action('init', 'cptui_do_convert_taxonomy_terms');
  *            CPTUI taxonomies.
  * @return bool
  */
-function cptui_updated_taxonomy_slug_exists($slug_exists, $taxonomy_slug = '', $taxonomies = array())
+function updated_taxonomy_slug_exists($slug_exists, $taxonomy_slug = '', $taxonomies = array())
 {
-    if ((! empty($_POST['cpt_tax_status']) && 'edit' == $_POST['cpt_tax_status']) && ! in_array($taxonomy_slug, wp_and_plugins_reserved_terms()) && (! empty($_POST['tax_original']) && $taxonomy_slug === $_POST['tax_original'])) {
+    if ((! empty($_POST['taxonomy_check_operation']) && WPG_Page_Action::EDITING == $_POST['taxonomy_check_operation']) && ! in_array($taxonomy_slug, wp_and_plugins_reserved_terms()) && (! empty($_POST['original_taxonomy_name']) && $taxonomy_slug === $_POST['original_taxonomy_name'])) {
         $slug_exists = false;
     }
     return $slug_exists;
 }
-add_filter('cptui_taxonomy_slug_exists', 'cptui_updated_taxonomy_slug_exists', 11, 3);
+add_filter('wpg_taxonomy_slug_exists', 'updated_taxonomy_slug_exists', 11, 3);
 
-function cptui_listings()
-{
-    ?>
-<div class="wrap wpg-listings">
-			<?php
-    $taxonomies = get_taxonomy_data();
-    
-    if (! empty($taxonomies)) {
-        $taxonomy_table_heads = array(
-            __('Taxonomy', WPG_TEXT_DOMAIN),
-            __('Settings', WPG_TEXT_DOMAIN),
-            __('Post Types', WPG_TEXT_DOMAIN),
-            __('Labels', WPG_TEXT_DOMAIN),
-            __('Template Hierarchy', WPG_TEXT_DOMAIN)
-        );
-        ?>
-				<table class="wp-list-table widefat taxonomy-listing">
-		<thead>
-			<tr>
-						<?php
-        foreach ($taxonomy_table_heads as $head) {
-            echo '<th>' . esc_html($head) . '</th>';
-        }
-        ?>
-					</tr>
-		</thead>
-		<tbody>
-					<?php
-        $counter = 1;
-        foreach ($taxonomies as $taxonomy => $taxonomy_settings) {
-            
-            $rowclass = (0 === $counter % 2) ? '' : 'alternate';
-            
-            $strings = array();
-            $object_types = array();
-            foreach ($taxonomy_settings as $settings_key => $settings_value) {
-                if ('labels' === $settings_key) {
-                    continue;
-                }
-                
-                if (is_string($settings_value)) {
-                    $strings[$settings_key] = $settings_value;
-                } else {
-                    if ('object_types' === $settings_key) {
-                        $object_types[$settings_key] = $settings_value;
-                        
-                        // In case they are not associated from the post type settings.
-                        if (empty($object_types['object_types'])) {
-                            $types = get_taxonomy($taxonomy);
-                            $object_types['object_types'] = $types->object_type;
-                        }
-                    }
-                }
-            }
-            ?>
-							<tr class="<?php echo esc_attr( $rowclass ); ?>">
-								<?php
-            $edit_path = 'edit.php?post_type=glossary&page=wpg_taxonomies&action=edit&wpg_taxonomy=' . $taxonomy;
-            $taxonomy_link_url = (is_network_admin()) ? network_admin_url($edit_path) : admin_url($edit_path);
-            ?>
-								<td>
-									<?php
-            
-printf('<a href="%s">%s</a>', esc_attr($taxonomy_link_url), sprintf(esc_html__('Edit %s', 'custom-post-type-ui'), esc_html($taxonomy)));
-            ?>
-								</td>
-				<td>
-									<?php
-            foreach ($strings as $key => $value) {
-                printf('<strong>%s:</strong> ', esc_html($key));
-                if (in_array($value, array(
-                    '1',
-                    '0'
-                ))) {
-                    echo esc_html(disp_boolean($value));
-                } else {
-                    echo (! empty($value)) ? esc_html($value) : '""';
-                }
-                echo '<br/>';
-            }
-            ?>
-								</td>
-				<td>
-									<?php
-            if (! empty($object_types['object_types'])) {
-                foreach ($object_types['object_types'] as $type) {
-                    echo esc_html($type) . '<br/>';
-                }
-            }
-            ?>
-								</td>
-				<td>
-									<?php
-            $maybe_empty = array_filter($taxonomy_settings['labels']);
-            if (! empty($maybe_empty)) {
-                foreach ($taxonomy_settings['labels'] as $key => $value) {
-                    printf('%s: %s<br/>', esc_html($key), esc_html($value));
-                }
-            } else {
-                printf('<span aria-hidden="true">—</span><span class="screen-reader-text">%s</span>', esc_html__('No custom labels to display', WPG_TEXT_DOMAIN));
-            }
-            ?>
-								</td>
-				<td>
-					<p>
-						<strong><?php esc_html_e( 'Archives file name examples.', 'custom-post-type-ui' ); ?></strong><br />
-										taxonomy-<?php echo esc_html( $taxonomy ); ?>-term_slug.php *<br />
-										taxonomy-<?php echo esc_html( $taxonomy ); ?>.php<br />
-						taxonomy.php<br /> archive.php<br /> index.php
-					</p>
 
-					<p>
-										<?php esc_html_e( '*Replace "term_slug" with the slug of the actual taxonomy term.', 'custom-post-type-ui' ); ?>
-									</p>
-					<p><?php
-            printf('<a href="https://developer.wordpress.org/themes/basics/template-hierarchy/">%s</a>', esc_html__('Template hierarchy Theme Handbook', WPG_TEXT_DOMAIN));
-            ?></p>
-				</td>
-			</tr>
-
-						<?php
-            $counter ++;
-        }
-        ?>
-					</tbody>
-		<tfoot>
-			<tr>
-						<?php
-        foreach ($taxonomy_table_heads as $head) {
-            echo '<th>' . esc_html($head) . '</th>';
-        }
-        ?>
-					</tr>
-		</tfoot>
-	</table>
-			<?php
-    } else {
-        
-        $ui_builder.get_p(
-            sprintf(esc_html__('No taxonomies registered for display. Visit %s to get started.', WPG_TEXT_DOMAIN), sprintf('<a href="%s">%s</a>', esc_attr(admin_url('admin.php?page=cptui_manage_taxonomies')), esc_html__('Add/Edit Taxonomies', WPG_TEXT_DOMAIN))));        
-    }
-    ?>
-
-		</div>
-<?php
-}
