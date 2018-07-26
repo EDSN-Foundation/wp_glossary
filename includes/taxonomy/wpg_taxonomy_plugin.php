@@ -77,6 +77,7 @@ final class WPG_Taxonomy {
 	private function includes() {
 	    include_once('enumerations/class-wpg-enumeration-page-action.php');
 	    include_once('enumerations/class-wpg-taxonomy-data.php');
+	    include_once('class-wpct-taxonomy.php');
 		include_once('class-wpg-taxonomy-metabox.php');
 		include_once('class-wpg-taxonomy-edit.php');
 		include_once('class-wpg-taxonomy-ui.php');
@@ -102,6 +103,17 @@ final class WPG_Taxonomy {
 	public function load_plugin_textdomain() {
 	    load_plugin_textdomain(WPGT_TEXT_DOMAIN, false, plugin_basename( dirname( __FILE__ ) ) . "/i18n/languages" );
 	}
+	
+	/**
+	 * Load taxonomy metabox if it is necessary 
+	 */
+	public function load_taxonomy_metabox() {
+	    $load_metabox = TRUE;
+	    if($load_metabox){
+	        new WPG_Taxonomy_Metabox();
+	    }
+	}
+	
 
 	/**
 	 * Get the plugin url
@@ -135,6 +147,7 @@ final class WPG_Taxonomy {
 	 */
 	public function init() {
 		$this->load_plugin_textdomain();
+		$this->load_taxonomy_metabox();
 		do_action( 'wpg_taxonomy_init' );
 	}
 

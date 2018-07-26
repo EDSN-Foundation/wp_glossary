@@ -45,8 +45,7 @@
 }
 
 .wpg-table input[type="text"],
-.wpg-new .wpg-table textarea,
-.wpg-edit .wpg-table textarea {
+.wpg-managing .wpg-table textarea {
   width: 75%;
 }
 

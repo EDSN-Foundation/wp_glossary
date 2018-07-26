@@ -10,8 +10,9 @@ class WPG_Taxonomy_UI_Builder {
 	 *
 	 * @return string $value Opening `<tr>` tag with attributes.
 	 */
-	public function get_tr_start() {
-		return '<tr valign="top">';
+	public function get_tr_start($args=NULL) {
+	    $class = (isset($args) && isset($args['wrap_class']))?'class="'.$args['wrap_class'].'"':'';
+	    return '<tr valign="top" '.$class.'>';
 	}
 
 	/**
@@ -227,23 +228,44 @@ class WPG_Taxonomy_UI_Builder {
 	public function get_hidden_text( $text = '' ) {
 		return '<span class="visuallyhidden">' . $text . '</span>';
 	}
+	
+	private function processAtributes( $array_atribute = array() ) {
+	    $attrs = "";
+	    if(!empty($array_atribute)){
+	        foreach ( $array_atribute as $attr_name=>$attr_value) {
+	            $attrs .= " " . $attr_name ."=\"".$attr_value."\"";
+	        }
+	    }
+	    return $attrs;
+	}
 
+	public function get_boolean_select_input( $props = array(), $default_value = FALSE) {
+	    $props['options']=array(
+	        array(
+	            'attr' => FALSE,
+	            'text' => esc_attr__('False', WPG_TEXT_DOMAIN),
+	        ),
+	        array(
+	            'attr' => TRUE,
+	            'text' => esc_attr__('True', WPG_TEXT_DOMAIN),
+	        )
+	    );	    
+	    return $this->get_select_input($props, $default_value);
+	}
 	/**
 	 * Return a populated `<select>` input.
 	 *
 	 * @param array $args Arguments to use with the `<select>` input.
 	 * @return string $value Complete <select> input with options and selected attribute.
 	 */
-	public function get_select_input( $args = array() ) {
-		$defaults = $this->get_default_input_parameters(
-			array( 'selections' => array() )
-		);
+	public function get_select_input( $args = array(), $default_value = NULL) {
+		$defaults = $this->get_default_input_parameters();
 
 		$args = wp_parse_args( $args, $defaults );
-
+        $error_messages = array();
 		$value = '';
 		if ( $args['wrap'] ) {
-			$value  = $this->get_tr_start();
+		    $value  = $this->get_tr_start($args);
 			$value .= $this->get_th_start();
 			$value .= $this->get_label( $args['name'], $args['labeltext'] );
 			if ( $args['required'] ) { $value .= $this->get_required_span(); }
@@ -251,43 +273,48 @@ class WPG_Taxonomy_UI_Builder {
 			$value .= $this->get_th_end();
 			$value .= $this->get_td_start();
 		}
-		$attrs = "";
-		if(!empty($args['attr'])){		    
-		    foreach ( $args['attr'] as $attr_name=>$attr_value) {
-		        $attrs .= ' ' . $attr_name .'="'.$attr_value.'"';
-		    }
-		}
+		$attrs = $this->processAtributes((isset($args) && isset($args['attr']))? $args['attr']:NULL);		
 
+		$found = FALSE;
 		$value .= '<select id="' . $args['name'] . '" name="' . $args['namearray'] . '[' . $args['name'] . ']"'.$attrs.'>';
-		if ( ! empty( $args['selections']['options'] ) && is_array( $args['selections']['options'] ) ) {
-			foreach ( $args['selections']['options'] as $val ) {
-				$result = '';
-				$bool = disp_boolean( $val['attr'] );
-
-				if ( is_numeric( $args['selections']['selected'] ) ) {
-					$selected = disp_boolean( $args['selections']['selected'] );
-				} elseif ( in_array( $args['selections']['selected'], array( 'true', 'false' ) ) ) {
-					$selected = $args['selections']['selected'];
+		if(isset($args['selections'])){
+		    array_push($error_messages,'This element is using the wrong prop to create the element.("selections" is deprecated)');
+		    $args['options'] = $args['selections']['options'];
+		    $args['selected'] = $args['selections']['selected'];
+		    unset($args['selections']);
+		}
+		
+		if ( ! empty( $args['options'] ) && is_array( $args['options'] ) ) {
+			foreach ( $args['options'] as $val ) {
+				$result = '';				
+				if($args['selected'] !== NULL){
+    				if($args['selected'] === $val['attr']){
+    				    $result = ' selected="selected"';
+    				    $found = TRUE;
+    				}				
 				}
-
-				if ( ( ! empty( $selected ) ) && $selected === $bool ) {
-					$result = ' selected="selected"';
-				} else {
-					if ( array_key_exists( 'default', $val ) && ! empty( $val['default'] ) ) {
-						if ( empty( $selected ) ) {
-							$result = ' selected="selected"';
-						}
-					}
+				else if($default_value !== NULL && $val['attr'] === $default_value){
+				    $result = ' selected="selected"';
+				    $found = TRUE;
 				}
-
-				if ( ! is_numeric( $args['selections']['selected'] ) && ( ! empty( $args['selections']['selected'] ) && $args['selections']['selected'] === $val['attr'] ) ) {
-					$result = ' selected="selected"';
-				}
-
+				
 				$value .= '<option value="' . $val['attr'] . '"' . $result . '>' . $val['text'] . '</option>';
 			}
 		}
 		$value .= '</select>';
+		if(!$found){
+		    if($args['selected'] !== NULL){
+		        array_push($error_messages,'Selected value doesn\'t exists.("'.$args['selected'].'")');
+		    }
+		    if($args['selected'] === NULL && $default_value !== NULL){
+		        array_push($error_messages,'Default value doesn\'t exists.("'.$default_value.'")');
+		    }		    
+		}
+		if(count($error_messages)>0){
+		    foreach ($error_messages as $key => $error_message){
+		        $value .= '<span style="color:red;">'.$error_message.'</span>'.($key>0?'<br>':'');
+		    }
+		}
 
 		if ( ! empty( $args['aftertext'] ) ) {
 			$value .= ' ' . $this->get_description( $args['aftertext'] );
@@ -319,13 +346,15 @@ class WPG_Taxonomy_UI_Builder {
 
 		$value = '';
 		if ( $args['wrap'] ) {
-			$value .= $this->get_tr_start();
+		    $value .= $this->get_tr_start($args);
 			$value .= $this->get_th_start();
 			$value .= $this->get_label( $args['name'], $args['labeltext'] );
 			if ( $args['required'] ) { $value .= $this->get_required_span(); }
 			$value .= $this->get_th_end();
 			$value .= $this->get_td_start();
 		}
+		
+		$attrs = $this->processAtributes((isset($args) && isset($args['attr']))? $args['attr']:NULL);
 
 		$value .= '<input type="text" id="' . $args['name'] . '" name="' . $args['namearray'] . '[' . $args['name'] . ']" value="' . $args['textvalue'] . '"';
 
@@ -347,7 +376,7 @@ class WPG_Taxonomy_UI_Builder {
 			}
 		}
 
-		$value .= ' />';
+		$value .= ' '.$attrs.'/>';
 
 		if ( ! empty( $args['aftertext'] ) ) {
 			$value .= $this->get_hidden_text( $args['aftertext'] );
@@ -390,8 +419,10 @@ class WPG_Taxonomy_UI_Builder {
 			$value .= $this->get_th_end();
 			$value .= $this->get_td_start();
 		}
+		
+		$attrs = $this->processAtributes((isset($args) && isset($args['attr']))? $args['attr']:NULL);
 
-		$value .= '<textarea id="' . $args['name'] . '" name="' . $args['namearray'] . '[' . $args['name'] . ']" rows="' . $args['rows'] . '" cols="' . $args['cols'] . '">' . $args['textvalue'] . '</textarea>';
+		$value .= '<textarea id="' . $args['name'] . '" name="' . $args['namearray'] . '[' . $args['name'] . ']" rows="' . $args['rows'] . '" cols="' . $args['cols'] . '" '.$attrs.'>' . $args['textvalue'] . '</textarea>';
 
 		if ( ! empty( $args['aftertext'] ) ) {
 			$value .= $args['aftertext'];
@@ -436,11 +467,13 @@ class WPG_Taxonomy_UI_Builder {
 			$value .= $this->get_th_end();
 			$value .= $this->get_td_start();
 		}
+		
+		$attrs = $this->processAtributes((isset($args) && isset($args['attr']))? $args['attr']:NULL);
 
 		if ( isset( $args['checked'] ) && 'false' === $args['checked'] ) {
-			$value .= '<input type="checkbox" id="' . $args['name'] . '" name="' . $args['namearray'] . '[]" value="' . $args['checkvalue'] . '" />';
+			$value .= '<input type="checkbox" id="' . $args['name'] . '" name="' . $args['namearray'] . '[]" value="' . $args['checkvalue'] . '" '.$attrs.'/>';
 		} else {
-			$value .= '<input type="checkbox" id="' . $args['name'] . '" name="' . $args['namearray'] . '[]" value="' . $args['checkvalue'] . '" checked="checked" />';
+			$value .= '<input type="checkbox" id="' . $args['name'] . '" name="' . $args['namearray'] . '[]" value="' . $args['checkvalue'] . '" checked="checked" '.$attrs.'/>';
 		}
 		$value .= $this->get_label( $args['name'], $args['labeltext'] );
 		$value .= '<br/>';

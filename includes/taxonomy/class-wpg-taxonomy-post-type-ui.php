@@ -11,19 +11,28 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @internal
  */
 function wpg_create_custom_taxonomies() {
-    $taxes = get_option( WPG_Taxonomy_Data::FIELD_OPTION );
+    $taxes = get_taxonomy_data(true);
     
     if ( empty( $taxes ) ) {
         return;
     }    
     if ( is_array( $taxes ) ) {
-        foreach ( $taxes as $tax ) {
+        foreach ( $taxes as $tax ) {   
+            
             wpg_register_taxonomy( $tax );
         }
-    }
+    }    
 }
 add_action( 'init', 'wpg_create_custom_taxonomies', 9 );  // Leave on standard init for legacy purposes.
 
+function wpg_get_default_labels($labels,$singular_name = '', $plural_name = ''){
+    if($labels == NULL){return $labels;}
+    $default_labels_and_keys = wpg_get_default_labels_and_keys( $singular_name, $plural_name);
+    foreach ($default_labels_and_keys as $key => $defaul_label) {
+        $labels[$key] = (isset($labels[$key]) && !empty($labels[$key]))?$labels[$key]:$default_labels_and_keys[$key];
+    }
+    return $labels; 
+}
 /**
  * Helper function to register the actual taxonomy.
  
@@ -33,104 +42,97 @@ add_action( 'init', 'wpg_create_custom_taxonomies', 9 );  // Leave on standard i
  * @param array $taxonomy Taxonomy array to register. Optional.
  * @return null Result of register_taxonomy.
  */
-function wpg_register_taxonomy( $taxonomy = array() ) {
-
+function wpg_register_taxonomy(WPCT_Taxonomy $taxonomy) {
+    //$lab = $taxonomy['label'];
+    
 	$labels = array(
-		'name'               => $taxonomy['label'],
-		'singular_name'      => $taxonomy['singular_label'],
+		'name'               => $taxonomy->label,
+	    'singular_name'      => $taxonomy->labels->singular_name,
 	);
+	
+// 	$description = '';
+// 	if ( ! empty( $taxonomy->description ) ) {
+// 		$description = $taxonomy->description;
+// 	}
+	//var_dump($taxonomy);
+// 	$taxonomy->labels = wpg_get_default_labels($taxonomy->labels);
+// 	$preserved = wpg_get_preserved_keys( 'taxonomies' );
+// 	foreach ( $taxonomy->labels as $key => $label ) {
+	    
+// 		if ( ! empty( $label ) ) {
+// 		    echo "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA - NOT EMPTY ->".$label;
+// 			$labels[ $key ] = $label;
+// 		} elseif ( empty( $label ) && in_array( $key, $preserved ) ) {
+// 		    $labels[ $key ] = wpg_get_preserved_label( 'taxonomies', $key, $taxonomy->label, $labels['singular_name'] );
+// 		}
+// 	}
+// 	$rewrite = get_disp_boolean( $taxonomy->rewrite);
+// 	if ( false !== get_disp_boolean( $taxonomy->rewrite ) ) {
+// 		$rewrite = array();
+// 		$rewrite['slug'] = ( ! empty( $taxonomy->rewrite_slug ) ) ? $taxonomy->rewrite_slug : $taxonomy->name;
+// 		$rewrite['with_front'] = true;
+// 		if ( isset( $taxonomy->rewrite_withfront ) ) {
+// 			$rewrite['with_front'] = ( 'false' === disp_boolean( $taxonomy->rewrite_withfront ) ) ? false : true;
+// 		}
+// 		$rewrite['hierarchical'] = false;
+// 		if ( isset( $taxonomy->rewrite_hierarchical ) ) {
+// 			$rewrite['hierarchical'] = ( 'true' === disp_boolean( $taxonomy->rewrite_hierarchical ) ) ? true : false;
+// 		}
+// 	}
 
-	$description = '';
-	if ( ! empty( $taxonomy['description'] ) ) {
-		$description = $taxonomy['description'];
-	}
+// 	if ( in_array( $taxonomy->query_var, array( 'true', 'false', '0', '1' ) ) ) {
+// 		$taxonomy->query_var = get_disp_boolean( $taxonomy->query_var );
+// 	}
+	/* if ( true === $taxonomy->query_var && ! empty( $taxonomy->query_var_slug ) ) {
+		$taxonomy->query_var = $taxonomy->query_var_slug;
+	} */
 
-	$preserved = wpg_get_preserved_keys( 'taxonomies' );
-	foreach ( $taxonomy['labels'] as $key => $label ) {
+// 	$public = ( ! empty( $taxonomy->public ) && false === get_disp_boolean( $taxonomy->public ) ) ? false : true;
 
-		if ( ! empty( $label ) ) {
-			$labels[ $key ] = $label;
-		} elseif ( empty( $label ) && in_array( $key, $preserved ) ) {
-			$labels[ $key ] = wpg_get_preserved_label( 'taxonomies', $key, $taxonomy['label'], $taxonomy['singular_label'] );
-		}
-	}
+// 	$show_admin_column = ( ! empty( $taxonomy->show_admin_column ) && false !== get_disp_boolean( $taxonomy->show_admin_column ) ) ? true : false;
 
-	$rewrite = get_disp_boolean( $taxonomy['rewrite'] );
-	if ( false !== get_disp_boolean( $taxonomy['rewrite'] ) ) {
-		$rewrite = array();
-		$rewrite['slug'] = ( ! empty( $taxonomy['rewrite_slug'] ) ) ? $taxonomy['rewrite_slug'] : $taxonomy['name'];
-		$rewrite['with_front'] = true;
-		if ( isset( $taxonomy['rewrite_withfront'] ) ) {
-			$rewrite['with_front'] = ( 'false' === disp_boolean( $taxonomy['rewrite_withfront'] ) ) ? false : true;
-		}
-		$rewrite['hierarchical'] = false;
-		if ( isset( $taxonomy['rewrite_hierarchical'] ) ) {
-			$rewrite['hierarchical'] = ( 'true' === disp_boolean( $taxonomy['rewrite_hierarchical'] ) ) ? true : false;
-		}
-	}
+// 	$show_in_menu = ( ! empty( $taxonomy->show_in_menu ) && false !== get_disp_boolean( $taxonomy->show_in_menu ) ) ? true : false;
 
-	if ( in_array( $taxonomy['query_var'], array( 'true', 'false', '0', '1' ) ) ) {
-		$taxonomy['query_var'] = get_disp_boolean( $taxonomy['query_var'] );
-	}
-	if ( true === $taxonomy['query_var'] && ! empty( $taxonomy['query_var_slug'] ) ) {
-		$taxonomy['query_var'] = $taxonomy['query_var_slug'];
-	}
+// 	if ( empty( $taxonomy->show_in_menu ) ) {
+// 	    //$taxonomy->show_in_menu = get_disp_boolean( $taxonomy->show_ui );
+// 	    $taxonomy->show_in_menu = $taxonomy->show_ui;
+// 	}
 
-	$public = ( ! empty( $taxonomy['public'] ) && false === get_disp_boolean( $taxonomy['public'] ) ) ? false : true;
+// 	$show_in_nav_menus = ( ! empty( $taxonomy->show_in_nav_menus ) && false !== get_disp_boolean( $taxonomy->show_in_nav_menus ) ) ? true : false;
+// 	if ( empty( $taxonomy->show_in_nav_menus ) ) {
+// 	    $taxonomy->show_in_nav_menus = $taxonomy->public;
+// 	}
 
-	$show_admin_column = ( ! empty( $taxonomy['show_admin_column'] ) && false !== get_disp_boolean( $taxonomy['show_admin_column'] ) ) ? true : false;
+// 	$show_in_rest = ( ! empty( $taxonomy->show_in_rest ) && false !== get_disp_boolean( $taxonomy->show_in_rest ) ) ? true : false;
 
-	$show_in_menu = ( ! empty( $taxonomy['show_in_menu'] ) && false !== get_disp_boolean( $taxonomy['show_in_menu'] ) ) ? true : false;
+// 	$show_in_quick_edit = ( ! empty( $taxonomy->show_in_quick_edit ) && false !== get_disp_boolean( $taxonomy->show_in_quick_edit ) ) ? true : false;
 
-	if ( empty( $taxonomy['show_in_menu'] ) ) {
-		$show_in_menu = get_disp_boolean( $taxonomy['show_ui'] );
-	}
-
-	$show_in_nav_menus = ( ! empty( $taxonomy['show_in_nav_menus'] ) && false !== get_disp_boolean( $taxonomy['show_in_nav_menus'] ) ) ? true : false;
-	if ( empty( $taxonomy['show_in_nav_menus'] ) ) {
-		$show_in_nav_menus = $public;
-	}
-
-	$show_in_rest = ( ! empty( $taxonomy['show_in_rest'] ) && false !== get_disp_boolean( $taxonomy['show_in_rest'] ) ) ? true : false;
-
-	$show_in_quick_edit = ( ! empty( $taxonomy['show_in_quick_edit'] ) && false !== get_disp_boolean( $taxonomy['show_in_quick_edit'] ) ) ? true : false;
-
-	$rest_base = null;
-	if ( ! empty( $taxonomy['rest_base'] ) ) {
-		$rest_base = $taxonomy['rest_base'];
-	}
+// 	$rest_base = null;
+// 	if ( ! empty( $taxonomy->rest_base ) ) {
+// 		$rest_base = $taxonomy->rest_base;
+// 	}
 
 	$args = array(
-		'labels'             => $labels,
-		'label'              => $taxonomy['label'],
-		'description'        => $description,
-		'public'             => $public,
-		'hierarchical'       => get_disp_boolean( $taxonomy['hierarchical'] ),
-		'show_ui'            => get_disp_boolean( $taxonomy['show_ui'] ),
-		'show_in_menu'       => $show_in_menu,
-		'show_in_nav_menus'  => $show_in_nav_menus,
-		'query_var'          => $taxonomy['query_var'],
-		'rewrite'            => $rewrite,
-		'show_admin_column'  => $show_admin_column,
-		'show_in_rest'       => $show_in_rest,
-		'rest_base'          => $rest_base,
-		'show_in_quick_edit' => $show_in_quick_edit,
+	    'labels'             => $taxonomy->labels,
+		'label'              => $taxonomy->label,
+	    'description'        => !empty($taxonomy->description)?$taxonomy->description:'',
+	    'public'             => $taxonomy->public,
+		'hierarchical'       => $taxonomy->hierarchical,
+		'show_ui'            => $taxonomy->show_ui,
+	    'show_in_menu'       => $taxonomy->show_in_menu,
+	    'show_in_nav_menus'  => $taxonomy->show_in_nav_menus,
+		'query_var'          => $taxonomy->query_var,
+	    'rewrite'            => $taxonomy->rewrite,
+	    'show_admin_column'  => $taxonomy->show_admin_column,
+	    'show_in_rest'       => $taxonomy->show_in_rest,
+	    'rest_base'          => $taxonomy->rest_base,
+	    'show_in_quick_edit' => $taxonomy->show_in_quick_edit,
+	    'meta_box_cb'        => $taxonomy->meta_box_cb
 	);
 
-	$object_type = ( ! empty( $taxonomy['object_types'] ) ) ? $taxonomy['object_types'] : '';
-
-	/**
-	 * Filters the arguments used for a taxonomy right before registering.
-	 
-	 * @since 1.3.0 Added original passed in values array
-	 *
-	 * @param array  $args     Array of arguments to use for registering taxonomy.
-	 * @param string $value    Taxonomy slug to be registered.
-	 * @param array  $taxonomy Original passed in values for taxonomy.
-	 */
-	$args = apply_filters( 'cptui_pre_register_taxonomy', $args, $taxonomy['name'], $taxonomy );
-
-	return register_taxonomy( $taxonomy['name'], wpg_glossary_get_slug(), $args );
+	$taxonomy->object_type = ( ! empty( $taxonomy->object_type ) ) ? $taxonomy->object_type : '';
+		
+	return register_taxonomy( $taxonomy->name, $taxonomy->object_type, $args );
 }
 
 /**
@@ -290,80 +292,27 @@ function wpg_admin_notices( $action = '', $object_type = '', $success = true, $c
 }
 
 /**
- * Return array of keys needing preserved.
+ * Return default labels for several keys.
  
  *
- * @param string $type Type to return. Either 'post_types' or 'taxonomies'. Optional. Default empty string.
- * @return array Array of keys needing preservered for the requested type.
+ * @param string $singular It's a singular label for the taxonomy.
+ * @param string $plural It's a plural label for the taxonomy.
+ * @return array Array of keys and their respective labels.
  */
-function wpg_get_preserved_keys( $type = '' ) {
-
-	$preserved_labels = array(
-		'post_types' => array(
-			'add_new_item',
-			'edit_item',
-			'new_item',
-			'view_item',
-			'all_items',
-			'search_items',
-			'not_found',
-			'not_found_in_trash',
-		),
-		'taxonomies' => array(
-			'search_items',
-			'popular_items',
-			'all_items',
-			'parent_item',
-			'parent_item_colon',
-			'edit_item',
-			'update_item',
-			'add_new_item',
-			'new_item_name',
-			'separate_items_with_commas',
-			'add_or_remove_items',
-			'choose_from_most_used',
-		),
+function wpg_get_default_labels_and_keys($singular = '', $plural = '' ) {	
+	return array(
+	    'search_items'                 => sprintf( __( 'Search %s', WPG_TEXT_DOMAIN ), $plural ),
+	    'popular_items'                => sprintf( __( 'Popular %s', WPG_TEXT_DOMAIN ), $plural ),
+	    'all_items'                    => sprintf( __( 'All %s', WPG_TEXT_DOMAIN ), $plural ),
+	    'parent_item'                  => sprintf( __( 'Parent %s', WPG_TEXT_DOMAIN ), $singular ),
+	    'parent_item_colon'            => sprintf( __( 'Parent %s:', WPG_TEXT_DOMAIN ), $singular ),
+	    'edit_item'                    => sprintf( __( 'Edit %s', WPG_TEXT_DOMAIN ), $singular ),
+	    'update_item'                  => sprintf( __( 'Update %s', WPG_TEXT_DOMAIN ), $singular ),
+	    'add_new_item'                 => sprintf( __( 'Add new %s', WPG_TEXT_DOMAIN ), $singular ),
+	    'new_item_name'                => sprintf( __( 'New %s name', WPG_TEXT_DOMAIN ), $singular ),
+	    'separate_items_with_commas'   => sprintf( __( 'Separate %s with commas', WPG_TEXT_DOMAIN ), $plural ),
+	    'add_or_remove_items'          => sprintf( __( 'Add or remove %s', WPG_TEXT_DOMAIN ), $plural ), 
+	    'choose_from_most_used'        => sprintf( __( 'Choose from the most used %s', WPG_TEXT_DOMAIN ), $plural ),
 	);
-	return ( ! empty( $type ) ) ? $preserved_labels[ $type ] : array();
 }
 
-/**
- * Return label for the requested type and label key. 
- *
- * @param string $type Type to return. Either 'post_types' or 'taxonomies'. Optional. Default empty string.
- * @param string $key Requested label key. Optional. Default empty string.
- * @param string $plural Plural verbiage for the requested label and type. Optional. Default empty string.
- * @param string $singular Singular verbiage for the requested label and type. Optional. Default empty string.
- * @return string Internationalized default label.
- */
-function wpg_get_preserved_label( $type = '', $key = '', $plural = '', $singular = '' ) {
-
-	$preserved_labels = array(
-		'post_types' => array(
-			'add_new_item'       => sprintf( __( 'Add new %s', WPG_TEXT_DOMAIN ), $singular ),
-			'edit_item'          => sprintf( __( 'Edit %s', WPG_TEXT_DOMAIN ), $singular ),
-			'new_item'           => sprintf( __( 'New %s', WPG_TEXT_DOMAIN ), $singular ),
-			'view_item'          => sprintf( __( 'View %s', WPG_TEXT_DOMAIN ), $singular ),
-			'all_items'          => sprintf( __( 'All %s', WPG_TEXT_DOMAIN ), $plural ),
-			'search_items'       => sprintf( __( 'Search %s', WPG_TEXT_DOMAIN ), $plural ),
-			'not_found'          => sprintf( __( 'No %s found.', WPG_TEXT_DOMAIN ), $plural ),
-			'not_found_in_trash' => sprintf( __( 'No %s found in trash.', WPG_TEXT_DOMAIN ), $plural ),
-		),
-		'taxonomies' => array(
-			'search_items'               => sprintf( __( 'Search %s', WPG_TEXT_DOMAIN ), $plural ),
-			'popular_items'              => sprintf( __( 'Popular %s', WPG_TEXT_DOMAIN ), $plural ),
-			'all_items'                  => sprintf( __( 'All %s', WPG_TEXT_DOMAIN ), $plural ),
-			'parent_item'                => sprintf( __( 'Parent %s', WPG_TEXT_DOMAIN ), $singular ),
-			'parent_item_colon'          => sprintf( __( 'Parent %s:', WPG_TEXT_DOMAIN ), $singular ),
-			'edit_item'                  => sprintf( __( 'Edit %s', WPG_TEXT_DOMAIN ), $singular ),
-			'update_item'                => sprintf( __( 'Update %s', WPG_TEXT_DOMAIN ), $singular ),
-			'add_new_item'               => sprintf( __( 'Add new %s', WPG_TEXT_DOMAIN ), $singular ),
-			'new_item_name'              => sprintf( __( 'New %s name', WPG_TEXT_DOMAIN ), $singular ),
-			'separate_items_with_commas' => sprintf( __( 'Separate %s with commas', WPG_TEXT_DOMAIN ), $plural ),
-			'add_or_remove_items'        => sprintf( __( 'Add or remove %s', WPG_TEXT_DOMAIN ), $plural ),
-			'choose_from_most_used'      => sprintf( __( 'Choose from the most used %s', WPG_TEXT_DOMAIN ), $plural ),
-		),
-	);
-
-	return $preserved_labels[ $type ][ $key ];
-}

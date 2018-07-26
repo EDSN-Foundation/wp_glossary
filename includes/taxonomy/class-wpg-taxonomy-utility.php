@@ -123,14 +123,39 @@ function cptui_post_form_action( $ui ) {
 	echo cptui_get_post_form_action( $ui );
 }
 
+function fixing_taxonomy($taxonomy){
+    $new_taxonomy = WPCT_Taxonomy::newInstanceFromJSOM(wp_json_encode($taxonomy));
+    
+    
+    return  $new_taxonomy;
+}
+
 
 /**
- * Fetch our CPTUI taxonomies option.
+ * Fetch custom taxonomies option.
  *
  * Object
  */
-function get_taxonomy_data() {
-	return apply_filters( 'cptui_get_taxonomy_data', get_option( WPG_Taxonomy_Data::FIELD_OPTION, array() ), get_current_blog_id() );
+function get_taxonomy_data($only_custom_taxonomies = true, $args = array(), $output = 'objects', $operator = 'and' ) {
+    $field = ('names' == $output) ? 'name' : false;
+    
+    $taxonomies= array();
+   
+    $taxonomies = array_merge($taxonomies, get_option( WPG_Taxonomy_Data::FIELD_OPTION, array()));
+   
+    foreach ($taxonomies as $slug => $taxonomy){
+        $taxonomy = fixing_taxonomy($taxonomy);
+        $taxonomies[$slug] = new WPCT_Taxonomy($slug, $taxonomy->object_type,$taxonomy);
+        
+    }
+    if(isset($only_custom_taxonomies) && $only_custom_taxonomies == TRUE){
+        
+    }
+    else{
+        $taxonomies = array_merge($taxonomies,get_taxonomies( $args, $output , $operator));
+    }
+    
+    return $taxonomies;//wp_filter_object_list($taxonomies, $args, $operator, $field);;
 }
 
 /**
@@ -347,6 +372,18 @@ function wpt_slug_has_quotes() {
 		esc_html__( 'Please do not use quotes in post type/taxonomy names or rewrite slugs', WPG_TEXT_DOMAIN ),
 		cptui_get_object_from_post_global()
 	);
+}
+
+/**
+ * Returns error message for if trying to use a function that is not on system.
+ **
+ * @return string
+ */
+function wpt_taxonomy_metabox_function_doesnt_exists() {
+    return sprintf(
+        esc_html__( 'Please make sure that the Metabox function existis on system. (e.g."post_categories_meta_box" | "post_tags_meta_box")', WPG_TEXT_DOMAIN ),
+        cptui_get_object_from_post_global()
+        );
 }
 
 /**
@@ -609,3 +646,28 @@ function wp_and_plugins_reserved_terms() {
     
     return $reserved;
 }
+function dump($id,$arg1,$arg2=NULL,$arg3=NULL){
+    echo "<pre style='margin-left:200px;'>".$id."<br>
+            <table>";
+    echo "<tr>";
+    echo "<td>";
+    var_dump($arg1);
+    echo "</td>";
+    echo "</tr>";
+    if($arg2 !=NULL){
+        echo "<tr>";
+        echo "<td>";
+        var_dump($arg2);
+        echo "</td>";
+        echo "</tr>";
+    }
+    if($arg3 !=NULL){
+        echo "<tr>";
+        echo "<td>";
+        var_dump($arg3);
+        echo "</td>";
+        echo "</tr>";
+    }
+    echo "</table></pre>";
+}
+

@@ -26,8 +26,7 @@ class WPG_CustomThumbnailMetaBox {
 	 */
 	public static function save_metaboxes( $post_id ) {
         if ( self:: verify_save('wp_glossary_img_nonce', 'wpg-thumbnail-meta-box', $post_id ) ) {
-            $img_ID = isset( $_POST[ 'custom-img-id' ] ) ?  $_POST[ 'custom-img-id' ] : '';
-
+            $img_ID = isset( $_POST[ 'custom-img-id' ] ) ?  $_POST[ 'custom-img-id' ] : '';             
             // Update the meta field in the database.
             update_post_meta( $post_id, 'wp_glossary_custom_thumbnail', $img_ID );    
         }

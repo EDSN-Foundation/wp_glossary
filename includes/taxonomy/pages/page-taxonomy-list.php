@@ -54,13 +54,13 @@ class WPG_Page_Taxonomy_List
                 if (is_string($settings_value)) {
                     $strings[$settings_key] = $settings_value;
                 } else {
-                    if ('object_types' === $settings_key) {
+                    if ('object_type' === $settings_key) {
                         $object_types[$settings_key] = $settings_value;
                         
                         // In case they are not associated from the post type settings.
-                        if (empty($object_types['object_types'])) {
+                        if (empty($object_types['object_type'])) {
                             $types = get_taxonomy($taxonomy);
-                            $object_types['object_types'] = $types->object_type;
+                            $object_types['object_type'] = $types->object_type;
                         }
                     }
                 }
@@ -95,8 +95,8 @@ printf('<a href="%s">%s</a>', esc_attr($taxonomy_link_url), sprintf(esc_html__('
 								</td>
 				<td>
 									<?php
-            if (! empty($object_types['object_types'])) {
-                foreach ($object_types['object_types'] as $type) {
+            if (! empty($object_types['object_type'])) {
+                foreach ($object_types['object_type'] as $type) {
                     echo esc_html($type) . '<br/>';
                 }
             }
@@ -104,14 +104,11 @@ printf('<a href="%s">%s</a>', esc_attr($taxonomy_link_url), sprintf(esc_html__('
 								</td>
 				<td>
 									<?php
-            $maybe_empty = array_filter($taxonomy_settings['labels']);
-            if (! empty($maybe_empty)) {
-                foreach ($taxonomy_settings['labels'] as $key => $value) {
+									
+									foreach ($taxonomy_settings->labels as $key => $value) {
                     printf('%s: %s<br/>', esc_html($key), esc_html($value));
                 }
-            } else {
-                printf('<span aria-hidden="true">—</span><span class="screen-reader-text">%s</span>', esc_html__('No custom labels to display', WPG_TEXT_DOMAIN));
-            }
+
             ?>
 								</td>
 				<td>

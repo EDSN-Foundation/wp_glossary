@@ -53,7 +53,7 @@ class WPG_Taxonomy_Metabox {
 	public function __construct() {
 
 		// register metaboxes
-		add_action( 'add_meta_boxes', array( $this, 'add_metaboxes' ) );
+		//add_action( 'add_meta_boxes', array( $this, 'add_metaboxes' ) );
 
 	}
 
@@ -126,8 +126,9 @@ class WPG_Taxonomy_Metabox {
 	    $args = array(
 	        'object_type' => [wpg_glossary_get_slug()]
 		  ); 
-		//$taxonomies = cptui_get_taxonomy_data();
-	    $taxonomies = get_taxonomies( array('object_type' => [wpg_glossary_get_slug()],'hierarchical' => ['true']), 'objects' );
+		//$taxonomies = get_taxonomy_data();
+	    
+	    $taxonomies = get_taxonomy_data();
 		//echo '<pre>';var_dump($taxonomies);echo '</pre>';
 		$has_tabs = false;
 		if( count( $taxonomies ) > 1 ){
@@ -144,7 +145,7 @@ class WPG_Taxonomy_Metabox {
 			echo '<ul class="taxonomy-metabox-tab">';
 			// taxonomies
 			foreach( $taxonomies as $taxonomy_slug=>$taxonomy ){
-				if( $taxonomy_slug == 'post_format'){
+			    if( $taxonomy_slug == 'post_format'){
 					continue;
 				}
 				$class = '';
@@ -203,7 +204,6 @@ class WPG_Taxonomy_Metabox {
 
 
 }
-new WPG_Taxonomy_Metabox();
 
 
 

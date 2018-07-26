@@ -154,7 +154,6 @@ class WPG_Shortcode_List {
 					if( ! empty( $terms ) ) {
 					
 						foreach( $terms as $term ) {
-						
 							$item_blocks[ $args['taxonomy'] . '_' . $term->term_id ][] = $post;
 						
 						}
