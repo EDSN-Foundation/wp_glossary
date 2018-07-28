@@ -41,8 +41,9 @@ class WPG_CustomThumbnailShortcode {
 		
 		// See if there's a media id already saved as post meta
 		$wp_glossary_img_id = get_post_meta( $post->ID, 'wp_glossary_custom_thumbnail', true );
+		//TODO - USE PARAMETER FROM ARGS TO DECIDE THE SIZE OF IMAGE. Now is thumbnail.
 		// Get the image src
-		$wp_glossary_img_src = wp_get_attachment_image_src( $wp_glossary_img_id, 'full' );
+		$wp_glossary_img_src = wp_get_attachment_image_src( $wp_glossary_img_id, 'thumbnail' );
 		// For convenience, see if the array is valid
 		$have_img = is_array( $wp_glossary_img_src );
 		

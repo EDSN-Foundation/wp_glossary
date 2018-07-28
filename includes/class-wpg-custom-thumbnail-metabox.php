@@ -21,10 +21,11 @@ class WPG_CustomThumbnailMetaBox {
 		}
 	}
 		
+	
 	/**
 	 * Automagically save every registered setting/field
 	 */
-	public static function save_metaboxes( $post_id ) {
+	public static function save_metaboxes( $post_id ) {	    
         if ( self:: verify_save('wp_glossary_img_nonce', 'wpg-thumbnail-meta-box', $post_id ) ) {
             $img_ID = isset( $_POST[ 'custom-img-id' ] ) ?  $_POST[ 'custom-img-id' ] : '';             
             // Update the meta field in the database.

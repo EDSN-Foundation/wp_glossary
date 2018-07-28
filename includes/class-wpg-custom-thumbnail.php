@@ -33,6 +33,7 @@ class WPG_CustomThumbnail {
 	 * 
 	 * http://codex.wordpress.org/Function_Reference/add_meta_box
 	 */
+	//TODO - Study for replace this template for the WP function call _wp_post_thumbnail_html in /wp-admin/includes/post.php
 	public static function register_metaboxes() {
 		//Adding Thumbnail Metabox just for "glossary" types.
 		if( get_post_type() == "glossary"){
