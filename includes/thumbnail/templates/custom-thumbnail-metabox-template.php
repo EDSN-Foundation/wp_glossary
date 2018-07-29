@@ -25,11 +25,11 @@ $have_img = is_array( $wp_glossary_img_src );
 <p class="hide-if-no-js">
     <a class="upload-custom-img <?php if ( $have_img  ) { echo 'hidden'; } ?>" 
        href="<?php echo $upload_link ?>">
-        <?php _e('Set custom image',WPG_TEXT_DOMAIN) ?>
+        <?php _e('Set custom image',WPCTN_TEXT_DOMAIN) ?>
     </a>
     <a class="delete-custom-img <?php if ( ! $have_img  ) { echo 'hidden'; } ?>" 
       href="#">
-        <?php _e('Remove this image',WPG_TEXT_DOMAIN) ?>
+        <?php _e('Remove this image',WPCTN_TEXT_DOMAIN) ?>
     </a>
 </p>
 
