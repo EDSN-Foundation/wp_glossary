@@ -15,7 +15,16 @@
  * @author  David Cramer <david@CalderaWP.com>
  */
 class WPG_Taxonomy_Metabox {
-
+    /**
+     * The slug for this plugin
+     *
+     * @since 0.0.1
+     *
+     * @var      string
+     */
+    private $METABOX_ID = 'taxonomy_metabox_wrapp';
+    private $METABOX_SUFIX_ID = 'div';
+    
 	/**
 	 * The slug for this plugin
 	 *
@@ -53,7 +62,7 @@ class WPG_Taxonomy_Metabox {
 	public function __construct() {
 
 		// register metaboxes
-		//add_action( 'add_meta_boxes', array( $this, 'add_metaboxes' ) );
+		add_action( 'add_meta_boxes', array( $this, 'add_metaboxes' ) );
 
 	}
 
@@ -104,7 +113,7 @@ class WPG_Taxonomy_Metabox {
 		// only add if there are taxonomies.
 		if( !empty( $taxonomies ) ){
 			add_meta_box(
-				'taxonomy_metabox_wrapp',
+				$this->METABOX_ID,
 				__('Taxonomies', $this->plugin_slug),
 				array( $this, 'render_metabox' ),
 				$screen->post_type,
@@ -114,7 +123,19 @@ class WPG_Taxonomy_Metabox {
 		}
 
 	}
-
+	private function get_active_taxonomy_tab_taxonomy_slug(){
+	    $taxonomies = get_taxonomy_data();
+	    $hidden = get_hidden_meta_boxes(get_current_screen());
+	    
+	    foreach( $taxonomies as $taxonomy_slug=>$taxonomy ){
+	        if(!in_array($taxonomy_slug . $this->METABOX_SUFIX_ID, $hidden)){
+	            return $taxonomy_slug;
+	        }
+	    }
+	    
+	    
+	    return '';
+	}
 
 	/**
 	 * Renders Metaboxes
@@ -129,6 +150,7 @@ class WPG_Taxonomy_Metabox {
 		//$taxonomies = get_taxonomy_data();
 	    
 	    $taxonomies = get_taxonomy_data();
+	    $hidden = get_hidden_meta_boxes(get_current_screen());
 		//echo '<pre>';var_dump($taxonomies);echo '</pre>';
 		$has_tabs = false;
 		if( count( $taxonomies ) > 1 ){
@@ -136,43 +158,48 @@ class WPG_Taxonomy_Metabox {
 			
 		}
 
-		echo '<div id=taxonomy-metabox-' . $metabox['id'] . '" class="taxonomy-metabox-wrapper ' . $has_tabs . '">';
+		$taxonomy_slug_active_tab = $this->get_active_taxonomy_tab_taxonomy_slug();
+		
+		echo '<div id="taxonomy-metabox-' . $metabox['id'] . '" class="taxonomy-metabox-wrapper ' . $has_tabs . '">';
 		// check if there are multiu panels (tabs)
 		if( !empty( $has_tabs ) ){
 			
 			// yup- tabs! make 'em
 			echo '<span class="taxonomy-metabox-wrapper">';
 			echo '<ul class="taxonomy-metabox-tab">';
-			// taxonomies
+			// taxonomies			
 			foreach( $taxonomies as $taxonomy_slug=>$taxonomy ){
 			    if( $taxonomy_slug == 'post_format'){
 					continue;
 				}
+				$hidden_ = (in_array($taxonomy_slug . $this->METABOX_SUFIX_ID, $hidden));
 				$class = '';
-				if( empty( $first_tab ) ){
-					$class = 'class="active"';
-					$first_tab = true;
+				if($taxonomy_slug_active_tab == $taxonomy_slug){
+					$class = 'class="active"';					
 				}
-				echo '<li '. $class . '><a href="#' . $metabox['id'] . '_tab_' . $taxonomy_slug . '">' . $taxonomy->label . '</a></li>';
+				echo '<li id="' . $metabox['id'] . '_tabselect_' . $taxonomy_slug .'" '. $class . ' style="'.($hidden_?'display: none;':'').'"><a href="#' . $metabox['id'] . '_tabselect_' . $taxonomy_slug . '">' . $taxonomy->label . '</a></li>';
 			}
 			echo '</ul>';
 			echo '</span>';
 		}
 
 		// make tab bodies, even if just a single tab.
+		$first_tab = TRUE;
 		foreach( $taxonomies as $taxonomy_slug => $taxonomy ){
-			$display = '';
+		    $hidden_ = (in_array($taxonomy_slug . $this->METABOX_SUFIX_ID, $hidden));			
+		    $style = 'display:block;';
 			if( $taxonomy_slug == 'post_format'){
 				continue;
+			}			
+			if($hidden_){
+			    $style = 'display:none;';
 			}
-			
-			if( !empty( $first_tab ) || empty( $has_tabs ) ){
-				$display = 'style="display:block;"';
-				$first_tab = false;
+			if($taxonomy_slug_active_tab != $taxonomy_slug){
+			    $style .= 'position: absolute; visibility: hidden;';
 			}
-			echo '<div id="' . $metabox['id'] . '_tab_' . $taxonomy_slug . '" class="taxonomy-metabox-tab-body" ' . $display . '>';
+			echo '<div id="' . $metabox['id'] . '_tab_' . $taxonomy_slug . '" class="taxonomy-metabox-tab-body" style="'.$style.'">';
 				if( !empty( $taxonomy->hierarchical ) ){
-					echo '<span data-pull="' . $taxonomy_slug . 'div"></span>';
+				    echo '<span data-pull="' . $taxonomy_slug . $this->METABOX_SUFIX_ID.'"></span>';
 				}else{
 					echo '<span data-pull="tagsdiv-' . $taxonomy_slug . '"></span>';
 				}
@@ -180,23 +207,27 @@ class WPG_Taxonomy_Metabox {
 		}
 
 		echo '</div>';
-		// control script for height
+		
 		?>
 		<script>
-		var tax_metabox_resize_heights;
-		jQuery( function($){
-			tax_metabox_resize_heights = function(){
-				var box = $('#<?php echo $metabox['id']; ?>'),
-					inside = box.find('.inside'),
-					tabs = box.find('span.taxonomy-metabox-wrapper');
-
-				inside.css( { minHeight : tabs.outerHeight() } );
-			}
-			tax_metabox_resize_heights();
-			$(window).on('resize', function(){
-				tax_metabox_resize_heights()
-			});
-		});
+    		//Creating a object to control the visibility of the custom taxonomies.
+    		var taxonomies_tab = [<?php 
+    		$firstVisible = TRUE;
+    		$elements = "";
+    		foreach( $taxonomies as $taxonomy_slug => $taxonomy ){
+    		    $showed = !in_array($taxonomy_slug . $this->METABOX_SUFIX_ID, $hidden);
+    		    $elements .= (strlen($elements)>0?',':'').'{"id":"'.$this->METABOX_ID.'_tab_'.$taxonomy_slug.'","idTab":"'.$this->METABOX_ID.'_tabselect_'.$taxonomy_slug.'", "taxonomySlug":"'.$taxonomy_slug.'", "show":' . ($showed?'true':'false') . ',"selected":'.($showed&&$firstVisible?'true':'false').'}';
+    		    if($showed){
+    		        $firstVisible=FALSE;
+    		    }
+    		}
+    		echo $elements;
+    		?>];
+    		var idTaxonomyMetabox = '<?php echo $metabox['id']; ?>';
+    		var METABOX_SUFIX_ID = '<?php echo $this->METABOX_SUFIX_ID;?>' 
+    
+    		// Initializing custom taxonomy metabox visibility control
+    		jQuery(()=>customTaxonomy.init(idTaxonomyMetabox, taxonomies_tab, METABOX_SUFIX_ID));
 		</script>
 		<?php
 	
