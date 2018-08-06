@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 function wpg_create_custom_taxonomies() {
     $taxes = get_taxonomy_data(true);
     
-    if ( empty( $taxes ) ) {
+    if ( empty( $taxes ) ) {    
         return;
     }    
     if ( is_array( $taxes ) ) {
@@ -22,6 +22,7 @@ function wpg_create_custom_taxonomies() {
             wpg_register_taxonomy( $tax );
         }
     }    
+    
 }
 add_action( 'init', 'wpg_create_custom_taxonomies', 9 );  // Leave on standard init for legacy purposes.
 
@@ -50,10 +51,7 @@ function wpg_register_taxonomy(WPCT_Taxonomy $taxonomy) {
 	    'singular_name'      => $taxonomy->labels->singular_name,
 	);
 	
-// 	$description = '';
-// 	if ( ! empty( $taxonomy->description ) ) {
-// 		$description = $taxonomy->description;
-// 	}
+//TODO - Remove commented lines
 	//var_dump($taxonomy);
 // 	$taxonomy->labels = wpg_get_default_labels($taxonomy->labels);
 // 	$preserved = wpg_get_preserved_keys( 'taxonomies' );
@@ -139,9 +137,9 @@ function wpg_register_taxonomy(WPCT_Taxonomy $taxonomy) {
  * Construct and output tab navigation.
  
  *
- * @param string $page Whether it's the CPT or Taxonomy page. Optional. Default "post_types".
+ * @param string $amount_of_data    How many taxonomies are registered
  */
-function taxonomy_tab_menu( $page = 'post_types' ) {
+function taxonomy_tab_menu( $amount_of_data ) {
 
 	/**
 	 * Filters the tabs to render on a given page.
@@ -150,7 +148,7 @@ function taxonomy_tab_menu( $page = 'post_types' ) {
 	 * @param array  $value Array of tabs to render.
 	 * @param string $page  Current page being displayed.
 	 */
-	$tabs = (array) apply_filters( 'wpg_get_taxonomy_tabs', array(), $page );
+    $tabs = (array) apply_filters( 'wpg_get_taxonomy_tabs', array(), $amount_of_data);
 
 	if ( ! empty( $tabs['page_title'] ) ) {
 		printf(
@@ -177,44 +175,43 @@ function taxonomy_tab_menu( $page = 'post_types' ) {
  *
  * @internal
  *
- * @param array  $tabs         Array of tabs to display. Optional.
- * @param string $current_page Current page being shown. Optional. Default empty string.
+ * @param array  $tabs              Array of tabs to display. Optional.
+ * @param string $amount_of_data    How many taxonomies are registered
  * @return array Amended array of tabs to show.
  */
-function wpg_taxonomy_tabs( $tabs = array(), $current_page = '' ) {
+function wpg_taxonomy_tabs( $tabs = array(), $amount_of_data ) {
     
-    if ( 'taxonomies' === $current_page ) {
-        $taxonomies = get_taxonomy_data();
-        $classes    = array( 'nav-tab' );
-        $active_tab_class = array('nav-tab-active');
+    
+    $classes    = array( 'nav-tab' );
+    $active_tab_class = array('nav-tab-active');
+    
+    $action = cptui_get_current_action();
+    $tabs['page_title'] = get_admin_page_title();
+    $tabs['tabs']       = array();
+    // Start out with our basic "Add new" tab.
+    $tabs['tabs']['add'] = array(
+        'text'          => esc_html__( 'Add New Taxonomy', WPG_TEXT_DOMAIN ),
+        'classes'       => array_merge($classes,empty( $action )?$active_tab_class:[]),
+        'url'           => cptui_admin_url( 'edit.php?post_type=' . wpg_glossary_get_post_type() . '&page=wpg_taxonomies' ),
+        'aria-selected' => empty( $action )?'true':'false',
+    );        
+    if ( $amount_of_data > 0 ) {
+        $tabs['tabs']['edit'] = array(
+            'text'          => esc_html__( 'Edit Taxonomies', WPG_TEXT_DOMAIN ),
+            'classes'       => array_merge($classes,!empty( $action ) && $action == WPG_Page_Action::EDITING?$active_tab_class:[]),
+            'url'           => esc_url( add_query_arg( array( 'action' => WPG_Page_Action::EDITING ), cptui_admin_url( 'edit.php?post_type=' . wpg_glossary_get_post_type(). '&page=wpg_taxonomies' ) ) ),
+            'aria-selected' => ( ! empty( $action ) && $action == WPG_Page_Action::EDITING) ? 'true' : 'false'
+        );
         
-        $action = cptui_get_current_action();
-        $tabs['page_title'] = get_admin_page_title();
-        $tabs['tabs']       = array();
-        // Start out with our basic "Add new" tab.
-        $tabs['tabs']['add'] = array(
-            'text'          => esc_html__( 'Add New Taxonomy', WPG_TEXT_DOMAIN ),
-            'classes'       => array_merge($classes,empty( $action )?$active_tab_class:[]),
-            'url'           => cptui_admin_url( 'edit.php?post_type=glossary&page=wpg_taxonomies' ),
-            'aria-selected' => empty( $action )?'true':'false',
-        );        
-        if ( ! empty( $taxonomies ) ) {
-            $tabs['tabs']['edit'] = array(
-                'text'          => esc_html__( 'Edit Taxonomies', WPG_TEXT_DOMAIN ),
-                'classes'       => array_merge($classes,!empty( $action ) && $action == WPG_Page_Action::EDITING?$active_tab_class:[]),
-                'url'           => esc_url( add_query_arg( array( 'action' => WPG_Page_Action::EDITING ), cptui_admin_url( 'edit.php?post_type=glossary&page=wpg_taxonomies' ) ) ),
-                'aria-selected' => ( ! empty( $action ) && $action == WPG_Page_Action::EDITING) ? 'true' : 'false'
-            );
-            
-            $tabs['tabs']['view'] = array(
-                'text'          => esc_html__( 'View Taxonomies', WPG_TEXT_DOMAIN ),
-                'classes'       => array_merge($classes,!empty( $action ) && $action == WPG_Page_Action::LISTING?$active_tab_class:[]),
-                'url'           => esc_url( add_query_arg( array( 'action' => WPG_Page_Action::LISTING ),cptui_admin_url( 'edit.php?post_type=glossary&page=wpg_taxonomies' )) ),
-                'aria-selected' => ( ! empty( $action ) && $action == WPG_Page_Action::LISTING) ? 'true' : 'false'
-            );
+        $tabs['tabs']['view'] = array(
+            'text'          => esc_html__( 'View Taxonomies', WPG_TEXT_DOMAIN ),
+            'classes'       => array_merge($classes,!empty( $action ) && $action == WPG_Page_Action::LISTING?$active_tab_class:[]),
+            'url'           => esc_url( add_query_arg( array( 'action' => WPG_Page_Action::LISTING ),cptui_admin_url( 'edit.php?post_type=' . wpg_glossary_get_post_type(). '&page=wpg_taxonomies' )) ),
+            'aria-selected' => ( ! empty( $action ) && $action == WPG_Page_Action::LISTING) ? 'true' : 'false'
+        );
 
-        }
     }
+    
     
     return $tabs;
 }

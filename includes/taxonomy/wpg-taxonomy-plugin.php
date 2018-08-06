@@ -68,7 +68,7 @@ final class WPG_Taxonomy {
 		define( 'WPGT_PLUGIN_URL', $this->plugin_url() );
 		define( 'WPGT_PLUGIN_PATH', $this->plugin_path() );
 		define( 'WPGT_TEXT_DOMAIN', 'wpg_taxonomy' );
-		define( 'WPGT_FORCE_TAXONOMY_POST_TYPES', 1);
+		define( 'WPGT_FORCE_TAXONOMY_POST_TYPES', 0);
 	}
 	
 	/**
@@ -108,9 +108,9 @@ final class WPG_Taxonomy {
 	 * Load taxonomy metabox if it is necessary 
 	 */
 	public function load_taxonomy_metabox() {
-	    $load_metabox = TRUE;
+	    $load_metabox = get_option( 'wpg_glossary_combine_taxonomy_boxes' ) == 'yes';
 	    if($load_metabox){
-	        new WPG_Taxonomy_Metabox();
+	        new WPG_Taxonomy_Metabox(wpg_glossary_get_post_type());
 	    }
 	}
 	

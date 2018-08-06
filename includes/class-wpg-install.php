@@ -27,7 +27,7 @@ class WPG_Install {
 	 * Add settings link on plugin page
 	 */
 	public static function quick_links( $links ) {
-		$settings_link = '<a href="edit.php?post_type=glossary&page=wpg-settings">' . __( 'Settings', WPG_TEXT_DOMAIN ) . '</a>';
+	    $settings_link = '<a href="edit.php?post_type=' . wpg_glossary_get_post_type() . '&page=wpg-settings">' . __( 'Settings', WPG_TEXT_DOMAIN ) . '</a>';
 		array_unshift( $links, $settings_link ); 
 		return $links; 
 	}

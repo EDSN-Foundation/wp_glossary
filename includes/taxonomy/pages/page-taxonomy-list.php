@@ -12,11 +12,19 @@ class WPG_Page_Taxonomy_List
         $this->render();
     }
     
+    private function get_taxonomy_by_screen($output = 'objects'){
+        $screen = get_current_screen();
+        $args = array(
+            'object_type' => $screen->post_type
+        );
+        return get_taxonomy_data(TRUE,$args,$output);
+    }
+    
     public function render(){
         ?>
 <div class="wrap wpg-listings">
 			<?php
-    $taxonomies = get_taxonomy_data();
+			$taxonomies = $this->get_taxonomy_by_screen();
     
     if (! empty($taxonomies)) {
         $taxonomy_table_heads = array(
@@ -68,7 +76,7 @@ class WPG_Page_Taxonomy_List
             ?>
 							<tr class="<?php echo esc_attr( $rowclass ); ?>">
 								<?php
-            $edit_path = 'edit.php?post_type=glossary&page=wpg_taxonomies&action=edit&wpg_taxonomy=' . $taxonomy;
+            $edit_path = 'edit.php?post_type=' . wpg_glossary_get_post_type() . '&page=wpg_taxonomies&action=edit&wpg_taxonomy=' . $taxonomy;
             $taxonomy_link_url = (is_network_admin()) ? network_admin_url($edit_path) : admin_url($edit_path);
             ?>
 								<td>

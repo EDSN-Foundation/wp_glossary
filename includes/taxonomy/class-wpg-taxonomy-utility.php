@@ -130,32 +130,45 @@ function fixing_taxonomy($taxonomy){
     return  $new_taxonomy;
 }
 
-
 /**
- * Fetch custom taxonomies option.
+ * Return the names or objects of the taxonomies and custom taxonomies which are registered for the requested object or object type, such as
+ * a post object or post type name.
  *
- * Object
+ *
+ * @param array|string|WP_Post $object Name of the type of taxonomy object, or an object (row from posts)
+ * @param string               $output Optional. The type of output to return in the array. Accepts either
+ *                                     taxonomy 'names' or 'objects'. Default 'names'.
+ * @return array The names of all taxonomy of $object_type.
  */
-function get_taxonomy_data($only_custom_taxonomies = true, $args = array(), $output = 'objects', $operator = 'and' ) {
-    $field = ('names' == $output) ? 'name' : false;
-    
+function get_taxonomy_data($custom_taxonomies_only = TRUE, $object = array(), $output = 'objects') {
     $taxonomies= array();
-   
-    $taxonomies = array_merge($taxonomies, get_option( WPG_Taxonomy_Data::FIELD_OPTION, array()));
-   
-    foreach ($taxonomies as $slug => $taxonomy){
-        $taxonomy = fixing_taxonomy($taxonomy);
-        $taxonomies[$slug] = new WPCT_Taxonomy($slug, $taxonomy->object_type,$taxonomy);
+    $NO_filter = empty($object);    
+    if($custom_taxonomies_only){
         
-    }
-    if(isset($only_custom_taxonomies) && $only_custom_taxonomies == TRUE){
-        
+        $data_taxonomies = get_option( WPG_Taxonomy_Data::FIELD_OPTION, array());
+                
+        $object = (array) $object;
+        foreach ( (array) $data_taxonomies as $tax_name => $tax_obj ) {
+            if ($NO_filter || array_intersect($object, (array) $tax_obj->object_type) ) {
+                if ('names' == $output)
+                    $taxonomies[] = $tax_name;
+                else {
+                    $tax_obj = fixing_taxonomy($tax_obj);
+                    $taxonomies[$tax_name] = new WPCT_Taxonomy($tax_name, $tax_obj->object_type, $tax_obj);
+                }
+            }
+        }
+                        
     }
     else{
-        $taxonomies = array_merge($taxonomies,get_taxonomies( $args, $output , $operator));
+        if($NO_filter){
+            $taxonomies = array_merge($taxonomies,get_taxonomies( array(), $output ));
+        }
+        else {
+            $taxonomies = array_merge($taxonomies,get_object_taxonomies( $object, $output ));
+        }        
     }
-    
-    return $taxonomies;//wp_filter_object_list($taxonomies, $args, $operator, $field);;
+    return $taxonomies;
 }
 
 /**
@@ -351,6 +364,16 @@ function wpt_slug_taxonomy_already_registered() {
 }
 
 /**
+ * Returns error message for if trying to register existing post-type.
+ **
+ * @return string
+ */
+function wpt_post_type_is_reserved() {
+    return sprintf(
+        esc_html__( 'Please choose a different post-type name. The selected one is reserved for WordPress Only.', WPG_TEXT_DOMAIN ));
+}
+
+/**
  * Returns error message for if trying to register post type with matching page slug.
  **
  * @return string
@@ -537,7 +560,7 @@ function get_edit_taxonomy_link( $taxonomy = '', $object_type = '' ) {
 /**
  * Return an array of names that users should not or can not use for taxonomy names.
  *
- * See <a href="https://codex.wordpress.org/wp_and_plugins_reserved_terms">https://codex.wordpress.org/wp_and_plugins_reserved_terms</a>
+ * See <a href="https://codex.wordpress.org/Reserved_Terms">https://codex.wordpress.org/Reserved_Terms</a>
  *
  * @return array $value Array of names that are recommended against.
  */

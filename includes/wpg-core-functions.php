@@ -52,7 +52,13 @@ function wpg_glossary_get_title() {
  * Glossary: Get Post Type
  */
 function wpg_glossary_get_post_type() {
-    return apply_filters( 'wpg_glossary_post_type', 'glossary');
+    $wpg_glossary_post_type = get_option( 'wpg_glossary_post_type' );
+    
+    if( $wpg_glossary_post_type == '' ) {
+        $wpg_glossary_post_type = 'glossary';
+    }
+    
+    return apply_filters( 'wpg_glossary_post_type', $wpg_glossary_post_type );
 }
 
 /**

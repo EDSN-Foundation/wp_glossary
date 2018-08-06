@@ -34,15 +34,15 @@ class WPCTN_Custom_Thumbnail_MetaBox {
 	 */
 	//TODO - Study for replace this template for the WP function call _wp_post_thumbnail_html in /wp-admin/includes/post.php
 	public static function register_metaboxes() {
-	    //Adding Thumbnail Metabox just for "glossary" types.
-	    if( get_post_type() == "glossary"){
+	    //Adding Thumbnail Metabox just for glossary pluging types.
+	    if( get_post_type() == wpg_glossary_get_post_type()){
 	        add_meta_box(
 	            'wpg-thumbnail-metabox-id',  // HTML slug for box id
 	            __( 'Custom Thumbnail', WPCTN_TEXT_DOMAIN ), // Visible title
 	            function ( $post, $args ) { // Anonymous function to include metabox template
 	                include WPCTN_PLUGIN_PATH . '/templates/custom-thumbnail-metabox-template.php';
 	            },
-	            "glossary",         // The slug of the post type you want to add this meta box to.
+	            wpg_glossary_get_post_type(),         // The slug of the post type you want to add this meta box to.
 	            'side',             // Context. Where on the screen should this show up? Options: 'normal', 'advanced', or 'side'
 	            'default'           // Priority. Options: 'high', 'core', 'default' or 'low'
 	            );
@@ -60,11 +60,7 @@ class WPCTN_Custom_Thumbnail_MetaBox {
             $img_ID = isset( $_POST[ 'custom-img-id' ] ) ?  $_POST[ 'custom-img-id' ] : '';             
             // Update the meta field in the database.
             update_post_meta( $post_id, 'wp_glossary_custom_thumbnail', $img_ID );    
-        }
-        else{
-            echo "NOTHUMBNAIL";
-        }
-        
+        }        
 	}
 	/**
 	 * Performs meta box save validation

@@ -25,6 +25,15 @@ class WPG_Taxonomy_Metabox {
     private $METABOX_ID = 'taxonomy_metabox_wrapp';
     private $METABOX_SUFIX_ID = 'div';
     
+	
+    /**
+     * The post-type which the metabox is over it
+     *
+     * @since 0.0.1
+     *
+     * @var      array
+     */
+    protected $post_types = '';
 	/**
 	 * The slug for this plugin
 	 *
@@ -59,11 +68,13 @@ class WPG_Taxonomy_Metabox {
 	 *
 	 * @access private
 	 */
-	public function __construct() {
-
-		// register metaboxes
-		add_action( 'add_meta_boxes', array( $this, 'add_metaboxes' ) );
-
+	public function __construct($post_type = []) {
+	    
+	    $this->post_types = is_array($post_type)?$post_type:array($post_type);
+	    
+    	// register metaboxes
+	    add_action( 'add_meta_boxes', array( $this, 'add_metaboxes' ) );
+	    
 	}
 
 
@@ -84,6 +95,13 @@ class WPG_Taxonomy_Metabox {
 		return self::$instance;
 	}
 	
+	private function get_taxonomy_by_post($post, $output = 'objects'){
+	    $args = array(
+	        'object_type' => $post->post_type
+	    );
+	    return get_taxonomy_data(TRUE,$args,$output);
+	}
+	
 
 	/**
 	 * Adds registered metaboxes to wordpress
@@ -92,11 +110,17 @@ class WPG_Taxonomy_Metabox {
 	 *
 	 */
 	public function add_metaboxes() {
-
+	    GLOBAL $wp_version;
+	    
 		$screen = get_current_screen();
-		if( !is_object( $screen ) || $screen->base != 'post' ){
-			return;
-		}
+		
+		
+		if( !is_object( $screen ) || $screen->base != 'post' || !in_array($screen->post_type, $this->post_types) ||
+		    version_compare($wp_version, '5.0.0', 'ge') || (function_exists("is_gutenberg_page") && is_gutenberg_page())){
+		        
+		        return;
+			
+		}	
 
 		global $post;
 
@@ -108,8 +132,8 @@ class WPG_Taxonomy_Metabox {
 		wp_enqueue_script('taxonomy_metabox-post-meta',  plugins_url('/assets/js/wpg.taxonomy.metabox.js', __FILE__), array( 'media-editor' ) , false, true );
 
 		// get all taxonomies
-		$taxonomies = get_object_taxonomies( $post );
-
+		$taxonomies = $this->get_taxonomy_by_post( $post );		
+		
 		// only add if there are taxonomies.
 		if( !empty( $taxonomies ) ){
 			add_meta_box(
@@ -123,11 +147,11 @@ class WPG_Taxonomy_Metabox {
 		}
 
 	}
-	private function get_active_taxonomy_tab_taxonomy_slug(){
-	    $taxonomies = get_taxonomy_data();
+	private function get_active_taxonomy_tab_taxonomy_slug($post){
+	    $taxonomies = $this->get_taxonomy_by_post($post,"names");
 	    $hidden = get_hidden_meta_boxes(get_current_screen());
 	    
-	    foreach( $taxonomies as $taxonomy_slug=>$taxonomy ){
+	    foreach( $taxonomies as $taxonomy_slug ){
 	        if(!in_array($taxonomy_slug . $this->METABOX_SUFIX_ID, $hidden)){
 	            return $taxonomy_slug;
 	        }
@@ -143,13 +167,10 @@ class WPG_Taxonomy_Metabox {
 	 * @since 0.0.1
 	 *
 	 */
-	public function render_metabox( $post, $metabox ) {
-	    $args = array(
-	        'object_type' => [wpg_glossary_get_slug()]
-		  ); 
-		//$taxonomies = get_taxonomy_data();
+	public function render_metabox( $post, $metabox ) {	    
+	    $taxonomies = $this->get_taxonomy_by_post($post);
 	    
-	    $taxonomies = get_taxonomy_data();
+	    //$taxonomies = get_object_taxonomies($post->post_type,'objects');
 	    $hidden = get_hidden_meta_boxes(get_current_screen());
 		//echo '<pre>';var_dump($taxonomies);echo '</pre>';
 		$has_tabs = false;
@@ -158,7 +179,7 @@ class WPG_Taxonomy_Metabox {
 			
 		}
 
-		$taxonomy_slug_active_tab = $this->get_active_taxonomy_tab_taxonomy_slug();
+		$taxonomy_slug_active_tab = $this->get_active_taxonomy_tab_taxonomy_slug($post);
 		
 		echo '<div id="taxonomy-metabox-' . $metabox['id'] . '" class="taxonomy-metabox-wrapper ' . $has_tabs . '">';
 		// check if there are multiu panels (tabs)
@@ -177,6 +198,7 @@ class WPG_Taxonomy_Metabox {
 				if($taxonomy_slug_active_tab == $taxonomy_slug){
 					$class = 'class="active"';					
 				}
+				//echo json_encode($taxonomy);
 				echo '<li id="' . $metabox['id'] . '_tabselect_' . $taxonomy_slug .'" '. $class . ' style="'.($hidden_?'display: none;':'').'"><a href="#' . $metabox['id'] . '_tabselect_' . $taxonomy_slug . '">' . $taxonomy->label . '</a></li>';
 			}
 			echo '</ul>';

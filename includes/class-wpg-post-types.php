@@ -180,7 +180,7 @@ class WPG_Post_Types {
 			'public'   => true,
 			'_builtin' => false,
 			'hierarchical' => true,
-		    'object_type' => [wpg_glossary_get_slug()]
+		    'object_type' => [wpg_glossary_get_post_type()]
 		  ); 
 		  $output = 'names'; // or objects
 		  $operator = 'and'; // 'and' or 'or'

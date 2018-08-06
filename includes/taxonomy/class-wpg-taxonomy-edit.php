@@ -49,13 +49,13 @@ class WPG_Taxonomy_Edit
         wp_localize_script('taxonomy-main-js', 'taxonomy_messages_data', array(
             'confirm' => esc_html__('Are you sure you want to delete this? Deleting will NOT remove created content.', WPG_TEXT_DOMAIN),
             'no_associated_type' => esc_html('Please select a post type to associate with.', WPG_TEXT_DOMAIN),
-            'taxonomy_messages_data.choosing_taxonomy' => WPG_FORCE_TAXONOMY_POST_TYPES ? false : true
+            'taxonomy_messages_data.choosing_taxonomy' => WPGT_FORCE_TAXONOMY_POST_TYPES ? false : true
         ));
     }
 
     public function admin_menu()
     {
-        $parent_slug = 'edit.php?post_type=glossary';
+        $parent_slug = 'edit.php?post_type=' . wpg_glossary_get_post_type();
         $capability = 'manage_options';
         add_submenu_page($parent_slug, __('Taxonomies', WPG_TEXT_DOMAIN), __('Taxonomies', WPG_TEXT_DOMAIN), $capability, 'wpg_taxonomies', array(
             $this,
@@ -150,19 +150,19 @@ class WPG_Taxonomy_Edit
             $result = '';
             if (isset($_POST['taxonomy_submit'])) {
                 
-                if (WPG_FORCE_TAXONOMY_POST_TYPES) {
-                    $taxonomies = get_taxonomy_data();
+                if (WPGT_FORCE_TAXONOMY_POST_TYPES) {
+                    $taxonomies = $this->get_taxonomy_by_screen();
                     
-                    $selected_taxonomy = get_current_taxonomy_slug();
+                    $selected_taxonomy = $this->get_current_taxonomy_slug();
                     
                     if ($selected_taxonomy) {
                         if (array_key_exists($selected_taxonomy, $taxonomies)) {
                             $current = $taxonomies[$selected_taxonomy];
                         }
-                    }
+                    }                    
                     
-                    $_POST['taxonomy_related_post_types'] = isset($current) ? $current['object_type'] : array(
-                        wpg_glossary_get_slug()
+                    $_POST['taxonomy_related_post_types'] = isset($current) ? $current->object_type : array(
+                        wpg_glossary_get_post_type()
                     );
                 }
                 check_admin_referer('managing_taxonomy', 'managing_taxonomy_nonce_field');
@@ -209,8 +209,16 @@ class WPG_Taxonomy_Edit
         
         $this->render();
     }
+    private function get_taxonomy_by_screen($output = 'objects'){
+        $screen = get_current_screen();
+        $args = array(
+            'object_type' => $screen->post_type
+        );
+        return get_taxonomy_data(TRUE,$args,$output);
+    }
     private function render(){
-        $taxonomies = get_taxonomy_data();
+        $taxonomies = $this->get_taxonomy_by_screen();
+        
         
         $action = WPG_Page_Action::ADDING;        
         if (! empty($_GET) && ! empty($_GET['action']) && count($taxonomies) > 0) {
@@ -223,7 +231,7 @@ class WPG_Taxonomy_Edit
     
     	<?php        
             // Create our tabs.
-            taxonomy_tab_menu($page = 'taxonomies');
+    	taxonomy_tab_menu(count($taxonomies));
             
             if ($action == WPG_Page_Action::LISTING) {
                 return new WPG_Page_Taxonomy_List();
@@ -245,7 +253,7 @@ class WPG_Taxonomy_Edit
          */
         $taxonomy_deleted = apply_filters('taxonomy_delete_filter', false);
         if (WPG_Page_Action::EDITING == $action) {
-            $selected_taxonomy = get_current_taxonomy_slug($taxonomy_deleted);
+            $selected_taxonomy = $this->get_current_taxonomy_slug($taxonomy_deleted);
             
             if ($selected_taxonomy) {
                 if (array_key_exists($selected_taxonomy, $taxonomies)) {
@@ -263,7 +271,7 @@ class WPG_Taxonomy_Edit
 	<form class="top_margin" method="post">
 		<label for="taxonomy"><?php esc_html_e( 'Select: ', WPG_TEXT_DOMAIN ); ?></label>
 			<?php
-            build_taxonomies_html_select($taxonomies);
+            $this->build_taxonomies_html_select($taxonomies);
             
             /**
              * Filters the text value to use on the select taxonomy button.
@@ -274,7 +282,7 @@ class WPG_Taxonomy_Edit
              */
             ?>			
 			<a
-			href="<?php echo get_edit_taxonomy_link(get_current_taxonomy_slug()); ?>">
+			href="<?php echo get_edit_taxonomy_link($this->get_current_taxonomy_slug()); ?>">
 			<input value="Manage categories" type="button"
 			class="button-secondary" id="manage_taxonomy" name="manage_taxonomy" />
 		</a>
@@ -361,7 +369,7 @@ class WPG_Taxonomy_Edit
         
         echo $ui_builder->get_td_end() . $ui_builder->get_tr_end();
         
-        if (! WPG_FORCE_TAXONOMY_POST_TYPES) {
+        if (! WPGT_FORCE_TAXONOMY_POST_TYPES) {
             echo $ui_builder->get_tr_start() . $ui_builder->get_th_start() . esc_html__('Attach to Post Type', WPG_TEXT_DOMAIN) . $ui_builder->get_required_span();
             echo $ui_builder->get_p(esc_html__('Add support for available registered post types. At least one is required.', WPG_TEXT_DOMAIN));
             echo $ui_builder->get_th_end() . $ui_builder->get_td_start() . $ui_builder->get_fieldset_start();
@@ -937,95 +945,98 @@ class WPG_Taxonomy_Edit
         
         return 'update_success';
     }
+    /**
+     * Build a html select of custom taxonomies.
+     *
+     * @param array $taxonomies
+     *            Array of taxonomies that are registered. Optional.
+     */
+    private function build_taxonomies_html_select($taxonomies = array())
+    {
+        $ui_builder = new WPG_Taxonomy_UI_Builder();
+        
+        if (! empty($taxonomies)) {
+            $select = array();
+            $options = array();
+            
+            foreach ($taxonomies as $tax) {
+                $text = (! empty($tax->label)) ? $tax->label : $tax->name;
+                array_push($options, array(
+                    'attr' => $tax->name,
+                    'text' => $text
+                ));
+            }
+            
+            $current = $this->get_current_taxonomy_slug();
+            
+            $select['selected'] = $current;
+            echo $ui_builder->get_select_input(array(
+                'namearray' => 'selected_taxonomy',
+                'name' => 'taxonomy',
+                'wrap' => false,
+                'attr' => array(
+                    'onchange' => 'this.form.submit()'
+                ),
+                'options' => $options,
+                'selected' => $current
+            ));
+        }
+    }
+    
+    /**
+     * Get the selected taxonomy from the $_POST global.
+     *
+     * @param bool $taxonomy_deleted
+     *            Whether or not a taxonomy was recently deleted. Optional. Default false.
+     * @return bool|string False on no result, sanitized taxonomy slug if set.
+     */
+    private function get_current_taxonomy_slug($taxonomy_deleted = false)
+    {
+        $tax = false;
+        
+        if (! empty($_POST)) {
+            if (isset($_POST['selected_taxonomy']['taxonomy'])) {
+                $tax = sanitize_text_field($_POST['selected_taxonomy']['taxonomy']);
+            } else if ($taxonomy_deleted) {
+                $taxonomies = $this->get_taxonomy_by_screen();
+                $tax = key($taxonomies);
+            } else if (isset($_POST['custom_taxonomy_data']['name'])) {
+                // Return the submitted value.
+                if (! in_array($_POST['custom_taxonomy_data']['name'], wp_and_plugins_reserved_terms(), true)) {
+                    $tax = sanitize_text_field($_POST['custom_taxonomy_data']['name']);
+                } else {
+                    // If the submit was failed
+                    if (isset($_POST['original_taxonomy_name'])) {
+                        // EDITING EXISTED- Return the original value since user tried to submit a reserved term.
+                        $tax = sanitize_text_field($_POST['original_taxonomy_name']);
+                    } else {
+                        // NEW -Do nothing
+                    }
+                }
+            }
+        } else if (! empty($_GET) && isset($_GET['wpg_taxonomy'])) {
+            $tax = sanitize_text_field($_GET['wpg_taxonomy']);
+        } else {
+            $taxonomies = $this->get_taxonomy_by_screen();
+            if (! empty($taxonomies)) {
+                // Will return the first array key.
+                $tax = key($taxonomies);
+            }
+        }
+        /**
+         * Filters the current taxonomy to edit.
+         *
+         * @param string $tax
+         *            Taxonomy slug.
+         */
+        return apply_filters('current_taxonomy', $tax);
+    }
 }
 $wpg_taxonomy_edit = new WPG_Taxonomy_Edit();
 
-/**
- * Build a html select of custom taxonomies. 
- *       
- * @param array $taxonomies
- *            Array of taxonomies that are registered. Optional.
- */
-function build_taxonomies_html_select($taxonomies = array())
-{
-    $ui_builder = new WPG_Taxonomy_UI_Builder();
-    
-    if (! empty($taxonomies)) {
-        $select = array();
-        $options = array();
-        
-        foreach ($taxonomies as $tax) {
-            $text = (! empty($tax->label)) ? $tax->label : $tax->name;
-            array_push($options, array(
-                'attr' => $tax->name,
-                'text' => $text
-            ));
-        }
-        
-        $current = get_current_taxonomy_slug();
-        
-        $select['selected'] = $current;
-        echo $ui_builder->get_select_input(array(
-            'namearray' => 'selected_taxonomy',
-            'name' => 'taxonomy',
-            'wrap' => false,
-            'attr' => array(
-                'onchange' => 'this.form.submit()'
-            ),
-            'options' => $options,
-            'selected' => $current
-        ));
-    }
-}
 
-/**
- * Get the selected taxonomy from the $_POST global.
- *
- * @param bool $taxonomy_deleted
- *            Whether or not a taxonomy was recently deleted. Optional. Default false.
- * @return bool|string False on no result, sanitized taxonomy slug if set.
- */
-function get_current_taxonomy_slug($taxonomy_deleted = false)
-{
-    $tax = false;
-    
-    if (! empty($_POST)) {
-        if (isset($_POST['selected_taxonomy']['taxonomy'])) {
-            $tax = sanitize_text_field($_POST['selected_taxonomy']['taxonomy']);
-        } else if ($taxonomy_deleted) {
-            $taxonomies = get_taxonomy_data();
-            $tax = key($taxonomies);
-        } else if (isset($_POST['custom_taxonomy_data']['name'])) {
-            // Return the submitted value.
-            if (! in_array($_POST['custom_taxonomy_data']['name'], wp_and_plugins_reserved_terms(), true)) {
-                $tax = sanitize_text_field($_POST['custom_taxonomy_data']['name']);
-            } else {
-                // If the submit was failed
-                if (isset($_POST['original_taxonomy_name'])) {
-                    // EDITING EXISTED- Return the original value since user tried to submit a reserved term.
-                    $tax = sanitize_text_field($_POST['original_taxonomy_name']);
-                } else {
-                    // NEW -Do nothing
-                }
-            }
-        }
-    } else if (! empty($_GET) && isset($_GET['wpg_taxonomy'])) {
-        $tax = sanitize_text_field($_GET['wpg_taxonomy']);
-    } else {
-        $taxonomies = get_taxonomy_data();
-        if (! empty($taxonomies)) {
-            // Will return the first array key.
-            $tax = key($taxonomies);
-        }
-    }
-    /**
-     * Filters the current taxonomy to edit.
-     *
-     * @param string $tax
-     *            Taxonomy slug.
-     */
-    return apply_filters('current_taxonomy', $tax);
-}
+
+
 
 /**
  * Delete a custom taxonomy from the array of taxonomies.
@@ -1093,6 +1104,7 @@ function delete_taxonomy($data = array())
  */
 function convert_taxonomy_terms($original_slug = '', $new_slug = '')
 {
+    //TODO Validar 
     global $wpdb;
     
     $args = array(
@@ -1132,13 +1144,12 @@ function convert_taxonomy_terms($original_slug = '', $new_slug = '')
  */
 function slugs_taxonomy_exists($slug_exists = false, $taxonomy_slug = '', $taxonomies = array())
 {
-    
     // If true, then we'll already have a conflict, let's not re-process.
     if (true === $slug_exists) {
         return $slug_exists;
     }
     
-    // Check if CPTUI has already registered this slug.
+    // Check if taxonomy slug is already registered.
     if (array_key_exists(strtolower($taxonomy_slug), $taxonomies)) {
         return true;
     }
