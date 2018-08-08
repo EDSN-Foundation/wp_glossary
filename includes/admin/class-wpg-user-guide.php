@@ -22,14 +22,14 @@ class WPG_User_Guide {
 	public function __construct() {
 	
 		// Add User Guide Menu
-		add_action( 'admin_menu', array( $this, 'add_user_guide_menu' ) );
+		add_action( 'admin_menu', array( $this, 'add_user_guide_menu' ) );		
 	}
 
 	/**
 	 * Add Admin Sub Menu: User Guide
 	 */
 	public function add_user_guide_menu() {
-		add_submenu_page( 'edit.php?post_type=glossary', __( 'WP Glossary - User Guide', WPG_TEXT_DOMAIN ), __( 'User Guide', WPG_TEXT_DOMAIN ), 'manage_options', 'wpg-user-guide', array( $this, 'add_user_guide' ) );
+	    add_submenu_page( 'edit.php?post_type='.wpg_glossary_get_post_type(), __( 'WP Glossary - User Guide', WPG_TEXT_DOMAIN ), __( 'User Guide', WPG_TEXT_DOMAIN ), 'manage_options', 'wpg-user-guide', array( $this, 'add_user_guide' ) );
 	}
 	
 	/**
@@ -45,7 +45,7 @@ class WPG_User_Guide {
 				<div class="wpg-info-section">
 					<h3>Add New Glossary Term</h3>
 					<ol>
-						<li>Click on <a href="post-new.php?post_type=glossary" target="_blank"><strong>Add New</strong></a> under <strong>Glossary Terms</strong> menu.</li>
+						<li>Click on <a href="post-new.php?post_type=<?php echo wpg_glossary_get_post_type()?>" target="_blank"><strong>Add New</strong></a> under <strong>Glossary Terms</strong> menu.</li>
 						<li>Fill out the required details for term:
 							<ul>
 								<li>Glossary Term Title</li>
@@ -63,7 +63,7 @@ class WPG_User_Guide {
 				<div class="wpg-info-section">
 					<h3>Edit Glossary Term</h3>
 					<ol>
-						<li>Click on <a href="edit.php?post_type=glossary" target="_blank"><strong>All Glossary Terms</strong></a> under <strong>Glossary Terms</strong> menu.</li>
+						<li>Click on <a href="edit.php?post_type=<?php echo wpg_glossary_get_post_type()?>" target="_blank"><strong>All Glossary Terms</strong></a> under <strong>Glossary Terms</strong> menu.</li>
 						<li>Click <strong>Edit</strong> against glossary term you need to edit.</li>
 						<li>Next screen is same of <strong>Add New Glossary Term</strong> screen so refer to <strong>Add New Glossary Term</strong> section for further steps.</li>
 						<li>In this case, you will see <strong>Update</strong> button over <strong>Publish</strong> button.</li>
@@ -77,8 +77,8 @@ class WPG_User_Guide {
 						<li>Create a new page/post.</li>
 						<li>Add the <strong>[wpg_list]</strong> shortcode in page/post content. You can find more about shortcode on the same user guide under <strong>Shortcode</strong> section.</li>
 						<li>Note down this page/post ID.</li>
-						<li>Visit  <a href="edit.php?post_type=glossary&page=wpg-settings" target="_blank"><strong>Plugin Settings</strong></a> and enter the ID from previous step under <strong>Glossary Page/Post ID</strong> setting.</li>
-						<li>Checkout the other settings from <a href="edit.php?post_type=glossary&page=wpg-settings" target="_blank"><strong>Plugin Settings</strong></a> page as per your requirement.</li>
+						<li>Visit  <a href="edit.php?post_type=<?php echo wpg_glossary_get_post_type()?>&page=wpg-settings" target="_blank"><strong>Plugin Settings</strong></a> and enter the ID from previous step under <strong>Glossary Page/Post ID</strong> setting.</li>
+						<li>Checkout the other settings from <a href="edit.php?post_type=<?php echo wpg_glossary_get_post_type()?>&page=wpg-settings" target="_blank"><strong>Plugin Settings</strong></a> page as per your requirement.</li>
 					</ol>
 				</div>
 				
@@ -86,10 +86,10 @@ class WPG_User_Guide {
 					<h3>Shortcode</h3>
 					<ol>
 						<li><strong>Basic shortcode:</strong> [wpg_list]
-							<p>Use this shortcode anywhere in your page or post and it will start showing glossary terms in the same style you are expecting plugin to do. There are some attributes available with the same shortcode and you can find those in next step. Not all of those attributes are required to add with the shortcode and add only as per your need. If you don't use those attributes, shortcode uses <a href="edit.php?post_type=glossary&page=wpg-settings" target="_blank"><strong>Plugin Settings</strong></a> for the purpose.</p>
+							<p>Use this shortcode anywhere in your page or post and it will start showing glossary terms in the same style you are expecting plugin to do. There are some attributes available with the same shortcode and you can find those in next step. Not all of those attributes are required to add with the shortcode and add only as per your need. If you don't use those attributes, shortcode uses <a href="edit.php?post_type=<?php echo wpg_glossary_get_post_type()?>&page=wpg-settings" target="_blank"><strong>Plugin Settings</strong></a> for the purpose.</p>
 						</li>
 						
-						<li><strong>Full Shortcode:</strong> [wpg_list title="" layout="one_column/two_column/three_column/four_column/five_column" alphabet_set="A,B,C,D,E,..." hide_empty="yes/no" hide_all="yes/no" hide_numeric="yes/no" post_type="glossary" template="alphabet/category" taxonomy="glossary_cat" taxonomy_terms_to_include="optional/1,2,3.." taxonomy_terms_to_exclude="optional/1,2,3.." uncategorized_term_name=""]
+						<li><strong>Full Shortcode:</strong> [wpg_list title="" layout="one_column/two_column/three_column/four_column/five_column" alphabet_set="A,B,C,D,E,..." hide_empty="yes/no" hide_all="yes/no" hide_numeric="yes/no" post_type="<?php echo wpg_glossary_get_post_type()?>" template="alphabet/category" taxonomy="glossary_cat" taxonomy_terms_to_include="optional/1,2,3.." taxonomy_terms_to_exclude="optional/1,2,3.." uncategorized_term_name="" thumbnail=yes]
 							<ul>
 								<li><strong>title:</strong> This option is for nothing at the time with the plugin and is here just for future references/updates.</li>
 								
@@ -143,6 +143,12 @@ class WPG_User_Guide {
 								<li><strong>taxonomy_terms_to_exclude:</strong> By default, Previous option ( <strong>taxonomy</strong> ) loads posts for all the categories. This option allows you to exclude specific categories to load the posts from rest of the categories. For this you have to enter comma separated category ID's with this option.</li>
 
 								<li><strong>uncategorized_term_name:</strong> Its not necessary that all the posts will be categorized properly and few of those can still be without having any category assigned. Using <strong>template="category"</strong> and it shows only those posts which have at-least one category assigned. This option allows you to show uncategorized posts as well under same name category you pass with this option.</li>
+								<li><strong>thumbnail:</strong> This option is used to show or not thumbnails for items of the list. This option allows you to choose one from following two options:
+									<ul>
+										<li>yes</li>
+										<li>no</li>
+									</ul>
+								</li>
 							</ul>
 						</li>
 					</ol>

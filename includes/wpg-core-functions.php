@@ -14,7 +14,7 @@ function wpg_glossary_terms() {
 	$wpg_glossary_terms = array();
 	
 	$query_args = array(
-		'post_type'			=> 'glossary',
+	    'post_type'			=> wpg_glossary_get_post_type(),
 		'posts_per_page'	=> -1,
 		'orderby'			=> 'title',
 		'order'				=> 'ASC'
@@ -46,6 +46,19 @@ function wpg_glossary_get_title() {
 	}
 	
 	return apply_filters( 'wpg_glossary_title', $wpg_glossary_title );
+}
+
+/**
+ * Glossary: Get Post Type
+ */
+function wpg_glossary_get_post_type() {
+    $wpg_glossary_post_type = get_option( 'wpg_glossary_post_type' );
+    
+    if( $wpg_glossary_post_type == '' ) {
+        $wpg_glossary_post_type = 'glossary';
+    }
+    
+    return apply_filters( 'wpg_glossary_post_type', $wpg_glossary_post_type );
 }
 
 /**
@@ -734,7 +747,7 @@ function wpg_glossary_term_title_filter( $title, $post_id='' ) {
 	if( ! is_admin () ) {
 		$post = get_post( $post_id );
 		
-		if( get_post_type( $post ) == 'glossary' ) {
+		if( get_post_type( $post ) == wpg_glossary_get_post_type() ) {
 			$title = wpg_glossary_term_title( $post_id, $title );
 		}
 	}
@@ -749,7 +762,7 @@ add_filter( 'the_title', 'wpg_glossary_term_title_filter', 10, 2 );
 function wpg_glossary_term_permalink_filter( $permalink, $post ) {
 	
 	if( ! is_admin () ) {
-		if( get_post_type( $post ) == 'glossary' ) {
+	    if( get_post_type( $post ) == wpg_glossary_get_post_type() ) {
 			$permalink = wpg_glossary_term_permalink( $post->ID, $permalink );
 		}
 	}
@@ -768,7 +781,7 @@ function wpg_glossary_after_post_content( $content ) {
 		global $post;
 		$post_id = $post->ID;
 		
-		if ( is_singular( 'glossary' ) && in_the_loop() && $post_id == get_the_ID() ) {
+		if ( is_singular( wpg_glossary_get_post_type() ) && in_the_loop() && $post_id == get_the_ID() ) {
 			$wpg_glossary_is_back_link = wpg_glossary_is_back_link();
 			if( $wpg_glossary_is_back_link ) {
 				$wpg_glossary_page_id = wpg_glossary_get_page_id();
@@ -792,7 +805,7 @@ add_filter( 'the_content', 'wpg_glossary_after_post_content', 15 );
  */
 function wpg_glossary_terms_order( $query ) {
 	if( ! is_admin() && $query->is_main_query() ) {
-		if( $query->is_post_type_archive( 'glossary' ) || is_tax( 'glossary_cat' ) || is_tax( 'glossary_tag' ) ) {
+	    if( $query->is_post_type_archive( wpg_glossary_get_post_type()) || is_tax( 'glossary_cat' ) || is_tax( 'glossary_tag' ) ) {
 			$query->set( 'orderby', 'title' );
 			$query->set( 'order', 'ASC' );
 		}

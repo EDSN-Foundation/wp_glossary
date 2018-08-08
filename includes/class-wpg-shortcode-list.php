@@ -32,7 +32,7 @@ class WPG_Shortcode_List {
 	 * Widget Call Back Function
 	 */
 	public static function wpg_list( $args ) {
-	
+		
 		ob_start();
 		
 		if( empty( $args ) ) {
@@ -70,7 +70,7 @@ class WPG_Shortcode_List {
 		}
 		
 		if( ! isset( $args['post_type'] ) || $args['post_type'] == '' ) {
-			$args['post_type'] = 'glossary';
+		    $args['post_type'] = wpg_glossary_get_post_type();
 		}
 		
 		if( ! isset( $args['taxonomy'] ) ) {
@@ -88,6 +88,22 @@ class WPG_Shortcode_List {
 		if( ! isset( $args['uncategorized_term_name'] ) ) {
 			$args['uncategorized_term_name'] = '';
 		}
+		
+		//Setting checkbox property
+		$wpg_glossary_is_thumbnail_permited = get_option( 'wpg_glossary_thumbnail_permited' ) == 'yes';
+		if($wpg_glossary_is_thumbnail_permited){
+			//Setting checkbox property
+			$wpg_glossary_is_thumbnail = get_option( 'wpg_glossary_thumbnail' ) == 'yes';
+			//Overwrite by parameter
+			if( isset($args['thumbnail'])){
+				$args['thumbnail'] = $wpg_glossary_is_thumbnail = $args['thumbnail']=='no'?FALSE:TRUE;
+			}
+		}
+		else{
+			$wpg_glossary_is_thumbnail = FALSE;
+		}
+		
+		
 		
 		$query_args = array(
 			'post_type'			=> $args['post_type'],
@@ -138,7 +154,6 @@ class WPG_Shortcode_List {
 					if( ! empty( $terms ) ) {
 					
 						foreach( $terms as $term ) {
-						
 							$item_blocks[ $args['taxonomy'] . '_' . $term->term_id ][] = $post;
 						
 						}
@@ -151,13 +166,13 @@ class WPG_Shortcode_List {
 					
 				} else {
 				
-					if( function_exists( 'mb_substr' ) ) {
+					if( function_exists( 'substr' ) ) {
 					
-						$first_alphabet = mb_strtolower( mb_substr( get_the_title(), 0, 1, 'UTF-8' ) );
+					    $first_alphabet = strtolower( substr( get_the_title(), 0, 1, 'UTF-8' ) );
 						
 					} else {
 						
-						$first_alphabet = mb_strtolower( substr( get_the_title(), 0, 1 ) );
+					    $first_alphabet = strtolower( substr( get_the_title(), 0, 1 ) );
 						
 					}
 					
@@ -235,13 +250,13 @@ class WPG_Shortcode_List {
 							
 							$alphabet_set = array_filter( $alphabet_set );
 						
-							$filters_arr[] = array_combine( array_values( array_map( 'mb_strtolower', $alphabet_set ) ), $alphabet_set );
+							$filters_arr[] = array_combine( array_values( array_map( 'strtolower', $alphabet_set ) ), $alphabet_set );
 							
 						}
 						
 					} else {
 					
-						$filters_arr[] = array_combine( array_map( 'mb_strtolower', range( 'A','Z' ) ), range( 'A','Z' ) );
+						$filters_arr[] = array_combine( array_map( 'strtolower', range( 'A','Z' ) ), range( 'A','Z' ) );
 					
 					}
 					
@@ -467,23 +482,36 @@ class WPG_Shortcode_List {
 																	
 																}
 																
-																if( $wpg_glossary_is_tooltip ) {
-																
-																	$attr_title = wpg_glossary_get_tooltip_content( $wpg_glossary_is_tooltip_content_shortcode, $wpg_glossary_is_tooltip_content_read_more );
-																	
-																	echo apply_filters( 'wpg_list_item_title_link_start', '<a class="wpg-list-item-title wpg-tooltip" title="' . $attr_title . '" ' . $href . ' '. ( $wpg_glossary_is_new_tab ? 'target="_blank"' : '' ) .'>', get_permalink(), $attr_title, $wpg_glossary_is_tooltip );
-																	
-																} else {
-																
-																	$attr_title = $title;
-																
-																	echo apply_filters( 'wpg_list_item_title_link_start', '<a class="wpg-list-item-title" title="' . $attr_title . '" ' . $href . ' '. ( $wpg_glossary_is_new_tab ? 'target="_blank"' : '' ) .'>', get_permalink(), $attr_title, $wpg_glossary_is_tooltip );
-																
+																if( $wpg_glossary_is_tooltip ) {																
+																	$attr_title = wpg_glossary_get_tooltip_content( $wpg_glossary_is_tooltip_content_shortcode, $wpg_glossary_is_tooltip_content_read_more );																	
+																} else {															
+																	$attr_title = $title;																
+																}
+
+
+																$element_item_start = '<a class="wpg-list-item-title '.($wpg_glossary_is_tooltip?'wpg-tooltip':'').'" title="' . $attr_title . '" ' . $href . ' '. ( $wpg_glossary_is_new_tab ? 'target="_blank"' : '' ) .'>';
+																$element_item_content = $title;
+																$element_item_end = '</a>';
+																if( $wpg_glossary_is_thumbnail ) {
+																	$wp_glossary_img_id = get_post_meta( $post->ID, 'wp_glossary_custom_thumbnail', true );
+																	$element_img = $wp_glossary_img_id?wp_get_attachment_image_src($wp_glossary_img_id , 'thumbnail' )[0]:NULL;
+																	if(empty($element_img)){
+																		$element_img = get_the_post_thumbnail_url(get_the_ID(),'post-thumbnail');
+																		if(empty($element_img)){
+																			$element_img = plugins_url( './assets/images/avatar.png', dirname(__FILE__) );
+																		}
+																	}
+																	$element_item_content = '<div>
+																					<div class="avatar">
+																						<img src="'.esc_url($element_img).'" style="height:70px;width:65px">
+																					</div>
+																					<div class="avatar_content">'.$title.'</div>
+																				</div>';
 																}
 																
-																	echo $title;
-						
-																echo apply_filters( 'wpg_list_item_title_link_end', '</a>' );
+																echo apply_filters( 'wpg_list_item_title_link_start', $element_item_start , get_permalink(), $attr_title, $wpg_glossary_is_tooltip );
+																echo apply_filters( 'wpg_list_item_title_link_content', $element_item_content , get_permalink(), $attr_title, $wpg_glossary_is_tooltip );																
+																echo apply_filters( 'wpg_list_item_title_link_end', $element_item_end , get_permalink(), $attr_title, $wpg_glossary_is_tooltip);
 														
 															// Glossary Item Title - End
 					
