@@ -185,28 +185,28 @@ function wpg_taxonomy_tabs( $tabs = array(), $amount_of_data ) {
     $classes    = array( 'nav-tab' );
     $active_tab_class = array('nav-tab-active');
     
-    $action = cptui_get_current_action();
+    $action = get_current_action();
     $tabs['page_title'] = get_admin_page_title();
     $tabs['tabs']       = array();
     // Start out with our basic "Add new" tab.
     $tabs['tabs']['add'] = array(
         'text'          => esc_html__( 'Add New Taxonomy', WPG_TEXT_DOMAIN ),
         'classes'       => array_merge($classes,empty( $action )?$active_tab_class:[]),
-        'url'           => cptui_admin_url( 'edit.php?post_type=' . wpg_glossary_get_post_type() . '&page=wpg_taxonomies' ),
+        'url'           => wpct_admin_url( 'edit.php?post_type=' . wpg_glossary_get_post_type() . '&page=wpg_taxonomies' ),
         'aria-selected' => empty( $action )?'true':'false',
     );        
     if ( $amount_of_data > 0 ) {
         $tabs['tabs']['edit'] = array(
             'text'          => esc_html__( 'Edit Taxonomies', WPG_TEXT_DOMAIN ),
             'classes'       => array_merge($classes,!empty( $action ) && $action == WPG_Page_Action::EDITING?$active_tab_class:[]),
-            'url'           => esc_url( add_query_arg( array( 'action' => WPG_Page_Action::EDITING ), cptui_admin_url( 'edit.php?post_type=' . wpg_glossary_get_post_type(). '&page=wpg_taxonomies' ) ) ),
+            'url'           => esc_url( add_query_arg( array( 'action' => WPG_Page_Action::EDITING ), wpct_admin_url( 'edit.php?post_type=' . wpg_glossary_get_post_type(). '&page=wpg_taxonomies' ) ) ),
             'aria-selected' => ( ! empty( $action ) && $action == WPG_Page_Action::EDITING) ? 'true' : 'false'
         );
         
         $tabs['tabs']['view'] = array(
             'text'          => esc_html__( 'View Taxonomies', WPG_TEXT_DOMAIN ),
             'classes'       => array_merge($classes,!empty( $action ) && $action == WPG_Page_Action::LISTING?$active_tab_class:[]),
-            'url'           => esc_url( add_query_arg( array( 'action' => WPG_Page_Action::LISTING ),cptui_admin_url( 'edit.php?post_type=' . wpg_glossary_get_post_type(). '&page=wpg_taxonomies' )) ),
+            'url'           => esc_url( add_query_arg( array( 'action' => WPG_Page_Action::LISTING ),wpct_admin_url( 'edit.php?post_type=' . wpg_glossary_get_post_type(). '&page=wpg_taxonomies' )) ),
             'aria-selected' => ( ! empty( $action ) && $action == WPG_Page_Action::LISTING) ? 'true' : 'false'
         );
 
@@ -271,18 +271,7 @@ function wpg_admin_notices( $action = '', $object_type = '', $success = true, $c
 	}
 
 	if ( $message ) {
-
-		/**
-		 * Filters the custom admin notice for CPTUI.
-		 
-		 *
-		 * @param string $value            Complete HTML output for notice.
-		 * @param string $action           Action whose message is being generated.
-		 * @param string $message          The message to be displayed.
-		 * @param string $messagewrapstart Beginning wrap HTML.
-		 * @param string $messagewrapend   Ending wrap HTML.
-		 */
-		return apply_filters( 'cptui_admin_notice', $messagewrapstart . $message . $messagewrapend, $action, $message, $messagewrapstart, $messagewrapend );
+	    return $messagewrapstart . $message . $messagewrapend;
 	}
 
 	return false;

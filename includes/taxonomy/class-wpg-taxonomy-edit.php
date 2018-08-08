@@ -151,7 +151,7 @@ class WPG_Taxonomy_Edit
             if (isset($_POST['taxonomy_submit'])) {
                 
                 if (WPGT_FORCE_TAXONOMY_POST_TYPES) {
-                    $taxonomies = $this->get_taxonomy_by_screen();
+                    $taxonomies = $this->get_taxonomy_by_post_type();
                     
                     $selected_taxonomy = $this->get_current_taxonomy_slug();
                     
@@ -209,15 +209,15 @@ class WPG_Taxonomy_Edit
         
         $this->render();
     }
-    private function get_taxonomy_by_screen($output = 'objects'){
-        $screen = get_current_screen();
+    private function get_taxonomy_by_post_type($output = 'objects'){
+        $screen = get_current_post_type();
         $args = array(
-            'object_type' => $screen->post_type
+            'object_type' => $screen
         );
         return get_taxonomy_data(TRUE,$args,$output);
     }
     private function render(){
-        $taxonomies = $this->get_taxonomy_by_screen();
+        $taxonomies = $this->get_taxonomy_by_post_type();
         
         
         $action = WPG_Page_Action::ADDING;        
@@ -271,7 +271,7 @@ class WPG_Taxonomy_Edit
 	<form class="top_margin" method="post">
 		<label for="taxonomy"><?php esc_html_e( 'Select: ', WPG_TEXT_DOMAIN ); ?></label>
 			<?php
-            $this->build_taxonomies_html_select($taxonomies);
+			$this->build_taxonomies_html_select($taxonomies,$current);
             
             /**
              * Filters the text value to use on the select taxonomy button.
@@ -358,7 +358,7 @@ class WPG_Taxonomy_Edit
         ));
         
         echo $ui_builder->get_text_input(array(
-            'namearray' => 'cpt_tax_labels',
+            'namearray' => 'taxonomy_labels',
             'name' => 'singular_name',
             'textvalue' => (isset($current->labels->singular_name)) ? esc_attr($current->labels->singular_name) : '',
             'aftertext' => esc_html__('(e.g. Actor)', WPG_TEXT_DOMAIN),
@@ -467,7 +467,7 @@ class WPG_Taxonomy_Edit
         ));
         
         echo $ui_builder->get_text_input(array(
-            'namearray' => 'cpt_tax_labels',
+            'namearray' => 'taxonomy_labels',
             'name' => 'menu_name',
             'textvalue' => (isset($current->labels->menu_name)) ? esc_attr($current->labels->menu_name) : '',
             'aftertext' => esc_attr__('(e.g. Actors)', WPG_TEXT_DOMAIN),
@@ -476,7 +476,7 @@ class WPG_Taxonomy_Edit
         ));
         
         echo $ui_builder->get_text_input(array(
-            'namearray' => 'cpt_tax_labels',
+            'namearray' => 'taxonomy_labels',
             'name' => 'all_items',
             'textvalue' => (isset($current->labels->all_items)) ? esc_attr($current->labels->all_items) : '',
             'aftertext' => esc_attr__('(e.g. All Actors)', WPG_TEXT_DOMAIN),
@@ -485,7 +485,7 @@ class WPG_Taxonomy_Edit
         ));
         
         echo $ui_builder->get_text_input(array(
-            'namearray' => 'cpt_tax_labels',
+            'namearray' => 'taxonomy_labels',
             'name' => 'edit_item',
             'textvalue' => (isset($current->labels->edit_item)) ? esc_attr($current->labels->edit_item) : '',
             'aftertext' => esc_attr__('(e.g. Edit Actor)', WPG_TEXT_DOMAIN),
@@ -494,7 +494,7 @@ class WPG_Taxonomy_Edit
         ));
         
         echo $ui_builder->get_text_input(array(
-            'namearray' => 'cpt_tax_labels',
+            'namearray' => 'taxonomy_labels',
             'name' => 'view_item',
             'textvalue' => (isset($current->labels->view_item)) ? esc_attr($current->labels->view_item) : '',
             'aftertext' => esc_attr__('(e.g. View Actor)', WPG_TEXT_DOMAIN),
@@ -503,7 +503,7 @@ class WPG_Taxonomy_Edit
         ));
         
         echo $ui_builder->get_text_input(array(
-            'namearray' => 'cpt_tax_labels',
+            'namearray' => 'taxonomy_labels',
             'name' => 'update_item',
             'textvalue' => (isset($current->labels->update_item)) ? esc_attr($current->labels->update_item) : '',
             'aftertext' => esc_attr__('(e.g. Update Actor Name)', WPG_TEXT_DOMAIN),
@@ -512,7 +512,7 @@ class WPG_Taxonomy_Edit
         ));
         
         echo $ui_builder->get_text_input(array(
-            'namearray' => 'cpt_tax_labels',
+            'namearray' => 'taxonomy_labels',
             'name' => 'add_new_item',
             'textvalue' => (isset($current->labels->add_new_item)) ? esc_attr($current->labels->add_new_item) : '',
             'aftertext' => esc_attr__('(e.g. Add New Actor)', WPG_TEXT_DOMAIN),
@@ -521,7 +521,7 @@ class WPG_Taxonomy_Edit
         ));
         
         echo $ui_builder->get_text_input(array(
-            'namearray' => 'cpt_tax_labels',
+            'namearray' => 'taxonomy_labels',
             'name' => 'new_item_name',
             'textvalue' => (isset($current->labels->new_item_name)) ? esc_attr($current->labels->new_item_name) : '',
             'aftertext' => esc_attr__('(e.g. New Actor Name)', WPG_TEXT_DOMAIN),
@@ -530,7 +530,7 @@ class WPG_Taxonomy_Edit
         ));
         
         echo $ui_builder->get_text_input(array(
-            'namearray' => 'cpt_tax_labels',
+            'namearray' => 'taxonomy_labels',
             'name' => 'parent_item',
             'textvalue' => (isset($current->labels->parent_item)) ? esc_attr($current->labels->parent_item) : '',
             'aftertext' => esc_attr__('(e.g. Parent Actor)', WPG_TEXT_DOMAIN),
@@ -539,7 +539,7 @@ class WPG_Taxonomy_Edit
         ));
         
         echo $ui_builder->get_text_input(array(
-            'namearray' => 'cpt_tax_labels',
+            'namearray' => 'taxonomy_labels',
             'name' => 'parent_item_colon',
             'textvalue' => (isset($current->labels->parent_item_colon)) ? esc_attr($current->labels->parent_item_colon) : '',
             'aftertext' => esc_attr__('(e.g. Parent Actor:)', WPG_TEXT_DOMAIN),
@@ -548,7 +548,7 @@ class WPG_Taxonomy_Edit
         ));
         
         echo $ui_builder->get_text_input(array(
-            'namearray' => 'cpt_tax_labels',
+            'namearray' => 'taxonomy_labels',
             'name' => 'search_items',
             'textvalue' => (isset($current->labels->search_items)) ? esc_attr($current->labels->search_items) : '',
             'aftertext' => esc_attr__('(e.g. Search Actors)', WPG_TEXT_DOMAIN),
@@ -557,7 +557,7 @@ class WPG_Taxonomy_Edit
         ));
         
         echo $ui_builder->get_text_input(array(
-            'namearray' => 'cpt_tax_labels',
+            'namearray' => 'taxonomy_labels',
             'name' => 'popular_items',
             'textvalue' => (isset($current->labels->popular_items)) ? esc_attr($current->labels->popular_items) : null,
             'aftertext' => esc_attr__('(e.g. Popular Actors)', WPG_TEXT_DOMAIN),
@@ -566,7 +566,7 @@ class WPG_Taxonomy_Edit
         ));
         
         echo $ui_builder->get_text_input(array(
-            'namearray' => 'cpt_tax_labels',
+            'namearray' => 'taxonomy_labels',
             'name' => 'separate_items_with_commas',
             'textvalue' => (isset($current->labels->separate_items_with_commas)) ? esc_attr($current->labels->separate_items_with_commas) : null,
             'aftertext' => esc_attr__('(e.g. Separate Actors with commas)', WPG_TEXT_DOMAIN),
@@ -575,7 +575,7 @@ class WPG_Taxonomy_Edit
         ));
         
         echo $ui_builder->get_text_input(array(
-            'namearray' => 'cpt_tax_labels',
+            'namearray' => 'taxonomy_labels',
             'name' => 'add_or_remove_items',
             'textvalue' => (isset($current->labels->add_or_remove_items)) ? esc_attr($current->labels->add_or_remove_items) : null,
             'aftertext' => esc_attr__('(e.g. Add or remove Actors)', WPG_TEXT_DOMAIN),
@@ -584,7 +584,7 @@ class WPG_Taxonomy_Edit
         ));
         
         echo $ui_builder->get_text_input(array(
-            'namearray' => 'cpt_tax_labels',
+            'namearray' => 'taxonomy_labels',
             'name' => 'choose_from_most_used',
             'textvalue' => (isset($current->labels->choose_from_most_used)) ? esc_attr($current->labels->choose_from_most_used) : null,
             'aftertext' => esc_attr__('(e.g. Choose from the most used Actors)', WPG_TEXT_DOMAIN),
@@ -593,7 +593,7 @@ class WPG_Taxonomy_Edit
         ));
         
         echo $ui_builder->get_text_input(array(
-            'namearray' => 'cpt_tax_labels',
+            'namearray' => 'taxonomy_labels',
             'name' => 'not_found',
             'textvalue' => (isset($current->labels->not_found)) ? esc_attr($current->labels->not_found) : null,
             'aftertext' => esc_attr__('(e.g. No Actors found)', WPG_TEXT_DOMAIN),
@@ -602,7 +602,7 @@ class WPG_Taxonomy_Edit
         ));
         
         echo $ui_builder->get_text_input(array(
-            'namearray' => 'cpt_tax_labels',
+            'namearray' => 'taxonomy_labels',
             'name' => 'no_terms',
             'textvalue' => (isset($current->labels->no_terms)) ? esc_attr($current->labels->no_terms) : null,
             'aftertext' => esc_html__('(e.g. No actors)', WPG_TEXT_DOMAIN),
@@ -611,7 +611,7 @@ class WPG_Taxonomy_Edit
         ));
         
         echo $ui_builder->get_text_input(array(
-            'namearray' => 'cpt_tax_labels',
+            'namearray' => 'taxonomy_labels',
             'name' => 'items_list_navigation',
             'textvalue' => (isset($current->labels->items_list_navigation)) ? esc_attr($current->labels->items_list_navigation) : null,
             'aftertext' => esc_html__('(e.g. Actors list navigation)', WPG_TEXT_DOMAIN),
@@ -620,7 +620,7 @@ class WPG_Taxonomy_Edit
         ));
         
         echo $ui_builder->get_text_input(array(
-            'namearray' => 'cpt_tax_labels',
+            'namearray' => 'taxonomy_labels',
             'name' => 'items_list',
             'textvalue' => (isset($current->labels->items_list)) ? esc_attr($current->labels->items_list) : null,
             'aftertext' => esc_html__('(e.g. Actors list)', WPG_TEXT_DOMAIN),
@@ -886,7 +886,7 @@ class WPG_Taxonomy_Edit
         
         /*
          * custom_taxonomy_data
-         * cpt_tax_labels
+         * taxonomy_labels
          * taxonomy_related_post_types
          */
         foreach ($data as $key => $value) {
@@ -906,7 +906,7 @@ class WPG_Taxonomy_Edit
         
         $wpct_taxonomy = $this->converter_data_to_taxonomy(
             $data,
-            $data['cpt_tax_labels'],
+            $data['taxonomy_labels'],
             $data['taxonomy_related_post_types']);
         
         
@@ -949,14 +949,14 @@ class WPG_Taxonomy_Edit
      * Build a html select of custom taxonomies.
      *
      * @param array $taxonomies
-     *            Array of taxonomies that are registered. Optional.
+     *            Array of taxonomies that are registered.
+     * @param WPCT_Taxonomy $current Current taxonomy selected.
      */
-    private function build_taxonomies_html_select($taxonomies = array())
+    private function build_taxonomies_html_select($taxonomies = array(),$current)
     {
         $ui_builder = new WPG_Taxonomy_UI_Builder();
         
         if (! empty($taxonomies)) {
-            $select = array();
             $options = array();
             
             foreach ($taxonomies as $tax) {
@@ -965,11 +965,8 @@ class WPG_Taxonomy_Edit
                     'attr' => $tax->name,
                     'text' => $text
                 ));
-            }
+            }                        
             
-            $current = $this->get_current_taxonomy_slug();
-            
-            $select['selected'] = $current;
             echo $ui_builder->get_select_input(array(
                 'namearray' => 'selected_taxonomy',
                 'name' => 'taxonomy',
@@ -978,7 +975,7 @@ class WPG_Taxonomy_Edit
                     'onchange' => 'this.form.submit()'
                 ),
                 'options' => $options,
-                'selected' => $current
+                'selected' => $current->name
             ));
         }
     }
@@ -998,7 +995,7 @@ class WPG_Taxonomy_Edit
             if (isset($_POST['selected_taxonomy']['taxonomy'])) {
                 $tax = sanitize_text_field($_POST['selected_taxonomy']['taxonomy']);
             } else if ($taxonomy_deleted) {
-                $taxonomies = $this->get_taxonomy_by_screen();
+                $taxonomies = $this->get_taxonomy_by_post_type();
                 $tax = key($taxonomies);
             } else if (isset($_POST['custom_taxonomy_data']['name'])) {
                 // Return the submitted value.
@@ -1017,7 +1014,7 @@ class WPG_Taxonomy_Edit
         } else if (! empty($_GET) && isset($_GET['wpg_taxonomy'])) {
             $tax = sanitize_text_field($_GET['wpg_taxonomy']);
         } else {
-            $taxonomies = $this->get_taxonomy_by_screen();
+            $taxonomies = $this->get_taxonomy_by_post_type();
             if (! empty($taxonomies)) {
                 // Will return the first array key.
                 $tax = key($taxonomies);
@@ -1204,7 +1201,6 @@ add_action('init', 'init_convert_taxonomy_terms');
  * @param string $taxonomy_slug
  *            Taxonomy slug being processed.
  * @param array $taxonomies
- *            CPTUI taxonomies.
  * @return bool
  */
 function updated_taxonomy_slug_exists($slug_exists, $taxonomy_slug = '', $taxonomies = array())

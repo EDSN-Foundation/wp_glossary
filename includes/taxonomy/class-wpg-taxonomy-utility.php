@@ -61,11 +61,11 @@ function wpt_flush_rewrite_rules() {
 add_action( 'admin_init', 'wpt_flush_rewrite_rules' );
 
 /**
- * Return the current action being done within CPTUI context.
+ * Return the current action on GET context.
  **
- * @return string Current action being done by CPTUI
+ * @return string Current action
  */
-function cptui_get_current_action() {
+function get_current_action() {
 	$current_action = '';
 	if ( ! empty( $_GET ) && isset( $_GET['action'] ) ) {
 		$current_action .= esc_textarea( $_GET['action'] );
@@ -73,27 +73,13 @@ function cptui_get_current_action() {
 
 	return $current_action;
 }
-
-/**
- * Return an array of all taxonomy slugs from Custom Post Type UI.
- **
- * @return array CPTUI taxonomy slugs.
- */
-function cptui_get_taxonomy_slugs() {
-	$taxonomies = get_option( WPG_Taxonomy_Data::FIELD_OPTION );
-	if ( ! empty( $taxonomies ) ) {
-		return array_keys( $taxonomies );
-	}
-	return array();
-}
-
 /**
  * Return the appropriate admin URL depending on our context.
  **
  * @param string $path URL path.
  * @return string
  */
-function cptui_admin_url( $path ) {
+function wpct_admin_url( $path ) {
 	if ( is_multisite() && is_network_admin() ) {
 		return network_admin_url( $path );
 	}
@@ -101,27 +87,6 @@ function cptui_admin_url( $path ) {
 	return admin_url( $path );
 }
 
-/**
- * Construct action tag for `<form>` tag.
- **
- * @param object|string $ui CPTUI Admin UI instance. Optional. Default empty string.
- * @return string
- */
-function cptui_get_post_form_action( $ui = '' ) {
-	/**
-	 * Filters the string to be used in an `action=""` attribute.
-	 **/
-	return apply_filters( 'cptui_post_form_action', '', $ui );
-}
-
-/**
- * Display action tag for `<form>` tag.
- **
- * @param object $ui CPTUI Admin UI instance.
- */
-function cptui_post_form_action( $ui ) {
-	echo cptui_get_post_form_action( $ui );
-}
 
 function fixing_taxonomy($taxonomy){
     $new_taxonomy = WPCT_Taxonomy::newInstanceFromJSOM(wp_json_encode($taxonomy));
@@ -171,24 +136,6 @@ function get_taxonomy_data($custom_taxonomies_only = TRUE, $object = array(), $o
     return $taxonomies;
 }
 
-/**
- * Checks if a post type is already registered.
- **
- * @param string       $slug Post type slug to check. Optional. Default empty string.
- * @param array|string $data Post type data being utilized. Optional.
- * @return mixed
- */
-function cptui_get_post_type_exists( $slug = '', $data = array() ) {
-
-	/**
-	 * Filters the boolean value for if a post type exists for 3rd parties.
-	 **
-	 * @param string       $slug Post type slug to check.
-	 * @param array|string $data Post type data being utilized.
-	 */
-	return apply_filters( 'cptui_get_post_type_exists', post_type_exists( $slug ), $data );
-}
-
 
 /**
  * Secondary admin notices function for use with admin_notices hook.
@@ -211,29 +158,17 @@ function wpg_admin_notices_helper( $message = '', $success = true ) {
 
 	$action = '';
 
-	/**
-	 * Filters the custom admin notice for CPTUI.
-	 **
-	 * @param string $value            Complete HTML output for notice.
-	 * @param string $action           Action whose message is being generated.
-	 * @param string $message          The message to be displayed.
-	 * @param string $messagewrapstart Beginning wrap HTML.
-	 * @param string $messagewrapend   Ending wrap HTML.
-	 */
-	return apply_filters( 'cptui_admin_notice', $messagewrapstart . $message . $messagewrapend, $action, $message, $messagewrapstart, $messagewrapend );
+	return $messagewrapstart . $message . $messagewrapend;
 }
 
 /**
- * Grab post type or taxonomy slug from $_POST global, if available.
+ * Get taxonomy name from $_POST global, if available.
  **
  * @internal
  *
  * @return string
  */
-function cptui_get_object_from_post_global() {
-	if ( isset( $_POST['cpt_custom_post_type']['name'] ) ) {
-		return sanitize_text_field( $_POST['cpt_custom_post_type']['name'] );
-	}
+function get_taxonomy_name_from_post_global() {	
 
 	if ( isset( $_POST['custom_taxonomy_data']['name'] ) ) {
 		return sanitize_text_field( $_POST['custom_taxonomy_data']['name'] );
@@ -249,7 +184,7 @@ function wpg_add_success_admin_notice() {
 	echo wpg_admin_notices_helper(
 		sprintf(
 			esc_html__( '%s has been successfully added', WPG_TEXT_DOMAIN ),
-			cptui_get_object_from_post_global()
+			get_taxonomy_name_from_post_global()
 		),
 		true
 	);
@@ -262,7 +197,7 @@ function wpg_add_fail_admin_notice() {
 	echo wpg_admin_notices_helper(
 		sprintf(
 			esc_html__( '%s has failed to be added', WPG_TEXT_DOMAIN ),
-			cptui_get_object_from_post_global()
+			get_taxonomy_name_from_post_global()
 		),
 		false
 	);
@@ -275,7 +210,7 @@ function wpg_update_success_admin_notice() {
 	echo wpg_admin_notices_helper(
 		sprintf(
 			esc_html__( '%s has been successfully updated', WPG_TEXT_DOMAIN ),
-			cptui_get_object_from_post_global()
+			get_taxonomy_name_from_post_global()
 		),
 		true
 	);
@@ -288,7 +223,7 @@ function wpg_update_fail_admin_notice() {
 	echo wpg_admin_notices_helper(
 		sprintf(
 			esc_html__( '%s has failed to be updated', WPG_TEXT_DOMAIN ),
-			cptui_get_object_from_post_global()
+			get_taxonomy_name_from_post_global()
 		),
 		false
 	);
@@ -301,7 +236,7 @@ function wpg_delete_success_admin_notice() {
 	echo wpg_admin_notices_helper(
 		sprintf(
 			esc_html__( '%s has been successfully deleted', WPG_TEXT_DOMAIN ),
-			cptui_get_object_from_post_global()
+			get_taxonomy_name_from_post_global()
 		),
 		true
 	);
@@ -314,7 +249,7 @@ function wpg_delete_fail_admin_notice() {
 	echo wpg_admin_notices_helper(
 		sprintf(
 			esc_html__( '%s has failed to be deleted', WPG_TEXT_DOMAIN ),
-			cptui_get_object_from_post_global()
+			get_taxonomy_name_from_post_global()
 		),
 		false
 	);
@@ -339,17 +274,6 @@ function wpg_import_fail_admin_notice() {
 	);
 }
 
-/**
- * Returns error message for if trying to register existing post type.
- **
- * @return string
- */
-function cptui_slug_matches_post_type() {
-	return sprintf(
-		esc_html__( 'Please choose a different post type name. %s is already registered.', WPG_TEXT_DOMAIN ),
-		cptui_get_object_from_post_global()
-	);
-}
 
 /**
  * Returns error message for if trying to register existing taxonomy.
@@ -359,7 +283,7 @@ function cptui_slug_matches_post_type() {
 function wpt_slug_taxonomy_already_registered() {
 	return sprintf(
 		esc_html__( 'Please choose a different taxonomy name. %s is already registered.', WPG_TEXT_DOMAIN ),
-		cptui_get_object_from_post_global()
+		get_taxonomy_name_from_post_global()
 	);
 }
 
@@ -374,18 +298,6 @@ function wpt_post_type_is_reserved() {
 }
 
 /**
- * Returns error message for if trying to register post type with matching page slug.
- **
- * @return string
- */
-function cptui_slug_matches_page() {
-	return sprintf(
-		esc_html__( 'Please choose a different post type name. %s matches an existing page slug, which can cause conflicts.', WPG_TEXT_DOMAIN ),
-		cptui_get_object_from_post_global()
-	);
-}
-
-/**
  * Returns error message for if trying to use quotes in slugs or rewrite slugs.
  **
  * @return string
@@ -393,20 +305,8 @@ function cptui_slug_matches_page() {
 function wpt_slug_has_quotes() {
 	return sprintf(
 		esc_html__( 'Please do not use quotes in post type/taxonomy names or rewrite slugs', WPG_TEXT_DOMAIN ),
-		cptui_get_object_from_post_global()
+		get_taxonomy_name_from_post_global()
 	);
-}
-
-/**
- * Returns error message for if trying to use a function that is not on system.
- **
- * @return string
- */
-function wpt_taxonomy_metabox_function_doesnt_exists() {
-    return sprintf(
-        esc_html__( 'Please make sure that the Metabox function existis on system. (e.g."post_categories_meta_box" | "post_tags_meta_box")', WPG_TEXT_DOMAIN ),
-        cptui_get_object_from_post_global()
-        );
 }
 
 /**
@@ -418,103 +318,33 @@ function wpg_error_admin_notice() {
 		false
 	);
 }
-
 /**
- * Mark site as not a new CPTUI install upon update to 1.5.0
- **
- * @param object $wp_upgrader WP_Upgrader instance.
- * @param array  $extras      Extra information about performed upgrade.
+ * gets the current post type in the WordPress Admin
  */
-function cptui_not_new_install( $wp_upgrader, $extras ) {
-
-	if ( ! is_a( $wp_upgrader, 'Plugin_Upgrader' ) ) {
-		return;
-	}
-
-	if ( ! array_key_exists( 'plugins', $extras ) || ! is_array( $extras['plugins'] ) ) {
-		return;
-	}
-
-	// Was CPTUI updated?
-	if ( ! in_array( 'custom-post-type-ui/custom-post-type-ui.php', $extras['plugins'] ) ) {
-		return;
-	}
-
-	// If we are already known as not new, return.
-	if ( cptui_is_new_install() ) {
-		return;
-	}
-
-	// We need to mark ourselves as not new.
-	cptui_set_not_new_install();
+function get_current_post_type()
+{
+    global $post, $get, $typenow, $current_screen;
+    
+    // we have a post so we can just get the post type from that
+    if ($post && $post->post_type)
+        return $post->post_type;
+    
+    // check the global $typenow - set in admin.php
+    elseif ($typenow)
+        return $typenow;
+    
+    // check the global $current_screen object - set in sceen.php
+    elseif ($current_screen && $current_screen->post_type)
+        return $current_screen->post_type;
+    
+    // lastly check the post_type querystring
+    elseif (isset($_REQUEST['post_type']))
+        return sanitize_key($_REQUEST['post_type']);
+    
+    
+    // we do not know the post type!
+    return null;
 }
-add_action( 'upgrader_process_complete', 'cptui_not_new_install', 10, 2 );
-
-/**
- * Check whether or not we're on a new install.
- **
- * @return bool
- */
-function cptui_is_new_install() {
-	$new_or_not = true;
-	$saved = get_option( 'cptui_new_install', '' );
-
-	if ( 'false' === $saved ) {
-		$new_or_not = false;
-	}
-
-	/**
-	 * Filters the new install status.
-	 *
-	 * Offers third parties the ability to override if they choose to.
-	 **
-	 * @param bool $new_or_not Whether or not site is a new install.
-	 */
-	return (bool) apply_filters( 'cptui_is_new_install',  $new_or_not );
-}
-
-/**
- * Set our activation status to not new.
- **/
-function cptui_set_not_new_install() {
-	update_option( 'cptui_new_install', 'false' );
-}
-
-/**
- * Returns saved values for single taxonomy from CPTUI settings.
- **
- * @param string $taxonomy Taxonomy to retrieve CPTUI object for.
- * @return string
- */
-function cptui_get_cptui_taxonomy_object( $taxonomy = '' ) {
-	$taxonomies = get_option( WPG_Taxonomy_Data::FIELD_OPTION );
-
-	if ( array_key_exists( $taxonomy, $taxonomies ) ) {
-		return $taxonomies[ $taxonomy ];
-	}
-	return '';
-}
-
-
-/**
- * Add missing post_format taxonomy support for CPTUI post types.
- *
- * Addresses bug wih previewing changes for published posts with post types that
- * have post-formats support.
- **
- * @param array $post_types Array of CPTUI post types.
- */
-function cptui_published_post_format_fix( $post_types ) {
-	foreach ( $post_types as $type ) {
-		if ( in_array( 'post-formats', $type['supports'], true ) ) {
-			add_post_type_support( $type['name'], 'post-formats' );
-			register_taxonomy_for_object_type( 'post_format', $type['name'] );
-		}
-	}
-}
-add_action( 'cptui_post_register_post_types', 'cptui_published_post_format_fix' );
-
-
 /**
  * Retrieves the URL for editing a given taxonomy.
  *

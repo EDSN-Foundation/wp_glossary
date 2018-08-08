@@ -109,21 +109,6 @@
   margin-top: 15px;
 }
 
-.cptui_post_import,
-.cptui_tax_import {
-  height: 200px;
-  margin-bottom: 10px;
-  resize: vertical;
-  width: 100%;
-}
-
-.cptui_post_type_get_code,
-.cptui_tax_get_code {
-  height: 300px;
-  resize: vertical;
-  width: 100%;
-}
-
 .about-wrap .wpg-feature {
   overflow: visible !important;
   *zoom: 1;
@@ -243,12 +228,6 @@ fieldset .wpg-help {
   box-shadow: none;
 }
 
-#toplevel_page_cptui_main_menu img {
-  height: 20px;
-  margin-top: -2px;
-  width: 20px;
-}
-
 .visuallyhidden {
   position: absolute;
   left: -10000px;
@@ -353,10 +332,6 @@ fieldset .wpg-help {
 
 .wdspromos-about p:nth-child(4) {
   padding-right: 0px;
-}
-
-.no-js #cptui_choose_icon {
-  display: none;
 }
 
 .wpg-listings th {

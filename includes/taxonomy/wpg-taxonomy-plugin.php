@@ -68,7 +68,7 @@ final class WPG_Taxonomy {
 		define( 'WPGT_PLUGIN_URL', $this->plugin_url() );
 		define( 'WPGT_PLUGIN_PATH', $this->plugin_path() );
 		define( 'WPGT_TEXT_DOMAIN', 'wpg_taxonomy' );
-		define( 'WPGT_FORCE_TAXONOMY_POST_TYPES', 0);
+		define( 'WPGT_FORCE_TAXONOMY_POST_TYPES', 1);
 	}
 	
 	/**
@@ -82,8 +82,7 @@ final class WPG_Taxonomy {
 		include_once('class-wpg-taxonomy-edit.php');
 		include_once('class-wpg-taxonomy-ui.php');
 		include_once('class-wpg-taxonomy-post-type-ui.php');
-		include_once('class-wpg-taxonomy-utility.php');
-		include_once('class-wpg-taxonomy-listings.php');		
+		include_once('class-wpg-taxonomy-utility.php');	
 		if( is_admin() ) {
 			
 		} else {

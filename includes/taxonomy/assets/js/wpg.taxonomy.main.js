@@ -8,8 +8,6 @@ postboxes.add_postbox_toggles(pagenow);
  */
 (function($) {
 
-	$('#cptui_select_post_type_submit').hide();
-
 
 	if ('edit' === getParameterByName('action')) {
 		// Store our original slug on page load for edit checking.
@@ -120,24 +118,6 @@ postboxes.add_postbox_toggles(pagenow);
 		if (!results[2]) return '';
 		return decodeURIComponent(results[2].replace(/\+/g, " "));
 	}
-
-	$('#cptui_choose_icon').on('click',function(e){
-		e.preventDefault();
-
-		var button = $(this);
-		var id = jQuery('#menu_icon').attr('id');
-		_custom_media = true;
-		wp.media.editor.send.attachment = function (props, attachment) {
-			if (_custom_media) {
-				$("#" + id).val(attachment.url);
-			} else {
-				return _orig_send_attachment.apply(this, [props, attachment]);
-			}
-		};
-
-		wp.media.editor.open(button);
-		return false;
-	});
 
 	$('#togglelabels').on('click',function(e){
 		e.preventDefault();

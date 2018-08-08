@@ -26,7 +26,7 @@ class WPG_Page_Taxonomy_List
 			<?php
 			$taxonomies = $this->get_taxonomy_by_screen();
     
-    if (! empty($taxonomies)) {
+    
         $taxonomy_table_heads = array(
             __('Taxonomy', WPG_TEXT_DOMAIN),
             __('Settings', WPG_TEXT_DOMAIN),
@@ -152,11 +152,7 @@ printf('<a href="%s">%s</a>', esc_attr($taxonomy_link_url), sprintf(esc_html__('
 		</tfoot>
 	</table>
 			<?php
-    } else {
-        
-        $ui_builder.get_p(
-            sprintf(esc_html__('No taxonomies registered for display. Visit %s to get started.', WPG_TEXT_DOMAIN), sprintf('<a href="%s">%s</a>', esc_attr(admin_url('admin.php?page=cptui_manage_taxonomies')), esc_html__('Add/Edit Taxonomies', WPG_TEXT_DOMAIN))));        
-    }
+     
     ?>
 
 		</div>
