@@ -1,9 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
 
-## [1.0.0] - 2017-06-20
+## [1.0.0] - 2018-08-09 - [Released]
 
 
 ## [0.2.3] - 2018-08-09
