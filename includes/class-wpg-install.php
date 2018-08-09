@@ -48,10 +48,10 @@ class WPG_Install {
 		if( ! empty( $option_sections ) ) {
 			foreach( $option_sections as $option_section ) {
 				if( isset( $option_section->options ) && ! empty( $option_section->options ) ) {
-+					foreach( $option_section->options as $option ) {
-+						if( isset( $option->default ) && isset( $option->name ) ) {
-+							$autoload = isset( $option->autoload ) ? (bool) $option->autoload : true;
-+							add_option( $option->name, $option->default, '', ( $autoload ? 'yes' : 'no' ) );
+					foreach( $option_section->options as $option ) {
+						if( isset( $option->default ) && isset( $option->name ) ) {
+							$autoload = isset( $option->autoload ) ? (bool) $option->autoload : true;
+							add_option( $option->name, $option->default, '', ( $autoload ? 'yes' : 'no' ) );
  						}
  					}
  				}
