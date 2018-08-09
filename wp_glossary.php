@@ -4,8 +4,8 @@
  * Description: The "WP Glossary" plugin helps you to create your own glossary of terms for Encyclopedia / Lexicon / Knowledge Base / Wiki / Dictionary in your website. This plugin works based on a custom post type and so you have a full editor at your disposal.
  * Version: 0.2.3
  * WP version: 4.7.4
- * Author: The WP Instinct Team
- * Author URI: http://wpinstinct.com/
+ * Author: EDSN-Foundation 
+ * Author URI: http://edsn.org
  */
  
 if ( ! defined( 'ABSPATH' ) ) {
