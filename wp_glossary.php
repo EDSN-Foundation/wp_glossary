@@ -2,9 +2,10 @@
 /**
  * Plugin Name: WP Glossary - Encyclopedia / Lexicon / Knowledge Base / Wiki / Dictionary
  * Description: The "WP Glossary" plugin helps you to create your own glossary of terms for Encyclopedia / Lexicon / Knowledge Base / Wiki / Dictionary in your website. This plugin works based on a custom post type and so you have a full editor at your disposal.
- * Version: 2.2
- * Author: The WP Instinct Team
- * Author URI: http://wpinstinct.com/
+ * Version: 0.2.3
+ * WP version: 4.7.4
+ * Author: EDSN-Foundation 
+ * Author URI: http://edsn.org
  */
  
 if ( ! defined( 'ABSPATH' ) ) {
@@ -36,7 +37,7 @@ final class WP_Glossary {
 	 * Ensures only one instance of WP_Glossary is loaded or can be loaded
 	 *
 	 * @see WP_Glossary()
-	 * @return Main instance
+	 * @return WP_Glossary instance
 	 */
 	public static function instance() {
 		if ( is_null( self::$_instance ) ) {
@@ -83,8 +84,8 @@ final class WP_Glossary {
 		include_once( 'includes/class-wpg-post-types.php' );
 		include_once( 'includes/class-wpg-shortcode-list.php' );
 		include_once( 'includes/class-wpg-widget-related-posts.php' );
-		include_once( 'includes/class-wpg-custom-thumbnail.php' );
-		
+		include_once( 'includes/thumbnail/wpctn-thumbnail-plugin.php' );
+		include_once( 'includes/taxonomy/wpg-taxonomy-plugin.php');		
 		
 		if( is_admin() ) {
 			include_once( 'includes/admin/class-wpg-admin-scripts.php' );

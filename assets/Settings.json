@@ -1,0 +1,486 @@
+{
+	"section_index": {
+		"heading": "Glossary Index Page",
+		"options": {
+			"wpg_glossary_title": {
+				"name": "wpg_glossary_title",
+				"label": "Glossary Title",
+				"type": "text",
+				"default": "Glossary",
+				"required":true,
+				"desc": "This option allows you to change the glossary title wholeover the website."
+			},			
+			"wpg_glossary_post_type": {
+				"name": "wpg_glossary_post_type",
+				"label": "Glossary Post Type",
+				"type": "text",
+				"default": "glossary",
+				"required":true,
+				"desc": "This options allows you to choose your own post type. **Take care, just change this property if you know what it mean."
+			},
+			"wpg_glossary_slug": {
+				"name": "wpg_glossary_slug",
+				"label": "Glossary Slug",
+				"type": "text",
+				"default": "glossary",
+				"required":true,
+				"desc": "This options allows you to choose the seo slug for the glossary terms permalink. By default, its value is <strong>glossary<\/strong> and you can change it with whatever you want. <br \/><br \/><strong>WARNING!<\/strong> If you already have same seo slug running for another post or page, this can interrupt\/effect the behaviour of current plugin so make sure that you use a unique seo slug for this."
+			},
+			"wpg_glossary_archive": {
+				"name": "wpg_glossary_archive",
+				"label": "Glossary Archive",
+				"type": "checkbox",
+				"default": "yes",
+				"desc": "In case you want to use same slug for Glossary Index Page which you have already used for <strong>Glossary Slug<\/strong>, WordPress doesn't allow it as glossary slug has already been reserved for glossary post type archive there. You can disable this option in order to use same slug for Glossary Index Page and Glossary Slug."
+			},
+			"wpg_glossary_page_id": {
+				"name": "wpg_glossary_page_id",
+				"label": "Glossary Page\/Post ID",
+				"type": "text",
+				"desc": "Enter the page\/post ID you are using as Glossary Index Page by placing shortcode <strong>[wpg_list]<\/strong>."
+			},
+			"wpg_glossary_layout": {
+				"name": "wpg_glossary_layout",
+				"label": "Glossary Page Layout",
+				"type": "select",
+				"opts": {
+					"one_column": "1 Column",
+					"two_column": "2 Column",
+					"three_column": "3 Column",
+					"four_column": "4 Column",
+					"five_column": "5 Column"
+				},
+				"default": "three_column",
+				"desc": "Select the number of columns you want per row on Glossary Index Page. By default, it shows three columns per row but you can change it to any from one to five columns."
+			},
+			"wpg_glossary_alphabet_set": {
+				"name": "wpg_glossary_alphabet_set",
+				"label": "Alphabet Set",
+				"type": "textarea",
+				"custom_attributes": {
+					"rows": 5
+				},
+				"desc": "By default, plugin uses A to Z alphabet set for filter on Glossary Index Page. Suppose you want to: <br \/><ul><li>change the order of the alphabets<\/li><li>show only few alphabets<\/li><li>show a different set of characters<\/li><li>show characters list for other language (eg: Hebrew, Greek )<\/li><li>show multiple rows rather than all the alphabets in single row or all English alphabets in first row and Hebrew in next row<\/ul>You can use this option for all these. Use comma (,) for multiple alphabets. For multiple rows, simply use new line (ENTER from keyboard). <br \/><br \/><strong>EG:<\/strong> <br \/>A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z <br \/>\u0410,\u0411,\u0412,\u0413,\u0414,\u0415,\u0416,\u0417,\u0418,\u041a,\u041b,\u041c,\u041d,\u041e,\u041f,\u0420,\u0421,\u0422,\u0423,\u0424,\u0425,\u0426,\u0427,\u0428,\u0429,\u042d,\u042e,\u042f"
+			},
+			"wpg_glossary_animation": {
+				"name": "wpg_glossary_animation",
+				"label": "Glossary Animation",
+				"type": "checkbox",
+				"default": "yes",
+				"desc": "An option dictating whether or not animation should be enabled for the Glossary Index Page. If false, all operations will occur instantly and syncronously."
+			},
+			"wpg_glossary_hide_empty": {
+				"name": "wpg_glossary_hide_empty",
+				"label": "Hide Empty Alphabets",
+				"type": "checkbox",
+				"desc": "In case, some of the alphabets from filter list, on Glossary Index Page, doesn't have any glossary term\/phrase. These alphabets will show as disabled in the list. Selecting this option will remove these disabled alphabets from the list completely."
+			},
+			"wpg_glossary_hide_all": {
+				"name": "wpg_glossary_hide_all",
+				"label": "Hide \"All\" Filter",
+				"type": "checkbox",
+				"desc": "Plugin, by default, shows <strong>ALL<\/strong> at the starting of the filter list on Glossary Index Page which shows all the glossary terms\/phrases when clicked. For example, you click on alphabet <strong>A<\/strong> from the filter list, it will come up with all the glossary terms starting with <strong>A<\/strong>. Now you want to see back the whole list of terms. Clicking <strong>ALL<\/strong> does this for you. If you want to show it no more in the filter list, you can enable this option."
+			},
+			"wpg_glossary_label_all": {
+				"name": "wpg_glossary_label_all",
+				"label": "Label - All",
+				"type": "text",
+				"default": "All",
+				"desc": "This option allows you to change the label from \"All\" with one you want."
+			},
+			"wpg_glossary_hide_numeric": {
+				"name": "wpg_glossary_hide_numeric",
+				"label": "Hide \"0-9\" Filter",
+				"type": "checkbox",
+				"desc": "This option works almost in the same way <strong>Hide \"All\" Filter<\/strong> works but for the glossary terms starting with number. Plugin shows  <strong>0-9<\/strong> just after <strong>All<\/strong> in the filter list on Glossary Index Page and you can remove it by enabling this option."
+			},
+			"wpg_glossary_disable_link": {
+				"name": "wpg_glossary_disable_link",
+				"label": "Disable Term Links",
+				"type": "checkbox",
+				"desc": "Sometimes, you don't want one to see glossary terms details page by just clicking glossary term OR want one to click on <strong>Read More<\/strong> text from tooltip content before one redirects to glossary term details page. This option allows you to disable links on Glossary Index Page from glossary terms\/phrases to term details page. This option will work only for Glossary Index Page and not for Linkified Terms. For Linkified Terms, please visit <strong>Glossary Linkify<\/strong> section from the settings. <br \/><br \/><strong>NOTE!<\/strong> Plugin still uses anchor tag for the glossary terms to show hand when one hover the terms. You can change it through CSS if don't want to show hand when taking mouse pointer over <strong>link disabled terms<\/strong>."
+			},
+			"wpg_glossary_new_tab": {
+				"name": "wpg_glossary_new_tab",
+				"label": "New Tab",
+				"type": "checkbox",
+				"desc": "Select this option if you want to open a new tab when one clicks on glossary term."
+			},
+			"wpg_glossary_back_link": {
+				"name": "wpg_glossary_back_link",
+				"label": "Back Link",
+				"type": "checkbox",
+				"default": "yes",
+				"desc": "Select this option if you want to add a back link at the bottom of term description on glossary term details page to Glossary Index Page. You can change the text <strong>Back to Glossary Index Page<\/strong> easily using filter <strong>wpg_glossary_post_back_link_text<\/strong> anywhere in your current theme or third party plugin."
+			},
+			"wpg_glossary_label_back_link": {
+				"name": "wpg_glossary_label_back_link",
+				"label": "Label - Back Link",
+				"type": "text",
+				"default": "Back to Glossary Index Page",
+				"desc": "This option allows you to change the text from \"Back to Glossary Index Page\" with one you want."
+			},
+			"wpg_glossary_combine_taxonomy_boxes": {
+				"name": "wpg_glossary_combine_taxonomy_boxes",
+				"label": "Combine taxonomy boxes",
+				"type": "checkbox",
+				"default": "yes",
+				"desc": "Select this option if you want to combine all custom taxonomy metaboxes in one, you can see this in action on the Post Page. *This feature is not avaialable for gutenberg theme."
+			},
+			"wpg_glossary_thumbnail_permited": {
+				"name": "wpg_glossary_thumbnail_permited",
+				"label": "PERMIT Custom thumbnails",
+				"type": "checkbox",
+				"default": "yes",
+				"desc": "Select this option if you UNCHECKING this checkbox you will desactivated any use of custom thumbnails and thumbnails on Term Post Page and gloassary lists."
+			},
+			"wpg_glossary_thumbnail": {
+				"name": "wpg_glossary_thumbnail",
+				"label": "Use thumbnails by default",
+				"type": "checkbox",
+				"default": "yes",
+				"desc": "Select this option if you want to use thumbnails as default for items on the lists."
+			}
+		}
+	},
+	"section_linkify": {
+		"heading": "Glossary Linkify",
+		"options": {
+			"wpg_glossary_activate_linkify": {
+				"name": "wpg_glossary_activate_linkify",
+				"label": "Enable Linkify",
+				"type": "checkbox",
+				"default": "yes",
+				"desc": "Enable this option will automatically hyperlink the glossary terms\/phrases in content. Everytime glossary terms appear in your pages\/posts, get automatically linked to the their detail pages. This way it enhances Search Engine Optimization by auto linking each highlighted phrase or term back to a dedicated term definition page."
+			},
+			"wpg_glossary_linkify_exclude_html_tags": {
+				"name": "wpg_glossary_linkify_exclude_html_tags",
+				"label": "HTML Tags to Exclude",
+				"type": "text",
+				"desc": "By default, plugin excludes only anchor, style and script tags from linkified. You can use this option to exclude more HTML tags. <br \/><br \/><strong>EG:<\/strong> h1, h2, h3, h4, h5, h6, pre, object"
+			},
+			"wpg_glossary_linkify_tags": {
+				"name": "wpg_glossary_linkify_tags",
+				"label": "Linkify Tags",
+				"type": "checkbox",
+				"default": "yes",
+				"desc": "Suppose you have a term and now you want its plurals\/synonyms also be linkified with the same term. There is no way to check it programmatically if a phrase is a plural or synonym for existing glossary term. <br \/><br \/>Plugin allows you to add multiple tags against each glossary term while adding\/editing this particular term. That way you can add multiple plurals\/synonyms for any term under these tags. Now enable this option and it will start linkifying plurals\/synonyms along with glossary terms."
+			},
+			"wpg_glossary_linkify_disable_link": {
+				"name": "wpg_glossary_linkify_disable_link",
+				"label": "Disable Term Links",
+				"type": "checkbox",
+				"desc": "Sometimes, you don't want one to see glossary terms details page by just clicking linkified glossary term OR want one to click on <strong>Read More<\/strong> text from tooltip content before one redirects to glossary term details page. This option allows you to disable links from linkified glossary terms\/phrases to term details page."
+			},
+			"wpg_glossary_linkify_new_tab": {
+				"name": "wpg_glossary_linkify_new_tab",
+				"label": "New Tab",
+				"type": "checkbox",
+				"desc": "Select this option if you want to open a new tab when one clicks on linkified glossary term."
+			},
+			"wpg_glossary_linkify_sections": {
+				"name": "wpg_glossary_linkify_sections",
+				"label": "Linkify Zones",
+				"type": "checkbox_group",
+				"opts": {
+					"post_content": "Post\/Page Full Description",
+					"post_excerpt": "Post\/Page Short Description",
+					"term_content": "Categories\/Terms Description",
+					"widget": "Widgets",
+					"comment": "Comments"
+				},
+				"default": [
+					"post_content",
+					"widget"
+				],
+				"desc": "This option allows you to choose which content you want content to be linkified. Sometimes, you don't need comments or widgets text be linkified, this option allows us to disable linkify for those."
+			},
+			"wpg_glossary_linkify_post_types": {
+				"name": "wpg_glossary_linkify_post_types",
+				"label": "Post Types",
+				"type": "checkbox_group",
+				"opts": {
+					"post": "Posts",
+					"page": "Pages",
+					"attachment": "Media"
+				},
+				"default": [
+					"post"
+				],
+				"desc": "Most of the times, you will require linkify to work with limited post types only and not with all. This option allows you to choose post types you want linkify to work with."
+			},
+			"wpg_glossary_linkify_on_front_page": {
+				"name": "wpg_glossary_linkify_on_front_page",
+				"label": "Front Page",
+				"type": "checkbox",
+				"desc": "Enable this option will start linkifying glossary terms even on home page content as well."
+			},
+			"wpg_glossary_linkify_term_limit": {
+				"name": "wpg_glossary_linkify_term_limit",
+				"label": "Linkify Limit per Term",
+				"type": "number",
+				"desc": "By default, plugin adds the links to all the occurrences of the glossary terms where few times, you need to linkify only first occurance of each glossary term.  This option allows you to limit maximum number of occurrences a single glossary term should be linkified for. Leave blank to linkify all the occurrences of each glossary term."
+			},
+			"wpg_glossary_linkify_limit_for_full_page": {
+				"name": "wpg_glossary_linkify_limit_for_full_page",
+				"label": "Linkify Limit for Full Page",
+				"type": "checkbox",
+				"desc": "Above option <strong>Linkify Limit per Term<\/strong> limits occurrences of glossary terms per section ( eg: post content, comments, widgets ). This option allows you to expand this limit for full page content."
+			},
+			"wpg_glossary_linkify_case_sensitive": {
+				"name": "wpg_glossary_linkify_case_sensitive",
+				"label": "Case Sensitive",
+				"type": "checkbox",
+				"desc": "Enable this option if you want glossary terms to be case-sensitive. <br \/><br \/><strong>EG:<\/strong> You have a glossary term titled <strong>Vehicles<\/strong>. Activate this option and it will linkify only phrase <strong>Vehicles<\/strong> and not <strong>vehicles<\/strong>. See the difference between capital and small case <strong>V<\/strong>."
+			}
+		}
+	},
+	"section_tooltip": {
+		"heading": "Glossary Tooltip",
+		"options": {
+			"wpg_glossary_activate_tooltip": {
+				"name": "wpg_glossary_activate_tooltip",
+				"label": "Enable Tooltip",
+				"type": "checkbox",
+				"default": "yes",
+				"desc": "Enable this option will start showing an info box with term definition when one hovers over the term. Plugin uses <strong>Tooltipster<\/strong> for this and you can find more documentation <a href=\"http:\/\/iamceege.github.io\/tooltipster\/\" target=\"_blank\"><strong>HERE<\/strong><\/a>."
+			},
+			"wpg_glossary_disable_tooltip_on_index": {
+				"name": "wpg_glossary_disable_tooltip_on_index",
+				"label": "Disable Tooltip on Index",
+				"type": "checkbox",
+				"desc": "Enable this option will disable tooltip on Glossary Index Page even if you have enabled <strong>Enable Tooltip<\/strong> option."
+			},
+			"wpg_glossary_tooltip_theme": {
+				"name": "wpg_glossary_tooltip_theme",
+				"label": "Tooltip Theme",
+				"type": "select",
+				"opts": {
+					"default": "Default",
+					"light": "Light",
+					"punk": "Punk",
+					"noir": "Noir",
+					"shadow": "Shadow"
+				},
+				"default": "default",
+				"desc": "Plugin tooltip comes with five different themes. You can try those to get one which fits best with your current theme. Still need some styling changes, you can do it through your current theme's style.css file if you are good with CSS."
+			},
+			"wpg_glossary_activate_tooltip_title": {
+				"name": "wpg_glossary_activate_tooltip_title",
+				"label": "Show Heading",
+				"type": "checkbox",
+				"default": "yes",
+				"desc": "Enable this option if you want to add a heading before term description in tooltip content."
+			},
+			"wpg_glossary_tooltip_title_format": {
+				"name": "wpg_glossary_tooltip_title_format",
+				"label": "Heading Format",
+				"type": "text",
+				"default": "{TITLE}",
+				"desc": "Enabled <strong>Show Heading<\/strong>, next you want to format the content for heading. This option allows you to do it. You can use <strong>{TITLE}<\/strong> to show hovered term title dynamically along with other static content. <br \/><br \/><strong>EG:<\/strong> This terms refers to: {TITLE}<\/strong>"
+			},
+			"wpg_glossary_tooltip_content_type": {
+				"name": "wpg_glossary_tooltip_content_type",
+				"label": "Content Type",
+				"type": "select",
+				"opts": {
+					"excerpt": "Short Description ( Excerpt )",
+					"content": "Full Description"
+				},
+				"default": "excerpt",
+				"desc": "This option allows you to choose either to show short description (excerpt) or full description in the tooltip. In case if a term doesn't have short description, it will be replaced by full description. Short description supports <strong><!--more--><\/strong> tag as well in the same way WordPress does for post excerpt. Follow this <a href='https:\/\/codex.wordpress.org\/Customizing_the_Read_More' target='_blank'><strong>URL<\/strong><\/a> for more understanding of <strong>more<\/strong> tag. <br \/><br \/><strong>NOTE!<\/strong> You have to manually enter short description per term using the <strong>Excerpt<\/strong> field on the term add\/edit screen."
+			},
+			"wpg_glossary_tooltip_content_length": {
+				"name": "wpg_glossary_tooltip_content_length",
+				"label": "Content Length",
+				"type": "number",
+				"default": "",
+				"desc": "Use this option if you want to limit the number of words in tooltip content. Leave it blank if you want to show all the words from <strong>Content Type<\/strong> option. <br \/><br \/><strong>WARNING!<\/strong> This option will remove\/strip all the formatting from content including HTML tags."
+			},
+			"wpg_glossary_tooltip_content_shortcode": {
+				"name": "wpg_glossary_tooltip_content_shortcode",
+				"label": "Execute Shortcodes",
+				"type": "checkbox",
+				"default": "yes",
+				"desc": "You have shortcodes in glossary term content and want them to execute in the same way those execute on post\/term details page. Enable this option will start executing all the shortcodes from glossary term content in the tooltip as well."
+			},
+			"wpg_glossary_tooltip_content_read_more": {
+				"name": "wpg_glossary_tooltip_content_read_more",
+				"label": "Read More",
+				"type": "checkbox",
+				"desc": "Enable this option will add a <strong>Read More<\/strong> link at the end of tooltip content which will redirect users to term details page. You can change the text <strong>Read More<\/strong> easily using filter <strong>wpg_tooltip_content_read_more_text<\/strong> anywhere in your current theme or third party plugin."
+			},
+			"wpg_glossary_label_tooltip_content_read_more": {
+				"name": "wpg_glossary_label_tooltip_content_read_more",
+				"label": "Label - Read More",
+				"type": "text",
+				"default": "Read More",
+				"desc": "This option allows you to change the text from \"Read More\" with one you want."
+			},
+			"wpg_glossary_tooltip_animation": {
+				"name": "wpg_glossary_tooltip_animation",
+				"label": "Animation Type",
+				"type": "select",
+				"opts": {
+					"fade": "Fade",
+					"grow": "Grow",
+					"swing": "Swing",
+					"slide": "Slide",
+					"fall": "Fall"
+				},
+				"default": "fade",
+				"desc": "Plugin tooltip comes with five ready to use animations when one hovers term. You can play with those to get one which fits best with your current theme."
+			},
+			"wpg_glossary_tooltip_position": {
+				"name": "wpg_glossary_tooltip_position",
+				"label": "Position",
+				"type": "select",
+				"opts": {
+					"left": "Left",
+					"right": "Right",
+					"top": "Top",
+					"bottom": "Bottom",
+					"top-left": "Top Left",
+					"top-right": "Top Right",
+					"bottom-left": "Bottom Left",
+					"bottom-right": "Bottom Right"
+				},
+				"default": "top",
+				"desc": "By default, tooltip shows just above the phrase when one hovers. In case if you want to change its position from top to somewhere else, you can use this option. This option allows you to choose one from Left, Right, Top, Bottom and few other combinations for tooltip position."
+			},
+			"wpg_glossary_activate_tooltip_arrow": {
+				"name": "wpg_glossary_activate_tooltip_arrow",
+				"label": "Bubble Arrow",
+				"type": "checkbox",
+				"default": "yes",
+				"desc": "Selecting this option will add add a <strong>speech bubble arrow<\/strong> to the tooltip. Default its active but you can uncheck the option to hide <strong>speech bubble arrow<\/strong>."
+			},
+			"wpg_glossary_tooltip_min_width": {
+				"name": "wpg_glossary_tooltip_min_width",
+				"label": "Min Width",
+				"type": "number",
+				"default": "250",
+				"desc": "This option allows you to change the minimum width of tooltip window from 250 to else."
+			},
+			"wpg_glossary_tooltip_max_width": {
+				"name": "wpg_glossary_tooltip_max_width",
+				"label": "Max Width",
+				"type": "number",
+				"default": "500",
+				"desc": "This option allows you to change the maximum width of tooltip window from 500 to else."
+			},
+			"wpg_glossary_tooltip_speed": {
+				"name": "wpg_glossary_tooltip_speed",
+				"label": "Speed",
+				"type": "number",
+				"default": "350",
+				"desc": "Set the speed of the animation, in milliseconds, for the tooltip. By default, its value is 350 but you can try few different values to see which one seems good with the website."
+			},
+			"wpg_glossary_tooltip_delay": {
+				"name": "wpg_glossary_tooltip_delay",
+				"label": "Delay",
+				"type": "number",
+				"default": "200",
+				"desc": "Set the delay how long it takes, in milliseconds, for the tooltip to start animating in. Upon mouse interaction, this is the delay before the tooltip starts its opening and closing animations. By default, its value is 200 but you can try few different values to see which one seems good with the website."
+			},
+			"wpg_glossary_activate_touch_devices": {
+				"name": "wpg_glossary_activate_touch_devices",
+				"label": "Touch Devices",
+				"type": "checkbox",
+				"default": "yes",
+				"desc": "This option allows you to choose whether to show tooltip on touch devices or not. Disable this option will not show the tooltips on pure-touch devices."
+			}
+		}
+	},
+	"section_custom_css": {
+		"heading": "Glossary Custom Styles",
+		"options": {
+			"wpg_glossary_list_filter_font_colour": {
+				"name": "wpg_glossary_list_filter_font_colour",
+				"label": "Filter Font Colour",
+				"type": "colour",
+				"desc": "This option allows you to choose colour using colour picker for filter list on Glossary Index Page. Select <strong>Clear<\/strong> from colour picker if you want to use plugin's default style."
+			},
+			"wpg_glossary_list_filter_active_font_colour": {
+				"name": "wpg_glossary_list_filter_active_font_colour",
+				"label": "Filter Active Font Colour",
+				"type": "colour",
+				"desc": "This option allows you to choose colour using colour picker for active alphabet\/category from filter list on Glossary Index Page. Select <strong>Clear<\/strong> from colour picker if you want to use plugin's default style."
+			},
+			"wpg_glossary_list_filter_font_size": {
+				"name": "wpg_glossary_list_filter_font_size",
+				"label": "Filter Font Size (px)",
+				"type": "number",
+				"desc": "This option allows you to choose font size, in pixels, for filter list on Glossary Index Page."
+			},
+			"wpg_glossary_list_heading_bg_colour": {
+				"name": "wpg_glossary_list_heading_bg_colour",
+				"label": "Heading Background Colour",
+				"type": "colour",
+				"default": "#f4f4f4",
+				"desc": "This option allows you to choose background colour using colour picker for terms block heading on Glossary Index Page. Select <strong>Clear<\/strong> from colour picker if you want to use plugin's default style."
+			},
+			"wpg_glossary_list_heading_font_colour": {
+				"name": "wpg_glossary_list_heading_font_colour",
+				"label": "Heading Font Colour",
+				"type": "colour",
+				"default": "#777777",
+				"desc": "This option allows you to choose colour using colour picker for terms block heading on Glossary Index Page. Select <strong>Clear<\/strong> from colour picker if you want to use plugin's default style."
+			},
+			"wpg_glossary_list_heading_font_size": {
+				"name": "wpg_glossary_list_heading_font_size",
+				"label": "Heading Font Size (px)",
+				"type": "number",
+				"desc": "This option allows you to choose font size, in pixels, for terms block heading on Glossary Index Page."
+			},
+			"wpg_glossary_list_terms_font_colour": {
+				"name": "wpg_glossary_list_terms_font_colour",
+				"label": "Terms Font Colour",
+				"type": "colour",
+				"desc": "This option allows you to choose colour using colour picker for terms on Glossary Index Page. Select <strong>Clear<\/strong> from colour picker if you want to use plugin's default style."
+			},
+			"wpg_glossary_list_terms_active_font_colour": {
+				"name": "wpg_glossary_list_terms_active_font_colour",
+				"label": "Terms Hover Font Colour",
+				"type": "colour",
+				"desc": "This option allows you to choose colour using colour picker for terms on Glossary Index Page when one hovers term. Select <strong>Clear<\/strong> from colour picker if you want to use plugin's default style."
+			},
+			"wpg_glossary_list_terms_font_size": {
+				"name": "wpg_glossary_list_terms_font_size",
+				"label": "Terms Font Size (px)",
+				"type": "number",
+				"desc": "This option allows you to choose font size, in pixels, for terms on Glossary Index Page."
+			},
+			"wpg_glossary_tooltip_bg_colour": {
+				"name": "wpg_glossary_tooltip_bg_colour",
+				"label": "Tooltip Background Colour",
+				"type": "colour",
+				"desc": "This option allows you to choose background colour using colour picker for tooltip. Select <strong>Clear<\/strong> from colour picker if you want to use plugin's default style."
+			},
+			"wpg_glossary_tooltip_border_colour": {
+				"name": "wpg_glossary_tooltip_border_colour",
+				"label": "Tooltip Border Colour",
+				"type": "colour",
+				"desc": "This option allows you to choose border colour using colour picker for tooltip. Select <strong>Clear<\/strong> from colour picker if you want to use plugin's default style."
+			},
+			"wpg_glossary_tooltip_heading_colour": {
+				"name": "wpg_glossary_tooltip_heading_colour",
+				"label": "Tooltip Heading Colour",
+				"type": "colour",
+				"desc": "This option allows you to choose heading colour using colour picker for tooltip. Select <strong>Clear<\/strong> from colour picker if you want to use plugin's default style."
+			},
+			"wpg_glossary_tooltip_content_colour": {
+				"name": "wpg_glossary_tooltip_content_colour",
+				"label": "Tooltip Content Colour",
+				"type": "colour",
+				"desc": "This option allows you to choose content colour using colour picker for tooltip. Select <strong>Clear<\/strong> from colour picker if you want to use plugin's default style."
+			},
+			"wpg_glossary_tooltip_link_colour": {
+				"name": "wpg_glossary_tooltip_link_colour",
+				"label": "Tooltip Links Colour",
+				"type": "colour",
+				"desc": "This option allows you to choose link colour ( eg: anchor tag ) using colour picker for tooltip. Select <strong>Clear<\/strong> from colour picker if you want to use plugin's default style."
+			}
+		}
+	}
+}

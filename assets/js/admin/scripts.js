@@ -16,4 +16,5 @@ jQuery( document ).ready(function($) {
 	
 	// Tabs
 	$('.wpg-tabs').tabs();
+	$('.wpg-tabs').css("visibility","");
 });

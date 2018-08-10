@@ -27,7 +27,7 @@ class WPG_Install {
 	 * Add settings link on plugin page
 	 */
 	public static function quick_links( $links ) {
-		$settings_link = '<a href="edit.php?post_type=glossary&page=wpg-settings">' . __( 'Settings', WPG_TEXT_DOMAIN ) . '</a>';
+	    $settings_link = '<a href="edit.php?post_type=' . wpg_glossary_get_post_type() . '&page=wpg-settings">' . __( 'Settings', WPG_TEXT_DOMAIN ) . '</a>';
 		array_unshift( $links, $settings_link ); 
 		return $links; 
 	}
@@ -47,14 +47,14 @@ class WPG_Install {
 		$option_sections = WPG_Settings::get_settings();
 		if( ! empty( $option_sections ) ) {
 			foreach( $option_sections as $option_section ) {
-				if( isset( $option_section['options'] ) && ! empty( $option_section['options'] ) ) {
-					foreach( $option_section['options'] as $option ) {
-						if( isset( $option['default'] ) && isset( $option['name'] ) ) {
-							$autoload = isset( $option['autoload'] ) ? (bool) $option['autoload'] : true;
-							add_option( $option['name'], $option['default'], '', ( $autoload ? 'yes' : 'no' ) );
-						}
-					}
-				}
+				if( isset( $option_section->options ) && ! empty( $option_section->options ) ) {
+					foreach( $option_section->options as $option ) {
+						if( isset( $option->default ) && isset( $option->name ) ) {
+							$autoload = isset( $option->autoload ) ? (bool) $option->autoload : true;
+							add_option( $option->name, $option->default, '', ( $autoload ? 'yes' : 'no' ) );
+ 						}
+ 					}
+ 				}
 			}
 		}
 		

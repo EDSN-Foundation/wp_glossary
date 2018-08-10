@@ -32,7 +32,7 @@ class WPG_Shortcode_List {
 	 * Widget Call Back Function
 	 */
 	public static function wpg_list( $args ) {
-	
+		
 		ob_start();
 		
 		if( empty( $args ) ) {
@@ -70,7 +70,7 @@ class WPG_Shortcode_List {
 		}
 		
 		if( ! isset( $args['post_type'] ) || $args['post_type'] == '' ) {
-			$args['post_type'] = 'glossary';
+		    $args['post_type'] = wpg_glossary_get_post_type();
 		}
 		
 		if( ! isset( $args['taxonomy'] ) ) {
@@ -154,7 +154,6 @@ class WPG_Shortcode_List {
 					if( ! empty( $terms ) ) {
 					
 						foreach( $terms as $term ) {
-						
 							$item_blocks[ $args['taxonomy'] . '_' . $term->term_id ][] = $post;
 						
 						}
@@ -167,13 +166,13 @@ class WPG_Shortcode_List {
 					
 				} else {
 				
-					if( function_exists( 'mb_substr' ) ) {
+					if( function_exists( 'substr' ) ) {
 					
-						$first_alphabet = mb_strtolower( mb_substr( get_the_title(), 0, 1, 'UTF-8' ) );
+					    $first_alphabet = strtolower( substr( get_the_title(), 0, 1, 'UTF-8' ) );
 						
 					} else {
 						
-						$first_alphabet = mb_strtolower( substr( get_the_title(), 0, 1 ) );
+					    $first_alphabet = strtolower( substr( get_the_title(), 0, 1 ) );
 						
 					}
 					
@@ -251,13 +250,13 @@ class WPG_Shortcode_List {
 							
 							$alphabet_set = array_filter( $alphabet_set );
 						
-							$filters_arr[] = array_combine( array_values( array_map( 'mb_strtolower', $alphabet_set ) ), $alphabet_set );
+							$filters_arr[] = array_combine( array_values( array_map( 'strtolower', $alphabet_set ) ), $alphabet_set );
 							
 						}
 						
 					} else {
 					
-						$filters_arr[] = array_combine( array_map( 'mb_strtolower', range( 'A','Z' ) ), range( 'A','Z' ) );
+						$filters_arr[] = array_combine( array_map( 'strtolower', range( 'A','Z' ) ), range( 'A','Z' ) );
 					
 					}
 					
@@ -495,7 +494,7 @@ class WPG_Shortcode_List {
 																$element_item_end = '</a>';
 																if( $wpg_glossary_is_thumbnail ) {
 																	$wp_glossary_img_id = get_post_meta( $post->ID, 'wp_glossary_custom_thumbnail', true );
-																	$element_img = $wp_glossary_img_id?wp_get_attachment_image_src($wp_glossary_img_id , 'full' )[0]:NULL;
+																	$element_img = $wp_glossary_img_id?wp_get_attachment_image_src($wp_glossary_img_id , 'thumbnail' )[0]:NULL;
 																	if(empty($element_img)){
 																		$element_img = get_the_post_thumbnail_url(get_the_ID(),'post-thumbnail');
 																		if(empty($element_img)){
