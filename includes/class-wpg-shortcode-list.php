@@ -168,7 +168,7 @@ class WPG_Shortcode_List {
 				
 					if( function_exists( 'substr' ) ) {
 					
-					    $first_alphabet = strtolower( substr( get_the_title(), 0, 1, 'UTF-8' ) );
+					    $first_alphabet = strtolower( substr( get_the_title(), 0, 1) );
 						
 					} else {
 						
