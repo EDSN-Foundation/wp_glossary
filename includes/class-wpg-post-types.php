@@ -65,16 +65,17 @@ class WPG_Post_Types {
 			'menu_icon'				=> 'dashicons-editor-spellcheck',
 			'capability_type'		=> 'post',
 			'rewrite'				=> array( 'slug' => wpg_glossary_get_slug() ),
-			'public'				=> true,
-			'publicly_queryable'	=> true,
-			'show_ui'				=> true,
-			'show_in_nav_menus'		=> false,
-			'show_in_menu'			=> true,
-			'query_var'				=> true,
+			'public'				=> TRUE,
+			'publicly_queryable'	=> TRUE,
+			'show_ui'				=> TRUE,
+			'show_in_nav_menus'		=> FALSE,
+			'show_in_menu'			=> TRUE,
+			'query_var'				=> TRUE,
 			'has_archive'			=> wpg_glossary_is_archive(),
-			'hierarchical'			=> false,
+			'hierarchical'			=> FALSE,
 			'menu_position'			=> 58,
-			'supports'				=> array( 'title', 'excerpt', 'editor', 'thumbnail', 'author', 'comments' )
+			'supports'				=> array( 'title', 'excerpt', 'editor', 'thumbnail', 'author', 'comments' ),
+		    'show_in_rest'          => TRUE
 		) );
 
 		register_post_type( wpg_glossary_get_post_type(), $args );

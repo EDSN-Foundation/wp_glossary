@@ -75,7 +75,8 @@ final class WPCTN_Thumbnail {
 	 */
 	private function includes() {
  		include_once('class-wpctn-custom-thumbnail-shortcode.php');
- 		include_once('class-wpctn-custom-thumbnail-metabox.php');		
+ 		include_once('class-wpctn-custom-thumbnail-metabox.php');	
+ 		include_once('class-wpctn-custom-thumbnail-rest-operations.php' );	
 		if( is_admin() ) {
 			
 		} else {

@@ -83,7 +83,7 @@ final class WP_Glossary {
 		include_once( 'includes/class-wpg-install.php' );
 		include_once( 'includes/class-wpg-post-types.php' );
 		include_once( 'includes/class-wpg-shortcode-list.php' );
-		include_once( 'includes/class-wpg-widget-related-posts.php' );
+		include_once( 'includes/class-wpg-widget-related-posts.php' );			
 		include_once( 'includes/thumbnail/wpctn-thumbnail-plugin.php' );
 		include_once( 'includes/taxonomy/wpg-taxonomy-plugin.php');		
 		
