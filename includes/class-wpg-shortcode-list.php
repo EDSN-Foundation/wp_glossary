@@ -324,7 +324,7 @@ class WPG_Shortcode_List {
 					
 						echo apply_filters( 'wpg_list_filter_container_start', '<div class="wpg-list-filter-container">' );
 						
-							if( ! empty( $filters_arr ) ) {
+							if( ! empty( $filters_arr ) && $args['template'] !== 'category' )  {
 							
 								$active_filter = false;
 				
